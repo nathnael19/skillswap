@@ -4,11 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
+import 'package:skillswap/features/home/presentation/pages/home_page.dart';
 
 class RegisterPage extends StatefulWidget {
-  static route() => MaterialPageRoute(
-        builder: (context) => const RegisterPage(),
-      );
+  static MaterialPageRoute<dynamic> route() =>
+      MaterialPageRoute(builder: (context) => const RegisterPage());
   const RegisterPage({super.key});
 
   @override
@@ -58,16 +58,20 @@ class _RegisterPageState extends State<RegisterPage> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
-            // Navigate to home page or show success
+            Navigator.of(
+              context,
+            ).pushAndRemoveUntil(HomePage.route(), (route) => false);
           }
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(child: CircularProgressIndicator(color: tealColor));
+            return const Center(
+              child: CircularProgressIndicator(color: tealColor),
+            );
           }
 
           return SafeArea(
@@ -79,7 +83,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 20),
-                    // Title Container with rounded corners and shadow (matching image card feel)
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -107,7 +110,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 40),
 
-                          // Full Name Field
                           _buildLabel('FULL NAME'),
                           const SizedBox(height: 8),
                           _buildTextField(
@@ -117,7 +119,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 24),
 
-                          // Email Field
                           _buildLabel('EMAIL ADDRESS'),
                           const SizedBox(height: 8),
                           _buildTextField(
@@ -127,7 +128,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 24),
 
-                          // Password Field
                           _buildLabel('PASSWORD'),
                           const SizedBox(height: 8),
                           _buildTextField(
@@ -138,7 +138,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 24),
 
-                          // Confirm Password Field
                           _buildLabel('CONFIRM PASSWORD'),
                           const SizedBox(height: 8),
                           _buildTextField(
@@ -149,24 +148,26 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 48),
 
-                          // Create Account Button
                           SizedBox(
                             width: double.infinity,
                             height: 56,
                             child: ElevatedButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  if (passwordController.text != confirmPasswordController.text) {
+                                  if (passwordController.text !=
+                                      confirmPasswordController.text) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Passwords do not match')),
+                                      const SnackBar(
+                                        content: Text('Passwords do not match'),
+                                      ),
                                     );
                                     return;
                                   }
                                   context.read<AuthCubit>().signUp(
-                                        name: nameController.text.trim(),
-                                        email: emailController.text.trim(),
-                                        password: passwordController.text.trim(),
-                                      );
+                                    name: nameController.text.trim(),
+                                    email: emailController.text.trim(),
+                                    password: passwordController.text.trim(),
+                                  );
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -188,7 +189,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 48),
 
-                          // Log In Link
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -201,7 +201,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).pushReplacement(LoginPage.route());
+                                  Navigator.of(
+                                    context,
+                                  ).pushReplacement(LoginPage.route());
                                 },
                                 child: Text(
                                   "Log In",
@@ -278,7 +280,10 @@ class _RegisterPageState extends State<RegisterPage> {
           hintStyle: GoogleFonts.inter(color: Colors.black26),
           suffixIcon: Icon(icon, color: Colors.black38, size: 20),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
