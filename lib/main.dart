@@ -9,11 +9,7 @@ void main() async {
   await initDependencies();
   runApp(
     MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => serviceLocator<AuthCubit>(),
-        ),
-      ],
+      providers: [BlocProvider(create: (_) => serviceLocator<AuthCubit>())],
       child: const MyApp(),
     ),
   );
