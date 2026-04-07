@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:skillswap/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:skillswap/features/auth/domain/repositories/auth_repository.dart';
+import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/firebase_options.dart';
@@ -31,9 +32,15 @@ void _initAuth() {
   serviceLocator.registerFactory(
     () => UserSignUp(serviceLocator()),
   );
+  serviceLocator.registerFactory(
+    () => UserSignIn(serviceLocator()),
+  );
 
   // Cubits
   serviceLocator.registerLazySingleton(
-    () => AuthCubit(userSignUp: serviceLocator()),
+    () => AuthCubit(
+      userSignUp: serviceLocator(),
+      userSignIn: serviceLocator(),
+    ),
   );
 }
