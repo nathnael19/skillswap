@@ -4,9 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/register_page.dart';
+import 'package:skillswap/features/home/presentation/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
-  static route() => MaterialPageRoute(builder: (context) => const LoginPage());
+  static MaterialPageRoute<dynamic> route() =>
+      MaterialPageRoute(builder: (context) => const LoginPage());
   const LoginPage({super.key});
 
   @override
@@ -39,8 +41,9 @@ class _LoginPageState extends State<LoginPage> {
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
-            // Navigate to home page
-            // Navigator.of(context).pushAndRemoveUntil(MyHomePage.route(), (route) => false);
+            Navigator.of(
+              context,
+            ).pushAndRemoveUntil(HomePage.route(), (route) => false);
           }
         },
         builder: (context, state) {
