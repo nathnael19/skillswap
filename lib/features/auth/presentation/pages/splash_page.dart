@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/main.dart'; // Import to access MyHomePage
+import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -16,9 +16,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     Timer(const Duration(seconds: 2), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MyHomePage()),
-        );
+        Navigator.of(context).pushReplacement(LoginPage.route());
       }
     });
   }
