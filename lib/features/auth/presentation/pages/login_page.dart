@@ -3,11 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/features/auth/presentation/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
-  static route() => MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-      );
+  static route() => MaterialPageRoute(builder: (context) => const LoginPage());
   const LoginPage({super.key});
 
   @override
@@ -36,9 +35,9 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
             // Navigate to home page
             // Navigator.of(context).pushAndRemoveUntil(MyHomePage.route(), (route) => false);
@@ -46,7 +45,9 @@ class _LoginPageState extends State<LoginPage> {
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(child: CircularProgressIndicator(color: tealColor));
+            return const Center(
+              child: CircularProgressIndicator(color: tealColor),
+            );
           }
 
           return SafeArea(
@@ -132,9 +133,9 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             context.read<AuthCubit>().signIn(
-                                  email: emailController.text.trim(),
-                                  password: passwordController.text.trim(),
-                                );
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim(),
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -190,7 +191,8 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: _buildSocialButton(
                             label: 'GOOGLE',
-                            imageUrl: 'assets/google_logo.png', // Placeholder or use icon
+                            imageUrl:
+                                'assets/google_logo.png', // Placeholder or use icon
                             icon: Icons.g_mobiledata,
                           ),
                         ),
@@ -198,7 +200,8 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: _buildSocialButton(
                             label: 'APPLE',
-                            imageUrl: 'assets/apple_logo.png', // Placeholder or use icon
+                            imageUrl:
+                                'assets/apple_logo.png', // Placeholder or use icon
                             icon: Icons.apple,
                           ),
                         ),
@@ -219,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            // Navigate to Sign Up
+                            Navigator.of(context).push(RegisterPage.route());
                           },
                           child: Text(
                             "Sign Up",
@@ -292,7 +295,10 @@ class _LoginPageState extends State<LoginPage> {
           hintStyle: GoogleFonts.inter(color: Colors.black26),
           prefixIcon: Icon(icon, color: Colors.black38, size: 20),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
