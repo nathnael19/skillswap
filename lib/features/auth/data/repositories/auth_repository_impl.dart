@@ -60,4 +60,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> currentUser() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        return left(ServerFailure('User not logged in.'));
+      }
+      return right(user.uid);
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }
