@@ -12,9 +12,68 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   int _currentIndex = 0;
+  late AnimationController _likeAnimationController;
+  late Animation<double> _likeScaleAnimation;
+  late Animation<double> _likeOpacityAnimation;
+  bool _showHeart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _likeAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _likeScaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.4)
+            .chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.4, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 40,
+      ),
+    ]).animate(_likeAnimationController);
+
+    _likeOpacityAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        weight: 20,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.0),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 0.0),
+        weight: 20,
+      ),
+    ]).animate(_likeAnimationController);
+  }
+
+  @override
+  void dispose() {
+    _likeAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _triggerLikeAnimation() {
+    setState(() {
+      _showHeart = true;
+    });
+    _likeAnimationController.forward(from: 0.0).then((_) {
+      setState(() {
+        _showHeart = false;
+      });
+      _nextCard();
+    });
+  }
 
   void _nextCard() {
     if (_currentIndex < mockUsers.length - 1) {
@@ -110,8 +169,10 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 12),
             Expanded(
               child: Stack(
+                alignment: Alignment.center,
                 children: [
                   GestureDetector(
+                    onDoubleTap: _triggerLikeAnimation,
                     onHorizontalDragEnd: (details) {
                       if (details.primaryVelocity != null) {
                         if (details.primaryVelocity! < -300) {
@@ -123,6 +184,32 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: _buildUserCard(currentUser, hasMoreUsers),
                   ),
+                  if (_showHeart)
+                    IgnorePointer(
+                      child: AnimatedBuilder(
+                        animation: _likeAnimationController,
+                        builder: (context, child) {
+                          return Opacity(
+                            opacity: _likeOpacityAnimation.value,
+                            child: Transform.scale(
+                              scale: _likeScaleAnimation.value,
+                              child: Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.favorite,
+                                  color: Colors.white,
+                                  size: 100,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   if (!hasMoreUsers)
                     Positioned.fill(
                       child: Container(
@@ -195,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                             size: 70,
                             iconSize: 32,
                             hasShadow: true,
-                            onTap: _nextCard,
+                            onTap: _triggerLikeAnimation,
                             enabled: hasMoreUsers,
                           ),
                           _buildCircleButton(
