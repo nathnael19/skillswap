@@ -18,6 +18,7 @@ class User extends Equatable {
   final String imageUrl;
   final Skill teaching;
   final Skill learning;
+  final String bio;
 
   const User({
     required this.id,
@@ -27,6 +28,7 @@ class User extends Equatable {
     required this.imageUrl,
     required this.teaching,
     required this.learning,
+    this.bio = '',
   });
 
   @override
@@ -38,5 +40,6 @@ class User extends Equatable {
     imageUrl,
     teaching,
     learning,
+    bio,
   ];
 }
