@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/data/mock_data.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'dart:ui';
+import '../widgets/filter_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -34,6 +35,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Animation<Offset> _swipePositionAnimation;
   late Animation<double> _swipeAngleAnimation;
   bool _isAnimatingOffScreen = false;
+
+  // Filter State
+  List<String> _selectedCategories = ['Design'];
+  String _selectedExpertise = 'Intermediate';
+  double _minRating = 4.0;
 
   @override
   void initState() {
@@ -263,6 +269,26 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FilterBottomSheet(
+        selectedCategories: _selectedCategories,
+        selectedExpertise: _selectedExpertise,
+        minRating: _minRating,
+        onApply: (categories, expertise, rating) {
+          setState(() {
+            _selectedCategories = categories;
+            _selectedExpertise = expertise;
+            _minRating = rating;
+          });
+        },
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -307,17 +333,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4F7),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.tune,
-                color: Color(0xFF1D2939),
-                size: 20,
+            child: GestureDetector(
+              onTap: _showFilterBottomSheet,
+              child: Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F4F7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.tune,
+                  color: Color(0xFF1D2939),
+                  size: 20,
+                ),
               ),
             ),
           ),
