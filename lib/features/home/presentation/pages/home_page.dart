@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../data/mock_data.dart';
-import '../../domain/models/user_model.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
+import 'package:skillswap/features/home/data/mock_data.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 
 class HomePage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -125,6 +129,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         centerTitle: true,
         actions: [
+          BlocListener<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is AuthInitial) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  LoginPage.route(),
+                  (route) => false,
+                );
+              }
+            },
+            child: IconButton(
+              icon: const Icon(Icons.logout, color: Colors.black54),
+              onPressed: () {
+                context.read<AuthCubit>().signOut();
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
