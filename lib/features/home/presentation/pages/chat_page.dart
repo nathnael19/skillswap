@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
+import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
 
 class ChatPage extends StatefulWidget {
   final String userName;
@@ -62,56 +63,64 @@ class _ChatPageState extends State<ChatPage> {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF101828)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          children: [
-            Stack(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage(widget.userImageUrl),
-                ),
-                if (widget.isOnline)
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      height: 12,
-                      width: 12,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF12B76A), // Success Green
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+        title: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MasterProfilePage()),
+            );
+          },
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundImage: AssetImage(widget.userImageUrl),
+                  ),
+                  if (widget.isOnline)
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        height: 12,
+                        width: 12,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF12B76A), // Success Green
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.userName,
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF101828),
-                    ),
-                  ),
-                  Text(
-                    '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ONLINE' : 'OFFLINE'}',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF667085),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.userName,
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF101828),
+                      ),
+                    ),
+                    Text(
+                      '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ONLINE' : 'OFFLINE'}',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF667085),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           Container(
