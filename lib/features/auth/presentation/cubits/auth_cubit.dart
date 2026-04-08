@@ -1,18 +1,35 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
+import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final UserSignUp _userSignUp;
   final UserSignIn _userSignIn;
+  final GetCurrentUser _getCurrentUser;
+  final UserSignOut _userSignOut;
 
   AuthCubit({
     required UserSignUp userSignUp,
     required UserSignIn userSignIn,
+    required GetCurrentUser getCurrentUser,
+    required UserSignOut userSignOut,
   })  : _userSignUp = userSignUp,
         _userSignIn = userSignIn,
+        _getCurrentUser = getCurrentUser,
+        _userSignOut = userSignOut,
         super(AuthInitial());
+
+  void getUserData() async {
+    final res = await _getCurrentUser();
+
+    res.fold(
+      (l) => emit(AuthInitial()),
+      (r) => emit(AuthSuccess(r)),
+    );
+  }
 
   void signUp({
     required String name,
@@ -49,6 +66,15 @@ class AuthCubit extends Cubit<AuthState> {
     res.fold(
       (l) => emit(AuthFailure(l.message)),
       (r) => emit(AuthSuccess(r)),
+    );
+  }
+
+  void signOut() async {
+    final res = await _userSignOut();
+
+    res.fold(
+      (l) => emit(AuthFailure(l.message)),
+      (r) => emit(AuthInitial()),
     );
   }
 }
