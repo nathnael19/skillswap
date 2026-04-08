@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/data/mock_data.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/search_page.dart';
+import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
 import 'dart:ui';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -270,6 +271,204 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  Widget _buildDiscoveryTab() {
+    final currentUser = mockUsers[_currentIndex];
+    final hasMoreUsers = _currentIndex < mockUsers.length - 1;
+    final isInteractionDisabled = _isAnimatingOffScreen || _showHeart || _showClose;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Text(
+                'TRENDING • CREATIVE ARTS',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                  color: const Color(0xFF667085),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${_currentIndex + 1}/${mockUsers.length}',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black45,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                // Next Card (Background)
+                if (_currentIndex + 1 < mockUsers.length)
+                  Transform.scale(
+                    scale: 0.9 + (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
+                    child: Opacity(
+                      opacity: 0.5 + (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
+                      child: _buildUserCard(mockUsers[_currentIndex + 1], true),
+                    ),
+                  ),
+
+                // Top Card (Draggable)
+                GestureDetector(
+                  onDoubleTap: _triggerLikeAnimation,
+                  onPanUpdate: _onPanUpdate,
+                  onPanEnd: _onPanEnd,
+                  child: Transform.translate(
+                    offset: _swipeOffset,
+                    child: Transform.rotate(
+                      angle: _swipeAngle,
+                      child: _buildUserCard(currentUser, hasMoreUsers),
+                    ),
+                  ),
+                ),
+
+                // Like/Dislike overlays...
+                if (_showHeart)
+                  IgnorePointer(
+                    child: AnimatedBuilder(
+                      animation: _likeAnimationController,
+                      builder: (context, child) {
+                        return Opacity(
+                          opacity: _likeOpacityAnimation.value,
+                          child: Transform.scale(
+                            scale: _likeScaleAnimation.value,
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.favorite,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                if (_showClose)
+                  IgnorePointer(
+                    child: AnimatedBuilder(
+                      animation: _dislikeAnimationController,
+                      builder: (context, child) {
+                        return Opacity(
+                          opacity: _dislikeOpacityAnimation.value,
+                          child: Transform.rotate(
+                            angle: _dislikeShakeAnimation.value,
+                            child: Transform.scale(
+                              scale: _dislikeScaleAnimation.value,
+                              child: Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 100,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                if (!hasMoreUsers)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.celebration, color: Colors.white, size: 48),
+                            const SizedBox(height: 16),
+                            Text(
+                              "You're all caught up!",
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                // Action Buttons Row (Restored as Positioned Overlap)
+                Positioned(
+                  bottom: -35, // Restoration of the overlap look
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildCircleButton(
+                          icon: Icons.close,
+                          color: Colors.white.withOpacity(0.2), // Glass effect
+                          iconColor: Colors.white,
+                          onTap: () => _runSwipeAnimation(false),
+                          enabled: hasMoreUsers && !isInteractionDisabled,
+                          isGlass: true,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildCircleButton(
+                          icon: Icons.favorite,
+                          color: const Color(0xFF9E6400), // Rich brown/orange
+                          iconColor: Colors.white,
+                          size: 84,
+                          iconSize: 34,
+                          hasShadow: true,
+                          onTap: () => _runSwipeAnimation(true),
+                          enabled: hasMoreUsers && !isInteractionDisabled,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildCircleButton(
+                          icon: Icons.chat_bubble_outline,
+                          color: Colors.white.withOpacity(0.2), // Glass effect
+                          iconColor: Colors.white,
+                          onTap: () {
+                            // Message logic
+                          },
+                          enabled: hasMoreUsers && !isInteractionDisabled,
+                          isGlass: true,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
+  }
+
   void _showFilterBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -293,18 +492,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = mockUsers[_currentIndex];
-    final hasMoreUsers = _currentIndex < mockUsers.length - 1;
+    String title = "SkillSwap";
+    Widget body = _buildDiscoveryTab();
+    List<Widget>? actions;
+    Widget? leading;
 
-    final isInteractionDisabled = _isAnimatingOffScreen || _showHeart || _showClose;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leadingWidth: 70, // Increase leading width for the circle
-        leading: Padding(
+    switch (_selectedIndex) {
+      case 0:
+        title = "SkillSwap";
+        body = _buildDiscoveryTab();
+        leading = Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: Center(
             child: GestureDetector(
@@ -329,17 +526,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
           ),
-        ),
-        title: Text(
-          'SkillSwap',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            fontSize: 24,
-            color: const Color(0xFF101828),
-          ),
-        ),
-        centerTitle: true,
-        actions: [
+        );
+        actions = [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
@@ -359,218 +547,56 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Text(
-                  'TRENDING • CREATIVE ARTS',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    color: const Color(0xFF667085),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  '${_currentIndex + 1}/${mockUsers.length}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black45,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  // Next Card (Background)
-                  if (_currentIndex + 1 < mockUsers.length)
-                    Transform.scale(
-                      scale: 0.9 + (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
-                      child: Opacity(
-                        opacity: 0.5 + (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
-                        child: _buildUserCard(mockUsers[_currentIndex + 1], true),
-                      ),
-                    ),
+        ];
+        break;
+      case 1:
+        title = "Matches";
+        body = const MatchesView();
+        leading = IconButton(
+          icon: const Icon(Icons.search, color: Color(0xFF1D2939)),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SearchPage()),
+            );
+          },
+        );
+        actions = [
+          IconButton(
+            icon: const Icon(Icons.tune, color: Color(0xFF1D2939)),
+            onPressed: _showFilterBottomSheet,
+          ),
+        ];
+        break;
+      case 2:
+        title = "Likes";
+        body = const Center(child: Text("Likes Content"));
+        break;
+      case 3:
+        title = "Profile";
+        body = const Center(child: Text("Profile Content"));
+        break;
+    }
 
-                  // Top Card (Draggable)
-                  GestureDetector(
-                    onDoubleTap: _triggerLikeAnimation,
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    child: Transform.translate(
-                      offset: _swipeOffset,
-                      child: Transform.rotate(
-                        angle: _swipeAngle,
-                        child: _buildUserCard(currentUser, hasMoreUsers),
-                      ),
-                    ),
-                  ),
-
-                  // Existing Like/Dislike overlays...
-                  if (_showHeart)
-                    IgnorePointer(
-                      child: AnimatedBuilder(
-                        animation: _likeAnimationController,
-                        builder: (context, child) {
-                          return Opacity(
-                            opacity: _likeOpacityAnimation.value,
-                            child: Transform.scale(
-                              scale: _likeScaleAnimation.value,
-                              child: Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.favorite,
-                                  color: Colors.white,
-                                  size: 100,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  if (_showClose)
-                    IgnorePointer(
-                      child: AnimatedBuilder(
-                        animation: _dislikeAnimationController,
-                        builder: (context, child) {
-                          return Opacity(
-                            opacity: _dislikeOpacityAnimation.value,
-                            child: Transform.rotate(
-                              angle: _dislikeShakeAnimation.value,
-                              child: Transform.scale(
-                                scale: _dislikeScaleAnimation.value,
-                                child: Container(
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 100,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  if (!hasMoreUsers)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.check_circle_outline,
-                                color: Colors.white,
-                                size: 80,
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'No more profiles!',
-                                style: GoogleFonts.inter(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _currentIndex = 0;
-                                  });
-                                },
-                                child: Text(
-                                  'Start Over',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xFFA67C52),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  Positioned(
-                    bottom: -35, // Push buttons down to overlap card edge
-                    left: 0,
-                    right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildCircleButton(
-                            icon: Icons.close,
-                            color: Colors.white.withOpacity(0.2), // Glass effect
-                            iconColor: Colors.white,
-                            onTap: () => _runSwipeAnimation(false),
-                            enabled: hasMoreUsers && !isInteractionDisabled,
-                            isGlass: true,
-                          ),
-                          const SizedBox(width: 16),
-                          _buildCircleButton(
-                            icon: Icons.favorite,
-                            color: const Color(0xFF9E6400), // Rich brown/orange
-                            iconColor: Colors.white,
-                            size: 84,
-                            iconSize: 34,
-                            hasShadow: true,
-                            onTap: () => _runSwipeAnimation(true),
-                            enabled: hasMoreUsers && !isInteractionDisabled,
-                          ),
-                          const SizedBox(width: 16),
-                          _buildCircleButton(
-                            icon: Icons.chat_bubble_outline,
-                            color: Colors.white.withOpacity(0.2), // Glass effect
-                            iconColor: Colors.white,
-                            onTap: () {
-                              // Message logic
-                            },
-                            enabled: hasMoreUsers && !isInteractionDisabled,
-                            isGlass: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 50),
-          ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leadingWidth: _selectedIndex == 0 ? 70 : null,
+        leading: leading,
+        title: Text(
+          title,
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.w700,
+            fontSize: 24,
+            color: const Color(0xFF101828),
+          ),
         ),
+        centerTitle: true,
+        actions: actions,
       ),
+      body: body,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
