@@ -123,6 +123,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+
+    _swipeAnimationController.addListener(() {
+      setState(() {
+        _swipeOffset = _swipePositionAnimation.value;
+        _swipeAngle = _swipeAngleAnimation.value;
+      });
+    });
   }
 
   @override
@@ -134,9 +141,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _triggerLikeAnimation() {
-    if (_isAnimatingOffScreen) return;
     setState(() {
       _showHeart = true;
+      _showClose = false; // Prevent overlap
     });
     _likeAnimationController.forward(from: 0.0).then((_) {
       setState(() {
@@ -147,9 +154,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _triggerDislikeAnimation() {
-    if (_isAnimatingOffScreen) return;
     setState(() {
       _showClose = true;
+      _showHeart = false; // Prevent overlap
     });
     _dislikeAnimationController.forward(from: 0.0).then((_) {
       setState(() {
@@ -181,6 +188,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _runSwipeAnimation(bool? isLiked) {
+    if (_isAnimatingOffScreen) return;
     setState(() => _isAnimatingOffScreen = true);
 
     final screenWidth = MediaQuery.of(context).size.width;
@@ -188,55 +196,69 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ? Offset.zero
         : Offset(isLiked ? screenWidth * 1.5 : -screenWidth * 1.5, 0);
 
+    // If swipe angle is near 0 (button tap), use a default rotation
+    double targetAngle = 0;
+    if (isLiked != null) {
+      if (_swipeAngle.abs() < 0.01) {
+        targetAngle = isLiked ? 0.4 : -0.4;
+      } else {
+        targetAngle = _swipeAngle * 2;
+      }
+    }
+
     _swipePositionAnimation = Tween<Offset>(
       begin: _swipeOffset,
       end: targetOffset,
     ).animate(CurvedAnimation(
       parent: _swipeAnimationController,
-      curve: Curves.easeOutBack,
+      curve: Curves.easeOut,
     ));
 
     _swipeAngleAnimation = Tween<double>(
       begin: _swipeAngle,
-      end: isLiked == null ? 0 : _swipeAngle * 2,
+      end: targetAngle,
     ).animate(CurvedAnimation(
       parent: _swipeAnimationController,
-      curve: Curves.easeOutBack,
+      curve: Curves.easeOut,
     ));
 
-    _swipeAnimationController.forward(from: 0.0);
-    _swipeAnimationController.addListener(() {
-      setState(() {
-        _swipeOffset = _swipePositionAnimation.value;
-        _swipeAngle = _swipeAngleAnimation.value;
-      });
-    });
-
-    _swipeAnimationController.addStatusListener((status) {
+    void statusListener(AnimationStatus status) {
       if (status == AnimationStatus.completed) {
-        // Reset state after animation
+        _swipeAnimationController.removeStatusListener(statusListener);
         if (isLiked != null) {
-          setState(() {
-            _swipeOffset = Offset.zero;
-            _swipeAngle = 0;
-            _isAnimatingOffScreen = false;
-          });
+          // DON'T reset offset yet, trigger the pop animation first
+          // This keeps the swiped card off-screen while the pop happens
           if (isLiked) {
             _triggerLikeAnimation();
           } else {
             _triggerDislikeAnimation();
           }
+          // The offset will be reset inside _nextCard()
         } else {
           setState(() => _isAnimatingOffScreen = false);
         }
       }
-    });
+    }
+
+    _swipeAnimationController.addStatusListener(statusListener);
+    _swipeAnimationController.forward(from: 0.0);
   }
 
   void _nextCard() {
     if (_currentIndex < mockUsers.length - 1) {
       setState(() {
         _currentIndex++;
+        // Reset offsets for the NEW card that just appeared
+        _swipeOffset = Offset.zero;
+        _swipeAngle = 0;
+        _isAnimatingOffScreen = false;
+      });
+    } else {
+      // If no more users, still reset the variables so the stack is clean
+      setState(() {
+        _swipeOffset = Offset.zero;
+        _swipeAngle = 0;
+        _isAnimatingOffScreen = false;
       });
     }
   }
@@ -246,6 +268,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final currentUser = mockUsers[_currentIndex];
     final hasMoreUsers = _currentIndex < mockUsers.length - 1;
+
+    final isInteractionDisabled = _isAnimatingOffScreen || _showHeart || _showClose;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -473,7 +497,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             color: Colors.white.withOpacity(0.2), // Glass effect
                             iconColor: Colors.white,
                             onTap: () => _runSwipeAnimation(false),
-                            enabled: hasMoreUsers,
+                            enabled: hasMoreUsers && !isInteractionDisabled,
                             isGlass: true,
                           ),
                           const SizedBox(width: 16),
@@ -485,14 +509,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             iconSize: 34,
                             hasShadow: true,
                             onTap: () => _runSwipeAnimation(true),
-                            enabled: hasMoreUsers,
+                            enabled: hasMoreUsers && !isInteractionDisabled,
                           ),
                           const SizedBox(width: 16),
                           _buildCircleButton(
                             icon: Icons.chat_bubble_outline,
                             color: Colors.white.withOpacity(0.2), // Glass effect
                             iconColor: Colors.white,
-                            onTap: () {},
+                            onTap: () {
+                              // Message logic
+                            },
+                            enabled: hasMoreUsers && !isInteractionDisabled,
                             isGlass: true,
                           ),
                         ],
