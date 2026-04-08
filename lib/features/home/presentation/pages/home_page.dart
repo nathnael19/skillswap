@@ -7,6 +7,7 @@ import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/likes_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/profile_view.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
+import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
 import 'dart:ui';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -704,12 +705,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               bottom: 80,
               left: 24,
               right: 24,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MasterProfilePage()),
+                  );
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                       Text(
                         '${user.name}, ${user.age}',
                         style: GoogleFonts.inter(
@@ -797,11 +805,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCircleButton({
     required IconData icon,
