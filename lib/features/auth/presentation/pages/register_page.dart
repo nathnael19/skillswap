@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
+import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
 import 'package:skillswap/features/home/presentation/pages/home_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -62,19 +63,26 @@ class _RegisterPageState extends State<RegisterPage> {
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
-            Navigator.of(
-              context,
-            ).pushAndRemoveUntil(HomePage.route(), (route) => false);
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => RegistrationSuccessOverlay(
+                onAnimationComplete: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    HomePage.route(),
+                    (route) => false,
+                  );
+                },
+              ),
+            );
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: tealColor),
-            );
-          }
+          final isLoading = state is AuthLoading;
 
-          return SafeArea(
+          return AbsorbPointer(
+            absorbing: isLoading,
+            child: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Form(
@@ -152,24 +160,29 @@ class _RegisterPageState extends State<RegisterPage> {
                             width: double.infinity,
                             height: 56,
                             child: ElevatedButton(
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  if (passwordController.text !=
-                                      confirmPasswordController.text) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Passwords do not match'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  context.read<AuthCubit>().signUp(
-                                    name: nameController.text.trim(),
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim(),
-                                  );
-                                }
-                              },
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      if (formKey.currentState!.validate()) {
+                                        if (passwordController.text !=
+                                            confirmPasswordController.text) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content:
+                                                  Text('Passwords do not match'),
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        context.read<AuthCubit>().signUp(
+                                              name: nameController.text.trim(),
+                                              email: emailController.text.trim(),
+                                              password:
+                                                  passwordController.text.trim(),
+                                            );
+                                      }
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: tealColor,
                                 foregroundColor: Colors.white,
@@ -178,13 +191,22 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                                 elevation: 2,
                               ),
-                              child: Text(
-                                'Create Account',
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Create Account',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 48),
@@ -224,8 +246,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
-          );
-        },
+          ),
+        );
+      },
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(24.0),
