@@ -47,199 +47,211 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: tealColor),
-            );
-          }
+          final isLoading = state is AuthLoading;
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
-                    // Logo Text
-                    Text(
-                      'THE CURATOR',
-                      style: GoogleFonts.lora(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 3,
-                        color: tealColor,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // Welcome Title
-                    Text(
-                      'Welcome Back',
-                      style: GoogleFonts.inter(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF1E1E1E),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Subtitle
-                    Text(
-                      'Please enter your credentials to continue.',
-                      style: GoogleFonts.lora(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Email Field
-                    _buildLabel('EMAIL ADDRESS'),
-                    const SizedBox(height: 8),
-                    _buildTextField(
-                      controller: emailController,
-                      hint: 'curator@skillswap.com',
-                      icon: Icons.mail_outline,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Password Field
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildLabel('PASSWORD'),
-                        Text(
-                          'FORGOT PASSWORD?',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                            color: tealColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildTextField(
-                      controller: passwordController,
-                      hint: '........',
-                      icon: Icons.lock_outline,
-                      isPassword: true,
-                    ),
-                    const SizedBox(height: 40),
-
-                    // Sign In Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            context.read<AuthCubit>().signIn(
-                              email: emailController.text.trim(),
-                              password: passwordController.text.trim(),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: tealColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          elevation: 2,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Sign In',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward, size: 18),
-                          ],
+          return AbsorbPointer(
+            absorbing: isLoading,
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 60),
+                      // Logo Text
+                      Text(
+                        'THE CURATOR',
+                        style: GoogleFonts.lora(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 3,
+                          color: tealColor,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 48),
+                      const SizedBox(height: 32),
+                      // Welcome Title
+                      Text(
+                        'Welcome Back',
+                        style: GoogleFonts.inter(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF1E1E1E),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Subtitle
+                      Text(
+                        'Please enter your credentials to continue.',
+                        style: GoogleFonts.lora(
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 48),
 
-                    // Divider
-                    Row(
-                      children: [
-                        const Expanded(child: Divider(color: borderColor)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'OR CONTINUE WITH',
+                      // Email Field
+                      _buildLabel('EMAIL ADDRESS'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: emailController,
+                        hint: 'curator@skillswap.com',
+                        icon: Icons.mail_outline,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Password Field
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildLabel('PASSWORD'),
+                          Text(
+                            'FORGOT PASSWORD?',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              letterSpacing: 1,
-                              color: Colors.black26,
-                            ),
-                          ),
-                        ),
-                        const Expanded(child: Divider(color: borderColor)),
-                      ],
-                    ),
-                    const SizedBox(height: 40),
-
-                    // Social Login Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildSocialButton(
-                            label: 'GOOGLE',
-                            imageUrl:
-                                'assets/google_logo.png', // Placeholder or use icon
-                            icon: Icons.g_mobiledata,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildSocialButton(
-                            label: 'APPLE',
-                            imageUrl:
-                                'assets/apple_logo.png', // Placeholder or use icon
-                            icon: Icons.apple,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Sign Up Link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account? ",
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(RegisterPage.route());
-                          },
-                          child: Text(
-                            "Sign Up",
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
                               color: tealColor,
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: passwordController,
+                        hint: '........',
+                        icon: Icons.lock_outline,
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Sign In Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (formKey.currentState!.validate()) {
+                                    context.read<AuthCubit>().signIn(
+                                      email: emailController.text.trim(),
+                                      password: passwordController.text.trim(),
+                                    );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: tealColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            elevation: 2,
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Sign In',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.arrow_forward, size: 18),
+                                  ],
+                                ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                      ),
+                      const SizedBox(height: 48),
+
+                      // Divider
+                      Row(
+                        children: [
+                          const Expanded(child: Divider(color: borderColor)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Text(
+                              'OR CONTINUE WITH',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1,
+                                color: Colors.black26,
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: Divider(color: borderColor)),
+                        ],
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Social Login Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildSocialButton(
+                              label: 'GOOGLE',
+                              imageUrl:
+                                  'assets/google_logo.png', // Placeholder or use icon
+                              icon: Icons.g_mobiledata,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildSocialButton(
+                              label: 'APPLE',
+                              imageUrl:
+                                  'assets/apple_logo.png', // Placeholder or use icon
+                              icon: Icons.apple,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+
+                      // Sign Up Link
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Don't have an account? ",
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(RegisterPage.route());
+                            },
+                            child: Text(
+                              "Sign Up",
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: tealColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -249,7 +261,7 @@ class _LoginPageState extends State<LoginPage> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Text(
-          '© 2024 THE CURATOR • SKILLSWAP ECOSYSTEM',
+          '© 2026 THE CURATOR • SKILLSWAP ECOSYSTEM',
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
             fontSize: 8,
