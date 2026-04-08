@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/pages/review_session_page.dart';
 import 'dart:ui';
 
 class LiveSessionPage extends StatelessWidget {
@@ -283,7 +284,7 @@ class LiveSessionPage extends StatelessWidget {
                     _buildControlButton(Icons.videocam_outlined),
                     _buildShareButton(),
                     _buildControlButton(Icons.assignment_outlined),
-                    _buildEndCallButton(),
+                    _buildEndCallButton(context),
                   ],
                 ),
               ),
@@ -356,15 +357,23 @@ class LiveSessionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEndCallButton() {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: const BoxDecoration(
-        color: Color(0xFFD92D20),
-        shape: BoxShape.circle,
+  Widget _buildEndCallButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ReviewSessionPage()),
+        );
+      },
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: const BoxDecoration(
+          color: Color(0xFFD92D20),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.call_end, color: Colors.white, size: 24),
       ),
-      child: const Icon(Icons.call_end, color: Colors.white, size: 24),
     );
   }
 }
