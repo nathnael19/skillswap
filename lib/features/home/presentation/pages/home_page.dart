@@ -4,6 +4,7 @@ import 'package:skillswap/features/home/data/mock_data.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/search_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
+import 'package:skillswap/features/home/presentation/widgets/likes_view.dart';
 import 'dart:ui';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -570,7 +571,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         break;
       case 2:
         title = "Likes";
-        body = const Center(child: Text("Likes Content"));
+        body = const LikesView();
         break;
       case 3:
         title = "Profile";
