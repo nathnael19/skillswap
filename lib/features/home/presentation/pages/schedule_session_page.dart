@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
 
 class ScheduleSessionPage extends StatelessWidget {
   const ScheduleSessionPage({super.key});
@@ -53,7 +54,7 @@ class ScheduleSessionPage extends StatelessWidget {
             const SizedBox(height: 32),
             _buildMeetingHub(),
             const SizedBox(height: 40),
-            _buildConfirmButton(),
+            _buildConfirmButton(context),
             const SizedBox(height: 20),
             Center(
               child: Text(
@@ -559,36 +560,44 @@ class ScheduleSessionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildConfirmButton() {
-    return Container(
-      width: double.infinity,
-      height: 64,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B6A7A),
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0B6A7A).withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle_outline, color: Colors.white, size: 24),
-            const SizedBox(width: 12),
-            Text(
-              'Confirm Session',
-              style: GoogleFonts.outfit(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
+  Widget _buildConfirmButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LiveSessionPage()),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        height: 64,
+        decoration: BoxDecoration(
+          color: const Color(0xFF0B6A7A),
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0B6A7A).withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
+        ),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.white, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                'Confirm Session',
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
