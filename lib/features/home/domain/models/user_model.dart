@@ -43,3 +43,24 @@ class User extends Equatable {
     bio,
   ];
 }
+
+class Conversation extends Equatable {
+  final User user;
+  final String lastMessage;
+  final String timestamp;
+  final bool isOnline;
+  final bool hasUnread;
+  final String skillTag;
+
+  const Conversation({
+    required this.user,
+    required this.lastMessage,
+    required this.timestamp,
+    this.isOnline = false,
+    this.hasUnread = false,
+    required this.skillTag,
+  });
+
+  @override
+  List<Object?> get props => [user, lastMessage, timestamp, isOnline, hasUnread, skillTag];
+}
