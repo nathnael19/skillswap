@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 
 class ChatPage extends StatefulWidget {
   final String userName;
@@ -25,7 +26,8 @@ class _ChatPageState extends State<ChatPage> {
 
   final List<Map<String, dynamic>> _messages = [
     {
-      'text': 'Hi there! I saw your profile and noticed you\'re looking to learn more about advanced React patterns. I\'d love to help out!',
+      'text':
+          'Hi there! I saw your profile and noticed you\'re looking to learn more about advanced React patterns. I\'d love to help out!',
       'isMe': false,
       'time': '10:24 AM',
     },
@@ -35,13 +37,15 @@ class _ChatPageState extends State<ChatPage> {
       'time': '10:24 AM',
     },
     {
-      'text': 'Hey Elena! That sounds like a perfect match. I\'m definitely interested in those React patterns. I\'ve been struggling with compound components lately.',
+      'text':
+          'Hey Elena! That sounds like a perfect match. I\'m definitely interested in those React patterns. I\'ve been struggling with compound components lately.',
       'isMe': true,
       'time': '10:28 AM',
       'isSeen': true,
     },
     {
-      'text': 'Compound components are my favorite! I can show you how I built the new design system modules. When are you free for a session?',
+      'text':
+          'Compound components are my favorite! I can show you how I built the new design system modules. When are you free for a session?',
       'isMe': false,
       'time': '10:30 AM',
     },
@@ -117,8 +121,19 @@ class _ChatPageState extends State<ChatPage> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.calendar_today_outlined, size: 20, color: Color(0xFF1D2939)),
-              onPressed: () {},
+              icon: const Icon(
+                Icons.calendar_today_outlined,
+                size: 20,
+                color: Color(0xFF1D2939),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScheduleSessionPage(),
+                  ),
+                );
+              },
             ),
           ),
           IconButton(
@@ -173,16 +188,25 @@ class _ChatPageState extends State<ChatPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment: isMe
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
             children: [
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: isMe ? const Color(0xFF0B6A7A) : const Color(0xFFE4E7EC),
+                    color: isMe
+                        ? const Color(0xFF0B6A7A)
+                        : const Color(0xFFE4E7EC),
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(20),
                       topRight: const Radius.circular(20),
@@ -217,18 +241,26 @@ class _ChatPageState extends State<ChatPage> {
               if (isMe) ...[
                 Text(
                   msg['time'],
-                  style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF98A2B3)),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: const Color(0xFF98A2B3),
+                  ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
                   Icons.done_all,
                   size: 16,
-                  color: (msg['isSeen'] ?? false) ? const Color(0xFF2E90FA) : const Color(0xFF98A2B3),
+                  color: (msg['isSeen'] ?? false)
+                      ? const Color(0xFF2E90FA)
+                      : const Color(0xFF98A2B3),
                 ),
               ] else
                 Text(
                   msg['time'],
-                  style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF98A2B3)),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: const Color(0xFF98A2B3),
+                  ),
                 ),
             ],
           ),
@@ -257,7 +289,17 @@ class _ChatPageState extends State<ChatPage> {
             const SizedBox(width: 8),
             _buildActionButton('Available now'),
             const SizedBox(width: 8),
-            _buildActionButton('Schedule a 30m swap'),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScheduleSessionPage(),
+                  ),
+                );
+              },
+              child: _buildActionButton('Schedule a 30m swap'),
+            ),
           ],
         ),
       ),
@@ -293,7 +335,11 @@ class _ChatPageState extends State<ChatPage> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: Color(0xFF667085), size: 30),
+            icon: const Icon(
+              Icons.add_circle_outline,
+              color: Color(0xFF667085),
+              size: 30,
+            ),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
@@ -310,7 +356,9 @@ class _ChatPageState extends State<ChatPage> {
                   controller: _messageController,
                   decoration: InputDecoration(
                     hintText: 'Type a message...',
-                    hintStyle: GoogleFonts.inter(color: const Color(0xFF98A2B3)),
+                    hintStyle: GoogleFonts.inter(
+                      color: const Color(0xFF98A2B3),
+                    ),
                     border: InputBorder.none,
                   ),
                 ),
