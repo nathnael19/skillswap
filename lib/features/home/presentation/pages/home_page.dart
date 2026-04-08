@@ -13,13 +13,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
   int _currentIndex = 0;
   late AnimationController _likeAnimationController;
   late Animation<double> _likeScaleAnimation;
   late Animation<double> _likeOpacityAnimation;
   bool _showHeart = false;
+
+  late AnimationController _dislikeAnimationController;
+  late Animation<double> _dislikeScaleAnimation;
+  late Animation<double> _dislikeOpacityAnimation;
+  late Animation<double> _dislikeShakeAnimation;
+  bool _showClose = false;
 
   @override
   void initState() {
@@ -56,11 +62,60 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         weight: 20,
       ),
     ]).animate(_likeAnimationController);
+
+    _dislikeAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _dislikeScaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.4)
+            .chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.4, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 40,
+      ),
+    ]).animate(_dislikeAnimationController);
+
+    _dislikeOpacityAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        weight: 20,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.0),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 0.0),
+        weight: 20,
+      ),
+    ]).animate(_dislikeAnimationController);
+
+    _dislikeShakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: -0.1),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -0.1, end: 0.1),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.1, end: 0.0),
+        weight: 25,
+      ),
+    ]).animate(_dislikeAnimationController);
   }
 
   @override
   void dispose() {
     _likeAnimationController.dispose();
+    _dislikeAnimationController.dispose();
     super.dispose();
   }
 
@@ -71,6 +126,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _likeAnimationController.forward(from: 0.0).then((_) {
       setState(() {
         _showHeart = false;
+      });
+      _nextCard();
+    });
+  }
+
+  void _triggerDislikeAnimation() {
+    setState(() {
+      _showClose = true;
+    });
+    _dislikeAnimationController.forward(from: 0.0).then((_) {
+      setState(() {
+        _showClose = false;
       });
       _nextCard();
     });
@@ -222,6 +289,35 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         },
                       ),
                     ),
+                  if (_showClose)
+                    IgnorePointer(
+                      child: AnimatedBuilder(
+                        animation: _dislikeAnimationController,
+                        builder: (context, child) {
+                          return Opacity(
+                            opacity: _dislikeOpacityAnimation.value,
+                            child: Transform.rotate(
+                              angle: _dislikeShakeAnimation.value,
+                              child: Transform.scale(
+                                scale: _dislikeScaleAnimation.value,
+                                child: Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 100,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   if (!hasMoreUsers)
                     Positioned.fill(
                       child: Container(
@@ -281,7 +377,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             icon: Icons.close,
                             color: Colors.white.withOpacity(0.2), // Glass effect
                             iconColor: Colors.white,
-                            onTap: _nextCard,
+                            onTap: _triggerDislikeAnimation,
                             enabled: hasMoreUsers,
                             isGlass: true,
                           ),
