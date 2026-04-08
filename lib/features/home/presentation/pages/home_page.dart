@@ -181,6 +181,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
+                clipBehavior: Clip.none, // Allow buttons to overflow the bottom
                 children: [
                   GestureDetector(
                     onDoubleTap: _triggerLikeAnimation,
@@ -310,7 +311,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 50),
           ],
         ),
       ),
