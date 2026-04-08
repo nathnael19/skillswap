@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../data/mock_data.dart';
 
+import 'package:skillswap/features/home/presentation/pages/chat_page.dart';
+
 class MatchesView extends StatelessWidget {
   const MatchesView({super.key});
 
@@ -13,12 +15,12 @@ class MatchesView extends StatelessWidget {
         const SizedBox(height: 24),
         _buildSectionHeader('NEW MATCHES • SUCCESS'),
         const SizedBox(height: 16),
-        _buildNewMatchesList(),
+        _buildNewMatchesList(context),
         const SizedBox(height: 32),
         _buildSectionHeader('CONVERSATIONS • ACTIVE'),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildConversationsList(),
+          child: _buildConversationsList(context),
         ),
       ],
     );
@@ -39,75 +41,90 @@ class MatchesView extends StatelessWidget {
     );
   }
 
-  Widget _buildNewMatchesList() {
+  Widget _buildNewMatchesList(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: newMatches.map((user) {
           final isTopMatch = user.name == 'Alex'; // For mockup fidelity
-          return Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isTopMatch 
-                            ? const Color(0xFF9E6400) // Gold
-                            : const Color(0xFF0B6A7A).withOpacity(0.5), // Teal
-                          width: 2,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Image.asset(
-                          user.imageUrl,
-                          width: 72,
-                          height: 72,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    if (isTopMatch)
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF9E6400),
-                            shape: BoxShape.circle,
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatPage(
+                    userName: user.name,
+                    userImageUrl: user.imageUrl,
+                    userTitle: user.teaching.name,
+                    isOnline: true,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Column(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isTopMatch 
+                              ? const Color(0xFF9E6400) // Gold
+                              : const Color(0xFF0B6A7A).withOpacity(0.5), // Teal
+                            width: 2,
                           ),
-                          child: const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(40),
+                          child: Image.asset(
+                            user.imageUrl,
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  user.name,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF101828),
+                      if (isTopMatch)
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF9E6400),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-                Text(
-                  user.teaching.name.toUpperCase(),
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF667085),
-                    letterSpacing: 0.5,
+                  const SizedBox(height: 8),
+                  Text(
+                    user.name,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF101828),
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    user.teaching.name.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF667085),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),
@@ -115,26 +132,40 @@ class MatchesView extends StatelessWidget {
     );
   }
 
-  Widget _buildConversationsList() {
+  Widget _buildConversationsList(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       itemCount: mockConversations.length,
       itemBuilder: (context, index) {
         final conv = mockConversations[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatPage(
+                  userName: conv.user.name,
+                  userImageUrl: conv.user.imageUrl,
+                  userTitle: conv.user.teaching.name,
+                  isOnline: conv.isOnline,
+                ),
               ),
-            ],
-          ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
           child: Row(
             children: [
               // Avatar with Online Status
@@ -236,8 +267,9 @@ class MatchesView extends StatelessWidget {
                 ),
             ],
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 }
