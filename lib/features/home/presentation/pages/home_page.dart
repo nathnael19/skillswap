@@ -27,6 +27,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Animation<double> _dislikeShakeAnimation;
   bool _showClose = false;
 
+  // Swipe State
+  Offset _swipeOffset = Offset.zero;
+  double _swipeAngle = 0;
+  late AnimationController _swipeAnimationController;
+  late Animation<Offset> _swipePositionAnimation;
+  late Animation<double> _swipeAngleAnimation;
+  bool _isAnimatingOffScreen = false;
+
   @override
   void initState() {
     super.initState();
@@ -110,16 +118,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         weight: 25,
       ),
     ]).animate(_dislikeAnimationController);
+
+    _swipeAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   @override
   void dispose() {
     _likeAnimationController.dispose();
     _dislikeAnimationController.dispose();
+    _swipeAnimationController.dispose();
     super.dispose();
   }
 
   void _triggerLikeAnimation() {
+    if (_isAnimatingOffScreen) return;
     setState(() {
       _showHeart = true;
     });
@@ -132,6 +147,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _triggerDislikeAnimation() {
+    if (_isAnimatingOffScreen) return;
     setState(() {
       _showClose = true;
     });
@@ -143,6 +159,80 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
+  void _onPanUpdate(DragUpdateDetails details) {
+    if (_isAnimatingOffScreen) return;
+    setState(() {
+      _swipeOffset += details.delta;
+      _swipeAngle = _swipeOffset.dx / 1000; // Subtle rotation
+    });
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    if (_isAnimatingOffScreen) return;
+    final threshold = MediaQuery.of(context).size.width / 4;
+    if (_swipeOffset.dx > threshold) {
+      _runSwipeAnimation(true);
+    } else if (_swipeOffset.dx < -threshold) {
+      _runSwipeAnimation(false);
+    } else {
+      // Snap back to zero
+      _runSwipeAnimation(null);
+    }
+  }
+
+  void _runSwipeAnimation(bool? isLiked) {
+    setState(() => _isAnimatingOffScreen = true);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final targetOffset = isLiked == null
+        ? Offset.zero
+        : Offset(isLiked ? screenWidth * 1.5 : -screenWidth * 1.5, 0);
+
+    _swipePositionAnimation = Tween<Offset>(
+      begin: _swipeOffset,
+      end: targetOffset,
+    ).animate(CurvedAnimation(
+      parent: _swipeAnimationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _swipeAngleAnimation = Tween<double>(
+      begin: _swipeAngle,
+      end: isLiked == null ? 0 : _swipeAngle * 2,
+    ).animate(CurvedAnimation(
+      parent: _swipeAnimationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _swipeAnimationController.forward(from: 0.0);
+    _swipeAnimationController.addListener(() {
+      setState(() {
+        _swipeOffset = _swipePositionAnimation.value;
+        _swipeAngle = _swipeAngleAnimation.value;
+      });
+    });
+
+    _swipeAnimationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // Reset state after animation
+        if (isLiked != null) {
+          setState(() {
+            _swipeOffset = Offset.zero;
+            _swipeAngle = 0;
+            _isAnimatingOffScreen = false;
+          });
+          if (isLiked) {
+            _triggerLikeAnimation();
+          } else {
+            _triggerDislikeAnimation();
+          }
+        } else {
+          setState(() => _isAnimatingOffScreen = false);
+        }
+      }
+    });
+  }
+
   void _nextCard() {
     if (_currentIndex < mockUsers.length - 1) {
       setState(() {
@@ -151,13 +241,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  void _previousCard() {
-    if (_currentIndex > 0) {
-      setState(() {
-        _currentIndex--;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,21 +331,33 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
-                clipBehavior: Clip.none, // Allow buttons to overflow the bottom
+                clipBehavior: Clip.none,
                 children: [
+                  // Next Card (Background)
+                  if (_currentIndex + 1 < mockUsers.length)
+                    Transform.scale(
+                      scale: 0.9 + (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
+                      child: Opacity(
+                        opacity: 0.5 + (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
+                        child: _buildUserCard(mockUsers[_currentIndex + 1], true),
+                      ),
+                    ),
+
+                  // Top Card (Draggable)
                   GestureDetector(
                     onDoubleTap: _triggerLikeAnimation,
-                    onHorizontalDragEnd: (details) {
-                      if (details.primaryVelocity != null) {
-                        if (details.primaryVelocity! < -300) {
-                          _nextCard();
-                        } else if (details.primaryVelocity! > 300) {
-                          _previousCard();
-                        }
-                      }
-                    },
-                    child: _buildUserCard(currentUser, hasMoreUsers),
+                    onPanUpdate: _onPanUpdate,
+                    onPanEnd: _onPanEnd,
+                    child: Transform.translate(
+                      offset: _swipeOffset,
+                      child: Transform.rotate(
+                        angle: _swipeAngle,
+                        child: _buildUserCard(currentUser, hasMoreUsers),
+                      ),
+                    ),
                   ),
+
+                  // Existing Like/Dislike overlays...
                   if (_showHeart)
                     IgnorePointer(
                       child: AnimatedBuilder(
@@ -377,7 +472,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             icon: Icons.close,
                             color: Colors.white.withOpacity(0.2), // Glass effect
                             iconColor: Colors.white,
-                            onTap: _triggerDislikeAnimation,
+                            onTap: () => _runSwipeAnimation(false),
                             enabled: hasMoreUsers,
                             isGlass: true,
                           ),
@@ -389,7 +484,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             size: 84,
                             iconSize: 34,
                             hasShadow: true,
-                            onTap: _triggerLikeAnimation,
+                            onTap: () => _runSwipeAnimation(true),
                             enabled: hasMoreUsers,
                           ),
                           const SizedBox(width: 16),
