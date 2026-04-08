@@ -5,6 +5,7 @@ import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/search_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/likes_view.dart';
+import 'package:skillswap/features/home/presentation/widgets/profile_view.dart';
 import 'dart:ui';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -574,8 +575,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         body = const LikesView();
         break;
       case 3:
-        title = "Profile";
-        body = const Center(child: Text("Profile Content"));
+        title = "SkillSwap";
+        body = const ProfileView();
+        leading = null;
+        actions = [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              icon: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF1D2939), size: 28),
+              onPressed: () {},
+            ),
+          ),
+        ];
         break;
     }
 
