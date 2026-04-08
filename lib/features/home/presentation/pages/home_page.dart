@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/presentation/pages/search_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/likes_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/profile_view.dart';
+import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'dart:ui';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -583,7 +584,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             padding: const EdgeInsets.only(right: 16.0),
             child: IconButton(
               icon: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF1D2939), size: 28),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WalletPage()),
+                );
+              },
             ),
           ),
         ];
