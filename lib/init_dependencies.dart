@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:skillswap/core/storage/firebase_storage_service.dart';
+import 'package:skillswap/core/storage/storage_service.dart';
 import 'package:skillswap/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:skillswap/features/auth/domain/repositories/auth_repository.dart';
 import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
@@ -20,6 +23,11 @@ Future<void> initDependencies() async {
 
   serviceLocator.registerLazySingleton(() => FirebaseAuth.instance);
   serviceLocator.registerLazySingleton(() => FirebaseFirestore.instance);
+  serviceLocator.registerLazySingleton(() => FirebaseStorage.instance);
+
+  serviceLocator.registerLazySingleton<StorageService>(
+    () => FirebaseStorageService(serviceLocator()),
+  );
 
   _initAuth();
 }
