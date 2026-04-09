@@ -41,10 +41,17 @@ final List<User> mockUsers = [
     rating: 5.0,
     imageUrl: 'assets/home.png',
     teaching: const Skill(
-      name: 'Visual Design',
+      name: 'UI Design',
       category: 'Design',
+      type: 'teach',
+      level: 'Expert',
     ),
-    learning: const Skill(name: 'Italian Cuisine', category: 'Cooking'),
+    learning: const Skill(
+      name: 'Python',
+      category: 'Development',
+      type: 'learn',
+      level: 'Beginner',
+    ),
     bio: 'That portfolio review really helped...',
   ),
   User(
@@ -56,8 +63,9 @@ final List<User> mockUsers = [
     teaching: const Skill(
       name: 'React.js',
       category: 'Development',
+      type: 'teach',
     ),
-    learning: const Skill(name: 'German Language', category: 'Languages'),
+    learning: const Skill(name: 'German Language', category: 'Languages', type: 'learn'),
     bio: 'Are you free for our React sessio...',
   ),
   User(
@@ -67,10 +75,17 @@ final List<User> mockUsers = [
     rating: 4.8,
     imageUrl: 'assets/home.png',
     teaching: const Skill(
-      name: 'Chef de Cuisine',
+      name: 'Italian Cuisine',
       category: 'Cooking',
+      type: 'teach',
+      level: 'Expert',
     ),
-    learning: const Skill(name: 'Graphic Design', category: 'Design'),
+    learning: const Skill(
+      name: 'Graphic Design',
+      category: 'Design',
+      type: 'learn',
+      level: 'Intermediate',
+    ),
     bio: 'Mastering the art of sourdough.',
   ),
   User(
@@ -79,8 +94,8 @@ final List<User> mockUsers = [
     age: 29,
     rating: 4.9,
     imageUrl: 'assets/home.png',
-    teaching: const Skill(name: 'Python', category: 'Development'),
-    learning: const Skill(name: 'Spanish', category: 'Languages'),
+    teaching: const Skill(name: 'Python', category: 'Development', type: 'teach'),
+    learning: const Skill(name: 'Spanish', category: 'Languages', type: 'learn'),
     bio: 'Python expert ready to swap.',
   ),
   User(
@@ -89,8 +104,8 @@ final List<User> mockUsers = [
     age: 25,
     rating: 4.8,
     imageUrl: 'assets/home.png',
-    teaching: const Skill(name: 'Piano', category: 'Music'),
-    learning: const Skill(name: 'Cooking', category: 'Cooking'),
+    teaching: const Skill(name: 'Piano', category: 'Music', type: 'teach'),
+    learning: const Skill(name: 'Cooking', category: 'Cooking', type: 'learn'),
     bio: 'Teaching classical piano.',
   ),
   User(
