@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/widgets/app_button.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
+import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
 import 'package:skillswap/features/home/presentation/pages/home_page.dart';
 
@@ -118,97 +120,63 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 40),
 
-                          _buildLabel('FULL NAME'),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            controller: nameController,
-                            hint: 'Julian Vane',
-                            icon: Icons.person_outline,
-                          ),
-                          const SizedBox(height: 24),
-
-                          _buildLabel('EMAIL ADDRESS'),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            controller: emailController,
-                            hint: 'julian@nexus.exchange',
-                            icon: Icons.mail_outline,
-                          ),
-                          const SizedBox(height: 24),
-
-                          _buildLabel('PASSWORD'),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            controller: passwordController,
-                            hint: '........',
-                            icon: Icons.lock_outline,
-                            isPassword: true,
-                          ),
-                          const SizedBox(height: 24),
-
-                          _buildLabel('CONFIRM PASSWORD'),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            controller: confirmPasswordController,
-                            hint: '........',
-                            icon: Icons.verified_user_outlined,
-                            isPassword: true,
-                          ),
-                          const SizedBox(height: 48),
-
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                      if (formKey.currentState!.validate()) {
-                                        if (passwordController.text !=
-                                            confirmPasswordController.text) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content:
-                                                  Text('Passwords do not match'),
-                                            ),
-                                          );
-                                          return;
-                                        }
-                                        context.read<AuthCubit>().signUp(
-                                              name: nameController.text.trim(),
-                                              email: emailController.text.trim(),
-                                              password:
-                                                  passwordController.text.trim(),
-                                            );
-                                      }
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: tealColor,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28),
-                                ),
-                                elevation: 2,
-                              ),
-                              child: isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Text(
-                                      'Create Account',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                            AuthTextField(
+                              label: 'FULL NAME',
+                              controller: nameController,
+                              hint: 'Julian Vane',
+                              icon: Icons.person_outline,
                             ),
-                          ),
+                            const SizedBox(height: 24),
+
+                            AuthTextField(
+                              label: 'EMAIL ADDRESS',
+                              controller: emailController,
+                              hint: 'julian@nexus.exchange',
+                              icon: Icons.mail_outline,
+                            ),
+                            const SizedBox(height: 24),
+
+                            AuthTextField(
+                              label: 'PASSWORD',
+                              controller: passwordController,
+                              hint: '........',
+                              icon: Icons.lock_outline,
+                              isPassword: true,
+                            ),
+                            const SizedBox(height: 24),
+
+                            AuthTextField(
+                              label: 'CONFIRM PASSWORD',
+                              controller: confirmPasswordController,
+                              hint: '........',
+                              icon: Icons.verified_user_outlined,
+                              isPassword: true,
+                            ),
+                            const SizedBox(height: 48),
+
+                            AppButton(
+                              label: 'Create Account',
+                              isLoading: isLoading,
+                              onTap: () {
+                                if (formKey.currentState!.validate()) {
+                                  if (passwordController.text !=
+                                      confirmPasswordController.text) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Passwords do not match'),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  context.read<AuthCubit>().signUp(
+                                        name: nameController.text.trim(),
+                                        email: emailController.text.trim(),
+                                        password:
+                                            passwordController.text.trim(),
+                                      );
+                                }
+                              },
+                            ),
                           const SizedBox(height: 48),
 
                           Row(
@@ -262,58 +230,6 @@ class _RegisterPageState extends State<RegisterPage> {
             fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    bool isPassword = false,
-  }) {
-    const lightGrey = Color(0xFFF1F3F9);
-    return Container(
-      decoration: BoxDecoration(
-        color: lightGrey,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword,
-        style: GoogleFonts.inter(fontSize: 14),
-        textAlign: TextAlign.left,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.inter(color: Colors.black26),
-          suffixIcon: Icon(icon, color: Colors.black38, size: 20),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter this field';
-          }
-          return null;
-        },
       ),
     );
   }
