@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/widgets/app_button.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
-import 'package:skillswap/features/auth/presentation/pages/register_page.dart';
+import 'package:skillswap/features/auth/presentation/widgets/auth_social_button.dart';
+import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/home/presentation/pages/home_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -92,20 +95,27 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 48),
 
                       // Email Field
-                      _buildLabel('EMAIL ADDRESS'),
-                      const SizedBox(height: 8),
-                      _buildTextField(
+                      AuthTextField(
+                        label: 'EMAIL ADDRESS',
                         controller: emailController,
                         hint: 'curator@skillswap.com',
                         icon: Icons.mail_outline,
                       ),
                       const SizedBox(height: 24),
 
-                      // Password Field
+                      // Password Header (with Forgot Password)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildLabel('PASSWORD'),
+                          Text(
+                            'PASSWORD',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: Colors.black87,
+                            ),
+                          ),
                           Text(
                             'FORGOT PASSWORD?',
                             style: GoogleFonts.inter(
@@ -118,7 +128,12 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _buildTextField(
+                      
+                      // Using the field logic from AuthTextField but without the built-in label 
+                      // because this row is custom. Alternatively, I could just use AuthTextField
+                      // and add a trailing widget to it, but keeping it simple for now.
+                      AuthTextField(
+                        label: '', // Hidden label as we built it above
                         controller: passwordController,
                         hint: '........',
                         icon: Icons.lock_outline,
@@ -127,52 +142,17 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 40),
 
                       // Sign In Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  if (formKey.currentState!.validate()) {
-                                    context.read<AuthCubit>().signIn(
-                                      email: emailController.text.trim(),
-                                      password: passwordController.text.trim(),
-                                    );
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: tealColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            elevation: 2,
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Sign In',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Icon(Icons.arrow_forward, size: 18),
-                                  ],
-                                ),
-                        ),
+                      AppButton(
+                        label: 'Sign In',
+                        isLoading: isLoading,
+                        onTap: () {
+                          if (formKey.currentState!.validate()) {
+                            context.read<AuthCubit>().signIn(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim(),
+                                );
+                          }
+                        },
                       ),
                       const SizedBox(height: 48),
 
@@ -203,20 +183,18 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         children: [
                           Expanded(
-                            child: _buildSocialButton(
+                            child: AuthSocialButton(
                               label: 'GOOGLE',
-                              imageUrl:
-                                  'assets/google_logo.png', // Placeholder or use icon
                               icon: Icons.g_mobiledata,
+                              onTap: () {},
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: _buildSocialButton(
+                            child: AuthSocialButton(
                               label: 'APPLE',
-                              imageUrl:
-                                  'assets/apple_logo.png', // Placeholder or use icon
                               icon: Icons.apple,
+                              onTap: () {},
                             ),
                           ),
                         ],
@@ -270,88 +248,6 @@ class _LoginPageState extends State<LoginPage> {
             fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    bool isPassword = false,
-  }) {
-    const lightGrey = Color(0xFFF1F3F9);
-    return Container(
-      decoration: BoxDecoration(
-        color: lightGrey,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword,
-        style: GoogleFonts.inter(fontSize: 14),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.inter(color: Colors.black26),
-          prefixIcon: Icon(icon, color: Colors.black38, size: 20),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter this field';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildSocialButton({
-    required String label,
-    String? imageUrl,
-    IconData? icon,
-  }) {
-    const lightGrey = Color(0xFFF1F3F9);
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: lightGrey,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null) Icon(icon, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1,
-              color: Colors.black87,
-            ),
-          ),
-        ],
       ),
     );
   }
