@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
+import 'package:skillswap/features/home/presentation/widgets/chat/chat_input_bar.dart';
+import 'package:skillswap/features/home/presentation/widgets/chat/chat_quick_actions.dart';
+import 'package:skillswap/features/home/presentation/widgets/chat/date_separator.dart';
+import 'package:skillswap/features/home/presentation/widgets/chat/message_bubble.dart';
 
 class ChatPage extends StatefulWidget {
   final String userName;
@@ -67,7 +71,8 @@ class _ChatPageState extends State<ChatPage> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const MasterProfilePage()),
+              MaterialPageRoute(
+                  builder: (context) => const MasterProfilePage()),
             );
           },
           child: Row(
@@ -125,8 +130,8 @@ class _ChatPageState extends State<ChatPage> {
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF2F4F7),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF2F4F7),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -154,7 +159,7 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          _buildDateSeparator('TODAY'),
+          const DateSeparator(date: 'TODAY'),
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -162,234 +167,22 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
-                return _buildMessageBubble(msg);
-              },
-            ),
-          ),
-          _buildQuickActions(),
-          _buildInputArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateSeparator(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F4F7),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: const Color(0xFF667085),
-          letterSpacing: 1,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(Map<String, dynamic> msg) {
-    final bool isMe = msg['isMe'] ?? false;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: isMe
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: isMe
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isMe
-                        ? const Color(0xFF0B6A7A)
-                        : const Color(0xFFE4E7EC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20),
-                      bottomLeft: Radius.circular(isMe ? 20 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 20),
-                    ),
-                    boxShadow: [
-                      if (isMe)
-                        BoxShadow(
-                          color: const Color(0xFF0B6A7A).withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                    ],
-                  ),
-                  child: Text(
-                    msg['text'],
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      height: 1.5,
-                      color: isMe ? Colors.white : const Color(0xFF344054),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isMe) ...[
-                Text(
-                  msg['time'],
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: const Color(0xFF98A2B3),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.done_all,
-                  size: 16,
-                  color: (msg['isSeen'] ?? false)
-                      ? const Color(0xFF2E90FA)
-                      : const Color(0xFF98A2B3),
-                ),
-              ] else
-                Text(
-                  msg['time'],
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: const Color(0xFF98A2B3),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActions() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Text(
-              'QUICK ACTIONS:',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF98A2B3),
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(width: 8),
-            _buildActionButton('Available now'),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ScheduleSessionPage(),
-                  ),
+                return MessageBubble(
+                  text: msg['text'],
+                  isMe: msg['isMe'] ?? false,
+                  time: msg['time'],
+                  isSeen: msg['isSeen'] ?? false,
                 );
               },
-              child: _buildActionButton('Schedule a 30m swap'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F4F7),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEAECF0)),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: const Color(0xFF0B6A7A),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputArea() {
-    return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF2F4F7))),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(
-              Icons.add_circle_outline,
-              color: Color(0xFF667085),
-              size: 30,
-            ),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4F7),
-                borderRadius: BorderRadius.circular(28),
-              ),
-              child: Center(
-                child: TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    hintText: 'Type a message...',
-                    hintStyle: GoogleFonts.inter(
-                      color: const Color(0xFF98A2B3),
-                    ),
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
             ),
           ),
-          const SizedBox(width: 12),
-          Container(
-            height: 56,
-            width: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFF0B6A7A),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF0B6A7A).withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Icon(Icons.send_rounded, color: Colors.white),
+          const ChatQuickActions(),
+          ChatInputBar(
+            controller: _messageController,
+            onSendTap: () {
+              // Implementation of sending logic would go here
+              _messageController.clear();
+            },
           ),
         ],
       ),
