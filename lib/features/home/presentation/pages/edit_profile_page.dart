@@ -1,101 +1,181 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  final User user;
+  const EditProfilePage({super.key, required this.user});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _nameController = TextEditingController(text: 'Julian Rivera');
-  final TextEditingController _locationController = TextEditingController(text: 'Brooklyn, NY');
-  final TextEditingController _bioController = TextEditingController(
-      text: 'Product Designer & Digital Strategist. Passionate about creating seamless user experiences and mentoring emerging talent in the tech ecosystem.');
+  late final TextEditingController _nameController;
+  late final TextEditingController _locationController;
+  late final TextEditingController _professionController;
+  late final TextEditingController _bioController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.user.name);
+    _locationController = TextEditingController(text: widget.user.location);
+    _professionController = TextEditingController(text: widget.user.profession);
+    _bioController = TextEditingController(text: widget.user.bio);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _locationController.dispose();
+    _professionController.dispose();
+    _bioController.dispose();
+    super.dispose();
+  }
+
+  void _onSave() {
+    final updatedUser = User(
+      id: widget.user.id,
+      name: _nameController.text,
+      age: widget.user.age,
+      rating: widget.user.rating,
+      imageUrl: widget.user.imageUrl,
+      bio: _bioController.text,
+      location: _locationController.text,
+      profession: _professionController.text,
+      allSkills: widget.user.allSkills,
+      teaching: widget.user.teaching,
+      learning: widget.user.learning,
+    );
+    context.read<ProfileCubit>().updateUserProfile(updatedUser);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF101828), size: 28),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF101828),
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Save',
-              style: GoogleFonts.inter(
-                fontSize: 16,
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      listener: (context, state) {
+        if (state is ProfileUpdateSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully!')),
+          );
+          Navigator.pop(context);
+        } else if (state is ProfileError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${state.message}')),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is ProfileLoading;
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.close, color: Color(0xFF101828), size: 28),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Edit Profile',
+              style: GoogleFonts.outfit(
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF0B6A7A),
+                color: const Color(0xFF101828),
               ),
+            ),
+            centerTitle: true,
+            actions: [
+              if (isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0B6A7A)),
+                    ),
+                  ),
+                )
+              else
+                TextButton(
+                  onPressed: _onSave,
+                  child: Text(
+                    'Save',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0B6A7A),
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                _buildAvatarEditor(),
+                const SizedBox(height: 12),
+                Text(
+                  'TAP TO UPDATE AVATAR',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0B6A7A),
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                _buildInputField('FULL NAME', _nameController),
+                const SizedBox(height: 24),
+                _buildInputField('PROFESSION', _professionController),
+                const SizedBox(height: 24),
+                _buildInputField('LOCATION', _locationController,
+                    icon: Icons.location_on_outlined),
+                const SizedBox(height: 24),
+                _buildInputField('PROFESSIONAL BIO', _bioController,
+                    maxLines: 5),
+                const SizedBox(height: 40),
+                _buildExpertiseSection(
+                  'Skills I Teach',
+                  widget.user.allSkills
+                      .where((s) => s.type == 'teach')
+                      .map((s) => s.name)
+                      .toList(),
+                  const Color(0xFFEAECF5),
+                  const Color(0xFF344054),
+                ),
+                const SizedBox(height: 32),
+                _buildExpertiseSection(
+                  'Skills I\'m Learning',
+                  widget.user.allSkills
+                      .where((s) => s.type == 'learn')
+                      .map((s) => s.name)
+                      .toList(),
+                  const Color(0xFFE0F2FE),
+                  const Color(0xFF026AA2),
+                  category: 'GROWTH',
+                ),
+                const SizedBox(height: 40),
+                const Divider(color: Color(0xFFF2F4F7), height: 1),
+                const SizedBox(height: 32),
+                _buildSettingsTile(Icons.settings_outlined, 'Account Settings'),
+                const SizedBox(height: 8),
+                _buildSettingsTile(
+                    Icons.verified_user_outlined, 'Identity Verification'),
+                const SizedBox(height: 100),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            _buildAvatarEditor(),
-            const SizedBox(height: 12),
-            Text(
-              'TAP TO UPDATE AVATAR',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF0B6A7A),
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 48),
-            _buildInputField('FULL NAME', _nameController),
-            const SizedBox(height: 24),
-            _buildInputField('LOCATION', _locationController, icon: Icons.location_on_outlined),
-            const SizedBox(height: 24),
-            _buildInputField('PROFESSIONAL BIO', _bioController, maxLines: 5),
-            const SizedBox(height: 40),
-            _buildExpertiseSection(
-              'Skills I Teach',
-              ['UI/UX Design', 'Product Strategy', 'Figma'],
-              const Color(0xFFEAECF5),
-              const Color(0xFF344054),
-            ),
-            const SizedBox(height: 32),
-            _buildExpertiseSection(
-              'Skills I\'m Learning',
-              ['React Native', '3D Modeling'],
-              const Color(0xFFE0F2FE),
-              const Color(0xFF026AA2),
-              category: 'GROWTH',
-            ),
-            const SizedBox(height: 40),
-            const Divider(color: Color(0xFFF2F4F7), height: 1),
-            const SizedBox(height: 32),
-            _buildSettingsTile(Icons.settings_outlined, 'Account Settings'),
-            const SizedBox(height: 8),
-            _buildSettingsTile(Icons.verified_user_outlined, 'Identity Verification'),
-            const SizedBox(height: 100),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -108,8 +188,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: const Color(0xFFF2F4F7),
-            image: const DecorationImage(
-              image: AssetImage('assets/home.png'),
+            image: DecorationImage(
+              image: widget.user.imageUrl.startsWith('http')
+                  ? NetworkImage(widget.user.imageUrl) as ImageProvider
+                  : AssetImage(widget.user.imageUrl),
               fit: BoxFit.cover,
             ),
             border: Border.all(color: const Color(0xFFF2F4F7), width: 4),
@@ -132,14 +214,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ],
             ),
-            child: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 20),
+            child: const Icon(Icons.camera_alt_outlined,
+                color: Colors.white, size: 20),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller, {IconData? icon, int maxLines = 1}) {
+  Widget _buildInputField(String label, TextEditingController controller,
+      {IconData? icon, int maxLines = 1}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -187,7 +271,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildExpertiseSection(String title, List<String> tags, Color bgColor, Color textColor, {String? category}) {
+  Widget _buildExpertiseSection(
+      String title, List<String> tags, Color bgColor, Color textColor,
+      {String? category}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,7 +302,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             Row(
               children: [
-                const Icon(Icons.add_circle_outline, color: Color(0xFF0B6A7A), size: 20),
+                const Icon(Icons.add_circle_outline,
+                    color: Color(0xFF0B6A7A), size: 20),
                 const SizedBox(width: 4),
                 Text(
                   'Add',
@@ -234,7 +321,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: tags.map((tag) => _buildEditableTag(tag, bgColor, textColor)).toList(),
+          children: tags
+              .map((tag) => _buildEditableTag(tag, bgColor, textColor))
+              .toList(),
         ),
       ],
     );
