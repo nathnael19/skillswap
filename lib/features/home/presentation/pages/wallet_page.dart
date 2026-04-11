@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/widgets/wallet/balance_header.dart';
 import 'package:skillswap/features/home/presentation/widgets/wallet/recent_transactions_section.dart';
 
@@ -27,19 +29,35 @@ class WalletPage extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const BalanceHeader(
-              balance: 12,
-              nextRewardCredits: 8,
-              totalRewardCredits: 20,
-            ),
-            const SizedBox(height: 40),
-            const RecentTransactionsSection(),
-            const SizedBox(height: 40),
-          ],
-        ),
+      body: BlocBuilder<CreditsCubit, CreditsState>(
+        builder: (context, state) {
+          if (state is CreditsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is CreditsError) {
+            return Center(child: Text(state.message));
+          }
+
+          if (state is CreditsLoaded) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  BalanceHeader(
+                    balance: state.balance,
+                    nextRewardCredits: 10, // Mocked milestone logic
+                    totalRewardCredits: 50, // Mocked milestone logic
+                  ),
+                  const SizedBox(height: 40),
+                  const RecentTransactionsSection(), // This widget might need internal update too if it has mock data
+                  const SizedBox(height: 40),
+                ],
+              ),
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
