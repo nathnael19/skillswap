@@ -17,6 +17,7 @@ class ChatPage extends StatefulWidget {
   final String userImageUrl;
   final String userTitle;
   final String matchId;
+  final String userId;
   final bool isOnline;
 
   const ChatPage({
@@ -25,6 +26,7 @@ class ChatPage extends StatefulWidget {
     required this.userImageUrl,
     required this.userTitle,
     required this.matchId,
+    required this.userId,
     this.isOnline = true,
   });
 
@@ -73,7 +75,7 @@ class _ChatPageState extends State<ChatPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MasterProfilePage(),
+                  builder: (context) => MasterProfilePage(userId: widget.userId),
                 ),
               );
             },
