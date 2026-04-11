@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/features/home/data/mock_data.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
 import 'package:skillswap/features/home/presentation/widgets/discovery/swipe_action_buttons.dart';
 import 'package:skillswap/features/home/presentation/widgets/discovery/swipeable_card.dart';
 
@@ -158,7 +160,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
       setState(() {
         _showHeart = false;
       });
-      _nextCard();
+      _nextCard(true);
     });
   }
 
@@ -171,7 +173,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
       setState(() {
         _showClose = false;
       });
-      _nextCard();
+      _nextCard(false);
     });
   }
 
@@ -248,195 +250,227 @@ class _DiscoveryTabState extends State<DiscoveryTab>
     _swipeAnimationController.forward(from: 0.0);
   }
 
-  void _nextCard() {
-    if (_currentIndex < mockUsers.length - 1) {
-      setState(() {
-        _currentIndex++;
-        _swipeOffset = Offset.zero;
-        _swipeAngle = 0;
-        _isAnimatingOffScreen = false;
-      });
-    } else {
-      setState(() {
-        _swipeOffset = Offset.zero;
-        _swipeAngle = 0;
-        _isAnimatingOffScreen = false;
-      });
+  void _nextCard(bool isLiked) {
+    final state = context.read<DiscoveryCubit>().state;
+    if (state is DiscoveryLoaded) {
+      final users = state.users;
+      if (_currentIndex < users.length) {
+        final targetId = users[_currentIndex].id;
+        context.read<DiscoveryCubit>().swipeUser(
+              targetId: targetId,
+              direction: isLiked ? 'like' : 'dislike',
+            );
+        
+        setState(() {
+          _currentIndex++;
+          _swipeOffset = Offset.zero;
+          _swipeAngle = 0;
+          _isAnimatingOffScreen = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = mockUsers[_currentIndex];
-    final hasMoreUsers = _currentIndex < mockUsers.length - 1;
-    final isInteractionDisabled =
-        _isAnimatingOffScreen || _showHeart || _showClose;
+    return BlocBuilder<DiscoveryCubit, DiscoveryState>(
+      builder: (context, state) {
+        if (state is DiscoveryLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Text(
-                'TRENDING • CREATIVE ARTS',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                  color: const Color(0xFF667085),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${_currentIndex + 1}/${mockUsers.length}',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black45,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              clipBehavior: Clip.none,
+        if (state is DiscoveryError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Next Card (Background)
-                if (_currentIndex + 1 < mockUsers.length)
-                  Transform.scale(
-                    scale: 0.9 + (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
-                    child: Opacity(
-                      opacity:
-                          0.5 + (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
-                      child:
-                          SwipeableCard(user: mockUsers[_currentIndex + 1]),
-                    ),
-                  ),
-
-                // Top Card (Draggable)
-                GestureDetector(
-                  onDoubleTap: _triggerLikeAnimation,
-                  onPanUpdate: _onPanUpdate,
-                  onPanEnd: _onPanEnd,
-                  child: Transform.translate(
-                    offset: _swipeOffset,
-                    child: Transform.rotate(
-                      angle: _swipeAngle,
-                      child: SwipeableCard(user: currentUser),
-                    ),
-                  ),
-                ),
-
-                // Like overlay
-                if (_showHeart)
-                  IgnorePointer(
-                    child: AnimatedBuilder(
-                      animation: _likeAnimationController,
-                      builder: (context, child) {
-                        return Opacity(
-                          opacity: _likeOpacityAnimation.value,
-                          child: Transform.scale(
-                            scale: _likeScaleAnimation.value,
-                            child: Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.favorite,
-                                color: Colors.white,
-                                size: 100,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                // Dislike overlay
-                if (_showClose)
-                  IgnorePointer(
-                    child: AnimatedBuilder(
-                      animation: _dislikeAnimationController,
-                      builder: (context, child) {
-                        return Opacity(
-                          opacity: _dislikeOpacityAnimation.value,
-                          child: Transform.rotate(
-                            angle: _dislikeShakeAnimation.value,
-                            child: Transform.scale(
-                              scale: _dislikeScaleAnimation.value,
-                              child: Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 100,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                if (!hasMoreUsers)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.celebration,
-                                color: Colors.white, size: 48),
-                            const SizedBox(height: 16),
-                            Text(
-                              "You're all caught up!",
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                // Action Buttons Row
-                Positioned(
-                  bottom: -35,
-                  left: 0,
-                  right: 0,
-                  child: SwipeActionButtons(
-                    onLike: () => _runSwipeAnimation(true),
-                    onDislike: () => _runSwipeAnimation(false),
-                    onChat: () {},
-                    enabled: hasMoreUsers && !isInteractionDisabled,
-                  ),
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const SizedBox(height: 16),
+                Text(state.message, textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                  child: const Text('Try Again'),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 50),
-        ],
-      ),
+          );
+        }
+
+        if (state is DiscoveryLoaded) {
+          final users = state.users;
+          final hasMoreUsers = _currentIndex < users.length;
+          final isInteractionDisabled = _isAnimatingOffScreen || _showHeart || _showClose;
+
+          if (!hasMoreUsers) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.celebration, color: Color(0xFF0B6A7A), size: 64),
+                  const SizedBox(height: 24),
+                  Text(
+                    "You're all caught up!",
+                    style: GoogleFonts.outfit(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF101828),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Come back later for more experts.",
+                    style: GoogleFonts.inter(color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final currentUser = users[_currentIndex];
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text(
+                      'DISCOVER EXPERTS',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        color: const Color(0xFF667085),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${_currentIndex + 1}/${users.length}',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Next Card (Background)
+                      if (_currentIndex + 1 < users.length)
+                        Transform.scale(
+                          scale: 0.9 + (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
+                          child: Opacity(
+                            opacity: 0.5 + (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
+                            child: SwipeableCard(user: users[_currentIndex + 1]),
+                          ),
+                        ),
+
+                      // Top Card (Draggable)
+                      GestureDetector(
+                        onDoubleTap: _triggerLikeAnimation,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        child: Transform.translate(
+                          offset: _swipeOffset,
+                          child: Transform.rotate(
+                            angle: _swipeAngle,
+                            child: SwipeableCard(user: currentUser),
+                          ),
+                        ),
+                      ),
+
+                      // Like overlay
+                      if (_showHeart)
+                        IgnorePointer(
+                          child: AnimatedBuilder(
+                            animation: _likeAnimationController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _likeOpacityAnimation.value,
+                                child: Transform.scale(
+                                  scale: _likeScaleAnimation.value,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.favorite,
+                                      color: Colors.white,
+                                      size: 100,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                      // Dislike overlay
+                      if (_showClose)
+                        IgnorePointer(
+                          child: AnimatedBuilder(
+                            animation: _dislikeAnimationController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _dislikeOpacityAnimation.value,
+                                child: Transform.rotate(
+                                  angle: _dislikeShakeAnimation.value,
+                                  child: Transform.scale(
+                                    scale: _dislikeScaleAnimation.value,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 100,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                      // Action Buttons Row
+                      Positioned(
+                        bottom: -35,
+                        left: 0,
+                        right: 0,
+                        child: SwipeActionButtons(
+                          onLike: () => _runSwipeAnimation(true),
+                          onDislike: () => _runSwipeAnimation(false),
+                          onChat: () {
+                            // Could open partial profile or similar
+                          },
+                          enabled: !isInteractionDisabled,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 50),
+              ],
+            ),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 }
