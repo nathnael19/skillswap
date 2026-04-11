@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
@@ -149,74 +151,86 @@ class _HomePageState extends State<HomePage> {
           create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
         ),
       ],
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
+      child: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is AuthSuccess) {
+            // Refresh all data when user logs in successfully
+            context.read<DiscoveryCubit>().fetchDiscoveryUsers();
+            context.read<MatchesCubit>().fetchMatches();
+            context.read<ProfileCubit>().fetchUserProfile();
+            context.read<LikesCubit>().fetchLikesReceived();
+            context.read<CreditsCubit>().fetchCredits();
+          }
+        },
+        child: Scaffold(
           backgroundColor: Colors.white,
-          elevation: 0,
-          leadingWidth: _selectedIndex == 0 ? 70 : null,
-          leading: leading,
-          title: Text(
-            title,
-            style: GoogleFonts.outfit(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leadingWidth: _selectedIndex == 0 ? 70 : null,
+            leading: leading,
+            title: Text(
+              title,
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: const Color(0xFF101828),
+              ),
+            ),
+            centerTitle: true,
+            actions: actions,
+          ),
+          body: bodyContent,
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: (index) => setState(() => _selectedIndex = index),
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF0B6A7A),
+            unselectedItemColor: const Color(0xFF98A2B3),
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            selectedLabelStyle: GoogleFonts.inter(
+              fontSize: 10,
               fontWeight: FontWeight.w700,
-              fontSize: 24,
-              color: const Color(0xFF101828),
+              letterSpacing: 0.5,
             ),
+            unselectedLabelStyle: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+            items: const [
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(Icons.auto_awesome_rounded),
+                ),
+                label: 'DISCOVER',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(Icons.handshake_rounded),
+                ),
+                label: 'MATCHES',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(Icons.favorite_rounded),
+                ),
+                label: 'LIKES',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(Icons.person_rounded),
+                ),
+                label: 'PROFILE',
+              ),
+            ],
           ),
-          centerTitle: true,
-          actions: actions,
-        ),
-        body: bodyContent,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) => setState(() => _selectedIndex = index),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF0B6A7A),
-          unselectedItemColor: const Color(0xFF98A2B3),
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          selectedLabelStyle: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-          ),
-          unselectedLabelStyle: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-          ),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.auto_awesome_rounded),
-              ),
-              label: 'DISCOVER',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.handshake_rounded),
-              ),
-              label: 'MATCHES',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.favorite_rounded),
-              ),
-              label: 'LIKES',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.person_rounded),
-              ),
-              label: 'PROFILE',
-            ),
-          ],
         ),
       ),
     );
