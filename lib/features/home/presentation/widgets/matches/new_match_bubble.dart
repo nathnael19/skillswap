@@ -41,12 +41,22 @@ class NewMatchBubble extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(40),
-                    child: Image.asset(
-                      imageUrl,
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.cover,
-                    ),
+                    child: imageUrl.startsWith('assets')
+                        ? Image.asset(
+                            imageUrl,
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            imageUrl,
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset('assets/home.png',
+                                    width: 72, height: 72, fit: BoxFit.cover),
+                          ),
                   ),
                 ),
                 if (isTopMatch)
