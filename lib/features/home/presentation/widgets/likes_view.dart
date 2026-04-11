@@ -86,13 +86,17 @@ class LikesView extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const MasterProfilePage()),
+                MaterialPageRoute(
+                  builder: (context) => const MasterProfilePage(),
+                ),
               );
             },
             child: Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(32),
+                  ),
                   child: Image.asset(
                     user.imageUrl,
                     height: 240,
@@ -108,13 +112,16 @@ class LikesView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFDECDA), // Light peach
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          user.teaching.name.toUpperCase(),
+                          user.teaching?.name.toUpperCase() ?? 'EXPERT',
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -146,7 +153,11 @@ class LikesView extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF0B6A7A)),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: Color(0xFF0B6A7A),
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '2 miles away',
@@ -160,7 +171,9 @@ class LikesView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  user.bio.isEmpty ? "Passionate about crafting digital experiences that feel human. Looking to swap design systems knowledge for advanced React tips." : user.bio,
+                  user.bio.isEmpty
+                      ? "Passionate about crafting digital experiences that feel human. Looking to swap design systems knowledge for advanced React tips."
+                      : user.bio,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
@@ -177,7 +190,9 @@ class LikesView extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const MasterProfilePage()),
+                            MaterialPageRoute(
+                              builder: (context) => const MasterProfilePage(),
+                            ),
                           );
                         },
                         child: Text(
