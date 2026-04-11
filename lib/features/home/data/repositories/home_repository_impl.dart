@@ -34,7 +34,11 @@ class HomeRepositoryImpl implements HomeRepository {
       final response = await _apiClient.get(ApiConstants.matches);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return right(data.map((map) => User.fromMap(map['user'])).toList());
+        return right(data.map((map) {
+          final userMap = Map<String, dynamic>.from(map['user']);
+          userMap['match_id'] = map['match_id'];
+          return User.fromMap(userMap);
+        }).toList());
       }
       return left(ServerFailure('Failed to fetch matches: ${response.body}'));
     } catch (e) {
