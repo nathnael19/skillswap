@@ -17,6 +17,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late final TextEditingController _locationController;
   late final TextEditingController _professionController;
   late final TextEditingController _bioController;
+  late List<Skill> _userSkills;
 
   @override
   void initState() {
@@ -25,6 +26,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _locationController = TextEditingController(text: widget.user.location);
     _professionController = TextEditingController(text: widget.user.profession);
     _bioController = TextEditingController(text: widget.user.bio);
+    _userSkills = List.from(widget.user.allSkills);
   }
 
   @override
@@ -34,6 +36,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _professionController.dispose();
     _bioController.dispose();
     super.dispose();
+  }
+
+  void _addSkill(String name, String type) {
+    setState(() {
+      _userSkills.add(Skill(name: name, type: type, category: 'General'));
+    });
+  }
+
+  void _removeSkill(Skill skill) {
+    setState(() {
+      _userSkills.remove(skill);
+    });
+  }
+
+  void _showAddSkillDialog(String type) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Add ${type == 'teach' ? 'Teaching' : 'Learning'} Skill'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Skill name (e.g. Flutter)'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                _addSkill(controller.text, type);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _onSave() {
@@ -46,9 +90,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       bio: _bioController.text,
       location: _locationController.text,
       profession: _professionController.text,
-      allSkills: widget.user.allSkills,
-      teaching: widget.user.teaching,
-      learning: widget.user.learning,
+      allSkills: _userSkills,
+      teaching: _userSkills.any((s) => s.type == 'teach')
+          ? _userSkills.firstWhere((s) => s.type == 'teach')
+          : null,
+      learning: _userSkills.any((s) => s.type == 'learn')
+          ? _userSkills.firstWhere((s) => s.type == 'learn')
+          : null,
     );
     context.read<ProfileCubit>().updateUserProfile(updatedUser);
   }
@@ -97,7 +145,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0B6A7A)),
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Color(0xFF0B6A7A)),
                     ),
                   ),
                 )
@@ -145,23 +194,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(height: 40),
                 _buildExpertiseSection(
                   'Skills I Teach',
-                  widget.user.allSkills
-                      .where((s) => s.type == 'teach')
-                      .map((s) => s.name)
-                      .toList(),
+                  _userSkills.where((s) => s.type == 'teach').toList(),
                   const Color(0xFFEAECF5),
                   const Color(0xFF344054),
+                  onAdd: () => _showAddSkillDialog('teach'),
+                  onRemove: _removeSkill,
                 ),
                 const SizedBox(height: 32),
                 _buildExpertiseSection(
                   'Skills I\'m Learning',
-                  widget.user.allSkills
-                      .where((s) => s.type == 'learn')
-                      .map((s) => s.name)
-                      .toList(),
+                  _userSkills.where((s) => s.type == 'learn').toList(),
                   const Color(0xFFE0F2FE),
                   const Color(0xFF026AA2),
                   category: 'GROWTH',
+                  onAdd: () => _showAddSkillDialog('learn'),
+                  onRemove: _removeSkill,
                 ),
                 const SizedBox(height: 40),
                 const Divider(color: Color(0xFFF2F4F7), height: 1),
@@ -272,8 +319,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildExpertiseSection(
-      String title, List<String> tags, Color bgColor, Color textColor,
-      {String? category}) {
+      String title, List<Skill> tags, Color bgColor, Color textColor,
+      {String? category, required VoidCallback onAdd, required Function(Skill) onRemove}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -300,20 +347,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 color: const Color(0xFF101828),
               ),
             ),
-            Row(
-              children: [
-                const Icon(Icons.add_circle_outline,
-                    color: Color(0xFF0B6A7A), size: 20),
-                const SizedBox(width: 4),
-                Text(
-                  'Add',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0B6A7A),
+            GestureDetector(
+              onTap: onAdd,
+              child: Row(
+                children: [
+                  const Icon(Icons.add_circle_outline,
+                      color: Color(0xFF0B6A7A), size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Add',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0B6A7A),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -322,14 +372,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
           spacing: 12,
           runSpacing: 12,
           children: tags
-              .map((tag) => _buildEditableTag(tag, bgColor, textColor))
+              .map((skill) => _buildEditableTag(skill, bgColor, textColor, onRemove))
               .toList(),
         ),
       ],
     );
   }
 
-  Widget _buildEditableTag(String label, Color bgColor, Color textColor) {
+  Widget _buildEditableTag(Skill skill, Color bgColor, Color textColor, Function(Skill) onRemove) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -340,7 +390,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            label,
+            skill.name,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -348,7 +398,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(Icons.cancel, color: textColor.withOpacity(0.3), size: 18),
+          GestureDetector(
+            onTap: () => onRemove(skill),
+            child: Icon(Icons.cancel, color: textColor.withOpacity(0.3), size: 18),
+          ),
         ],
       ),
     );
