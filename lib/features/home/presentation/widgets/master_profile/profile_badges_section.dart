@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 
 class ProfileBadgesSection extends StatelessWidget {
-  const ProfileBadgesSection({super.key});
+  final User user;
+  const ProfileBadgesSection({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -13,12 +15,19 @@ class ProfileBadgesSection extends StatelessWidget {
         spacing: 8,
         runSpacing: 8,
         children: [
+          // Identity Check (Mocked for now, but logic ready)
           _buildBadge(Icons.verified_user_outlined, 'Identity Verified',
               const Color(0xFFF0F9FF), const Color(0xFF026AA2)),
-          _buildBadge(Icons.workspace_premium_outlined, 'Top Swapper \'23',
-              const Color(0xFFFEF6EE), const Color(0xFFB93815)),
-          _buildBadge(Icons.palette_outlined, 'Figma Pro',
-              const Color(0xFFF9FAFB), const Color(0xFF475467)),
+          
+          // Real Teaching Skill
+          if (user.teaching != null)
+            _buildBadge(Icons.school_outlined, user.teaching!.name,
+                const Color(0xFFFEF6EE), const Color(0xFFB93815)),
+          
+          // Real Learning Skill
+          if (user.learning != null)
+            _buildBadge(Icons.auto_awesome_outlined, user.learning!.name,
+                const Color(0xFFF9FAFB), const Color(0xFF475467)),
         ],
       ),
     );
