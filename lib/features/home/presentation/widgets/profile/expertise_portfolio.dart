@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/common/widgets/section_header.dart';
 
 class ExpertisePortfolio extends StatelessWidget {
-  const ExpertisePortfolio({super.key});
+  final User user;
+  const ExpertisePortfolio({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +14,8 @@ class ExpertisePortfolio extends StatelessWidget {
       children: [
         const SectionHeader(
           label: 'EXPERTISE PORTFOLIO',
-          title: 'My Growth Journey', // Added a title to match SectionHeader pattern
+          title:
+              'My Growth Journey', // Added a title to match SectionHeader pattern
         ),
         const SizedBox(height: 16),
         Container(
@@ -54,11 +57,10 @@ class ExpertisePortfolio extends StatelessWidget {
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: [
-                  _buildSkillTag('User Research'),
-                  _buildSkillTag('Usability Testing'),
-                  _buildSkillTag('Accessibility'),
-                ],
+                children: user.allSkills
+                    .where((s) => s.type == 'teach')
+                    .map((s) => _buildSkillTag(s.name))
+                    .toList(),
               ),
             ],
           ),
@@ -97,10 +99,16 @@ class ExpertisePortfolio extends StatelessWidget {
                         color: const Color(0xFF101828),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    _buildLearningTag('Motion Design'),
-                    const SizedBox(height: 8),
-                    _buildLearningTag('Japanese (N5)'),
+                    ...user.allSkills
+                        .where((s) => s.type == 'learn')
+                        .map(
+                          (s) => Column(
+                            children: [
+                              _buildLearningTag(s.name),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
                   ],
                 ),
               ),
