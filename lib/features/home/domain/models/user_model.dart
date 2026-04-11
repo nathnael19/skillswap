@@ -125,32 +125,34 @@ class User extends Equatable {
 
 class Conversation extends Equatable {
   final User user;
-  final String lastMessage;
-  final String timestamp;
-  final bool isOnline;
+  final String? lastMessage;
+  final String? lastMessageTime;
   final bool hasUnread;
-  final String skillTag;
+  final String? matchId;
 
   const Conversation({
     required this.user,
-    required this.lastMessage,
-    required this.timestamp,
-    this.isOnline = false,
+    this.lastMessage,
+    this.lastMessageTime,
     this.hasUnread = false,
-    required this.skillTag,
+    this.matchId,
   });
 
   factory Conversation.fromMap(Map<String, dynamic> map) {
+    final userMap = Map<String, dynamic>.from(map['user']);
+    userMap['match_id'] = map['match_id'];
+    
+    final lastMsgData = map['last_message'];
+    
     return Conversation(
-      user: User.fromMap(map['user']),
-      lastMessage: map['lastMessage'] ?? '',
-      timestamp: map['timestamp'] ?? '',
-      isOnline: map['isOnline'] ?? false,
-      hasUnread: map['hasUnread'] ?? false,
-      skillTag: map['skillTag'] ?? '',
+      user: User.fromMap(userMap),
+      lastMessage: lastMsgData != null ? lastMsgData['content'] : null,
+      lastMessageTime: lastMsgData != null ? lastMsgData['timestamp'] : null,
+      hasUnread: map['has_unread'] ?? false,
+      matchId: map['match_id'],
     );
   }
 
   @override
-  List<Object?> get props => [user, lastMessage, timestamp, isOnline, hasUnread, skillTag];
+  List<Object?> get props => [user, lastMessage, lastMessageTime, hasUnread, matchId];
 }
