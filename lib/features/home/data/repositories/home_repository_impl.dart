@@ -51,10 +51,39 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       final response = await _apiClient.get(ApiConstants.likesReceived);
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return right(data.map((map) => User.fromMap(map)).toList());
+        final List data = jsonDecode(response.body);
+        return right(data.map((m) => User.fromMap(m)).toList());
       }
-      return left(ServerFailure('Failed to fetch received likes: ${response.body}'));
+      return left(ServerFailure('Failed to fetch likes: ${response.body}'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<User>>> getSentLikes() async {
+    try {
+      final response = await _apiClient.get(ApiConstants.sentLikes);
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        return right(data.map((m) => User.fromMap(m)).toList());
+      }
+      return left(ServerFailure('Failed to fetch sent likes: ${response.body}'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<User>>> getSentDislikes() async {
+    try {
+      final response = await _apiClient.get(ApiConstants.sentDislikes);
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        return right(data.map((m) => User.fromMap(m)).toList());
+      }
+      return left(
+          ServerFailure('Failed to fetch sent dislikes: ${response.body}'));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
