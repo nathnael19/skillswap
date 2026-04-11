@@ -6,6 +6,10 @@ abstract class AuthRepository {
     required String name,
     required String email,
     required String password,
+    String? bio,
+    String? profession,
+    String? location,
+    List<Map<String, dynamic>>? skills,
   });
 
   Future<Either<Failure, String>> loginWithEmailPassword({
