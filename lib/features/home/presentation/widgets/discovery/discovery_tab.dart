@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
 import 'package:skillswap/features/home/presentation/widgets/discovery/swipe_action_buttons.dart';
 import 'package:skillswap/features/home/presentation/widgets/discovery/swipeable_card.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 
 class DiscoveryTab extends StatefulWidget {
   const DiscoveryTab({super.key});
@@ -52,30 +54,25 @@ class _DiscoveryTabState extends State<DiscoveryTab>
 
     _likeScaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.4)
-            .chain(CurveTween(curve: Curves.elasticOut)),
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 1.4,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 60,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.4, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: 1.4,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 40,
       ),
     ]).animate(_likeAnimationController);
 
     _likeOpacityAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.0),
-        weight: 20,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.0),
-        weight: 60,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 0.0),
-        weight: 20,
-      ),
+      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 20),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 60),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_likeAnimationController);
   }
 
@@ -87,30 +84,25 @@ class _DiscoveryTabState extends State<DiscoveryTab>
 
     _dislikeScaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.4)
-            .chain(CurveTween(curve: Curves.elasticOut)),
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 1.4,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 60,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.4, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: 1.4,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 40,
       ),
     ]).animate(_dislikeAnimationController);
 
     _dislikeOpacityAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.0),
-        weight: 20,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.0),
-        weight: 60,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 0.0),
-        weight: 20,
-      ),
+      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 20),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 60),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_dislikeAnimationController);
 
     _dislikeShakeAnimation = TweenSequence<double>([
@@ -122,10 +114,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
         tween: Tween<double>(begin: -0.1, end: 0.1),
         weight: 50,
       ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.1, end: 0.0),
-        weight: 25,
-      ),
+      TweenSequenceItem(tween: Tween<double>(begin: 0.1, end: 0.0), weight: 25),
     ]).animate(_dislikeAnimationController);
   }
 
@@ -215,21 +204,21 @@ class _DiscoveryTabState extends State<DiscoveryTab>
       }
     }
 
-    _swipePositionAnimation = Tween<Offset>(
-      begin: _swipeOffset,
-      end: targetOffset,
-    ).animate(CurvedAnimation(
-      parent: _swipeAnimationController,
-      curve: Curves.easeOut,
-    ));
+    _swipePositionAnimation =
+        Tween<Offset>(begin: _swipeOffset, end: targetOffset).animate(
+          CurvedAnimation(
+            parent: _swipeAnimationController,
+            curve: Curves.easeOut,
+          ),
+        );
 
-    _swipeAngleAnimation = Tween<double>(
-      begin: _swipeAngle,
-      end: targetAngle,
-    ).animate(CurvedAnimation(
-      parent: _swipeAnimationController,
-      curve: Curves.easeOut,
-    ));
+    _swipeAngleAnimation = Tween<double>(begin: _swipeAngle, end: targetAngle)
+        .animate(
+          CurvedAnimation(
+            parent: _swipeAnimationController,
+            curve: Curves.easeOut,
+          ),
+        );
 
     void statusListener(AnimationStatus status) {
       if (status == AnimationStatus.completed) {
@@ -251,16 +240,27 @@ class _DiscoveryTabState extends State<DiscoveryTab>
   }
 
   void _nextCard(bool isLiked) {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is! AuthSuccess) {
+      Navigator.of(context).push(OnboardingPage.route());
+      setState(() {
+        _swipeOffset = Offset.zero;
+        _swipeAngle = 0;
+        _isAnimatingOffScreen = false;
+      });
+      return;
+    }
+
     final state = context.read<DiscoveryCubit>().state;
     if (state is DiscoveryLoaded) {
       final users = state.users;
       if (_currentIndex < users.length) {
         final targetId = users[_currentIndex].id;
         context.read<DiscoveryCubit>().swipeUser(
-              targetId: targetId,
-              direction: isLiked ? 'like' : 'dislike',
-            );
-        
+          targetId: targetId,
+          direction: isLiked ? 'like' : 'dislike',
+        );
+
         setState(() {
           _currentIndex++;
           _swipeOffset = Offset.zero;
@@ -289,7 +289,8 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                 Text(state.message, textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                  onPressed: () =>
+                      context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
                   child: const Text('Try Again'),
                 ),
               ],
@@ -300,14 +301,19 @@ class _DiscoveryTabState extends State<DiscoveryTab>
         if (state is DiscoveryLoaded) {
           final users = state.users;
           final hasMoreUsers = _currentIndex < users.length;
-          final isInteractionDisabled = _isAnimatingOffScreen || _showHeart || _showClose;
+          final isInteractionDisabled =
+              _isAnimatingOffScreen || _showHeart || _showClose;
 
           if (!hasMoreUsers) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.celebration, color: Color(0xFF0B6A7A), size: 64),
+                  const Icon(
+                    Icons.celebration,
+                    color: Color(0xFF0B6A7A),
+                    size: 64,
+                  ),
                   const SizedBox(height: 24),
                   Text(
                     "You're all caught up!",
@@ -366,10 +372,16 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                       // Next Card (Background)
                       if (_currentIndex + 1 < users.length)
                         Transform.scale(
-                          scale: 0.9 + (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
+                          scale:
+                              0.9 +
+                              (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
                           child: Opacity(
-                            opacity: 0.5 + (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
-                            child: SwipeableCard(user: users[_currentIndex + 1]),
+                            opacity:
+                                0.5 +
+                                (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
+                            child: SwipeableCard(
+                              user: users[_currentIndex + 1],
+                            ),
                           ),
                         ),
 
