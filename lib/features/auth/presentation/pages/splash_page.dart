@@ -32,14 +32,11 @@ class _SplashPageState extends State<SplashPage> {
         // Wait for the splash animation (minimum 2 seconds)
         Timer(const Duration(seconds: 2), () {
           if (!mounted) return;
-          if (state is AuthSuccess) {
-            Navigator.of(context).pushAndRemoveUntil(
-              HomePage.route(),
-              (route) => false,
-            );
-          } else if (state is AuthInitial || state is AuthFailure) {
-            Navigator.of(context).pushReplacement(LoginPage.route());
-          }
+          if (!mounted) return;
+          Navigator.of(context).pushAndRemoveUntil(
+            HomePage.route(),
+            (route) => false,
+          );
         });
       },
       child: Scaffold(
