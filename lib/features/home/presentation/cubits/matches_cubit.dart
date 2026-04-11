@@ -12,7 +12,7 @@ abstract class MatchesState extends Equatable {
 class MatchesInitial extends MatchesState {}
 class MatchesLoading extends MatchesState {}
 class MatchesLoaded extends MatchesState {
-  final List<User> matches;
+  final List<Conversation> matches;
   const MatchesLoaded(this.matches);
   @override
   List<Object?> get props => [matches];
