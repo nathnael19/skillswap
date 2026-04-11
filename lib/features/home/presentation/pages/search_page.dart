@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../data/mock_data.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/init_dependencies.dart';
 import '../widgets/expert_card.dart';
 
 class SearchPage extends StatefulWidget {
@@ -12,17 +14,50 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   String _selectedCategory = 'All';
-  final List<String> _categories = ['All', 'UI Design', 'Python', 'Cooking', 'Business'];
+  final List<String> _categories = ['All', 'Design', 'Python', 'Cooking', 'Business'];
+  
+  List<User> _users = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+  }
+
+  Future<void> _fetchUsers() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final category = _selectedCategory == 'All' ? null : _selectedCategory;
+    final result = await serviceLocator<HomeRepository>().getDiscoveryUsers(category: category);
+    
+    if (mounted) {
+      result.fold(
+        (failure) => setState(() {
+          _isLoading = false;
+          _errorMessage = failure.message;
+        }),
+        (users) => setState(() {
+          _isLoading = false;
+          _users = users;
+        }),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Very light bluish gray
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.search, color: Color(0xFF101828)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF101828)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -47,6 +82,9 @@ class _SearchPageState extends State<SearchPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: TextField(
+                onSubmitted: (value) {
+                  // Could implement search by keyword here
+                },
                 decoration: InputDecoration(
                   hintText: 'Search for skills, mentors, or topics',
                   hintStyle: GoogleFonts.inter(
@@ -69,7 +107,10 @@ class _SearchPageState extends State<SearchPage> {
               children: _categories.map((category) {
                 final isSelected = _selectedCategory == category;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedCategory = category),
+                  onTap: () {
+                    setState(() => _selectedCategory = category);
+                    _fetchUsers();
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 12),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -122,14 +163,6 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ],
                 ),
-                Text(
-                  'See all',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0B6A7A),
-                  ),
-                ),
               ],
             ),
           ),
@@ -138,14 +171,19 @@ class _SearchPageState extends State<SearchPage> {
 
           // Experts List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 20),
-              itemCount: mockUsers.length,
-              itemBuilder: (context, index) {
-                // To match mockup layout exactly, we'll show special users or just the whole list
-                return ExpertCard(user: mockUsers[index]);
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                    ? Center(child: Text(_errorMessage!))
+                    : _users.isEmpty
+                        ? const Center(child: Text("No experts found in this category."))
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            itemCount: _users.length,
+                            itemBuilder: (context, index) {
+                              return ExpertCard(user: _users[index]);
+                            },
+                          ),
           ),
         ],
       ),
