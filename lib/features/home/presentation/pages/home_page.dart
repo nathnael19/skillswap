@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/search_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/likes_view.dart';
 import 'package:skillswap/features/home/presentation/widgets/profile_view.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/discovery/discovery_tab.dart';
+import 'package:skillswap/init_dependencies.dart';
 import '../widgets/filter_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
@@ -48,14 +54,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     String title = "SkillSwap";
-    Widget body = const DiscoveryTab();
+    Widget bodyContent = const DiscoveryTab();
     List<Widget>? actions;
     Widget? leading;
 
     switch (_selectedIndex) {
       case 0:
         title = "SkillSwap";
-        body = const DiscoveryTab();
+        bodyContent = const DiscoveryTab();
         leading = _buildActionButton(
           icon: Icons.search,
           onTap: () {
@@ -77,7 +83,7 @@ class _HomePageState extends State<HomePage> {
         break;
       case 1:
         title = "Matches";
-        body = const MatchesView();
+        bodyContent = const MatchesView();
         leading = IconButton(
           icon: const Icon(Icons.search, color: Color(0xFF1D2939)),
           onPressed: () {
@@ -96,18 +102,21 @@ class _HomePageState extends State<HomePage> {
         break;
       case 2:
         title = "Likes";
-        body = const LikesView();
+        bodyContent = const LikesView();
         break;
       case 3:
         title = "SkillSwap";
-        body = const ProfileView();
+        bodyContent = const ProfileView();
         leading = null;
         actions = [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: IconButton(
-              icon: const Icon(Icons.account_balance_wallet_outlined,
-                  color: Color(0xFF1D2939), size: 28),
+              icon: const Icon(
+                Icons.account_balance_wallet_outlined,
+                color: Color(0xFF1D2939),
+                size: 28,
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -120,79 +129,99 @@ class _HomePageState extends State<HomePage> {
         break;
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<MatchesCubit>()..fetchMatches(),
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<CreditsCubit>()..fetchCredits(),
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
+        ),
+      ],
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leadingWidth: _selectedIndex == 0 ? 70 : null,
-        leading: leading,
-        title: Text(
-          title,
-          style: GoogleFonts.outfit(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leadingWidth: _selectedIndex == 0 ? 70 : null,
+          leading: leading,
+          title: Text(
+            title,
+            style: GoogleFonts.outfit(
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              color: const Color(0xFF101828),
+            ),
+          ),
+          centerTitle: true,
+          actions: actions,
+        ),
+        body: bodyContent,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF0B6A7A),
+          unselectedItemColor: const Color(0xFF98A2B3),
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          selectedLabelStyle: GoogleFonts.inter(
+            fontSize: 10,
             fontWeight: FontWeight.w700,
-            fontSize: 24,
-            color: const Color(0xFF101828),
+            letterSpacing: 0.5,
           ),
+          unselectedLabelStyle: GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+          ),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(Icons.auto_awesome_rounded),
+              ),
+              label: 'DISCOVER',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(Icons.handshake_rounded),
+              ),
+              label: 'MATCHES',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(Icons.favorite_rounded),
+              ),
+              label: 'LIKES',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(Icons.person_rounded),
+              ),
+              label: 'PROFILE',
+            ),
+          ],
         ),
-        centerTitle: true,
-        actions: actions,
-      ),
-      body: body,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF0B6A7A),
-        unselectedItemColor: const Color(0xFF98A2B3),
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedLabelStyle: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.auto_awesome_rounded),
-            ),
-            label: 'DISCOVER',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.handshake_rounded),
-            ),
-            label: 'MATCHES',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.favorite_rounded),
-            ),
-            label: 'LIKES',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.person_rounded),
-            ),
-            label: 'PROFILE',
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildActionButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return Center(
       child: GestureDetector(
         onTap: onTap,
@@ -203,11 +232,7 @@ class _HomePageState extends State<HomePage> {
             color: Color(0xFFF2F4F7),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF1D2939),
-            size: 20,
-          ),
+          child: Icon(icon, color: const Color(0xFF1D2939), size: 20),
         ),
       ),
     );
