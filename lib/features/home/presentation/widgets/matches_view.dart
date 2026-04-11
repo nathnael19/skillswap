@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/chat_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches/conversation_item.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches/new_match_bubble.dart';
 
@@ -18,7 +19,72 @@ class MatchesView extends StatelessWidget {
         }
 
         if (state is MatchesError) {
-          return Center(child: Text(state.message));
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(flex: 2),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2F4F7),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.handshake_rounded,
+                    color: Color(0xFF0B6A7A),
+                    size: 64,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                Text(
+                  'Your Connections',
+                  style: GoogleFonts.outfit(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF101828),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Once you connect with an expert, your shared journey and messages will appear here.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: const Color(0xFF667085),
+                    height: 1.5,
+                  ),
+                ),
+                const Spacer(flex: 3),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(OnboardingPage.route());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0B6A7A),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'Get Started',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          );
         }
 
         if (state is MatchesLoaded) {
