@@ -48,12 +48,22 @@ class ConversationItem extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    userImageUrl,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                  ),
+                  child: userImageUrl.startsWith('assets')
+                      ? Image.asset(
+                          userImageUrl,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          userImageUrl,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset('assets/home.png',
+                                  width: 60, height: 60, fit: BoxFit.cover),
+                        ),
                 ),
                 if (isOnline)
                   Positioned(
