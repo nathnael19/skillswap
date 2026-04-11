@@ -217,21 +217,27 @@ class _ChatPageState extends State<ChatPage> {
         );
       }
 
-      return ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        itemCount: state.messages.length,
-        itemBuilder: (context, index) {
-          final msg = state.messages[index];
-          final isMe = msg.senderId == _currentUserId;
+      return RefreshIndicator(
+        onRefresh: () =>
+            context.read<ChatCubit>().loadMessages(widget.matchId),
+        color: const Color(0xFF0B6A7A),
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          itemCount: state.messages.length,
+          itemBuilder: (context, index) {
+            final msg = state.messages[index];
+            final isMe = msg.senderId == _currentUserId;
 
-          return MessageBubble(
-            text: msg.content,
-            isMe: isMe,
-            time: DateFormat('hh:mm a').format(msg.timestamp),
-            isSeen: true,
-          );
-        },
+            return MessageBubble(
+              text: msg.content,
+              isMe: isMe,
+              time: DateFormat('hh:mm a').format(msg.timestamp),
+              isSeen: true,
+            );
+          },
+        ),
       );
     }
 
