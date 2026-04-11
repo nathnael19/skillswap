@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
@@ -14,8 +15,14 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   String _selectedCategory = 'All';
-  final List<String> _categories = ['All', 'Design', 'Python', 'Cooking', 'Business'];
-  
+  final List<String> _categories = [
+    'All',
+    'Design',
+    'Python',
+    'Cooking',
+    'Business',
+  ];
+
   List<User> _users = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -33,8 +40,10 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     final category = _selectedCategory == 'All' ? null : _selectedCategory;
-    final result = await serviceLocator<HomeRepository>().getDiscoveryUsers(category: category);
-    
+    final result = await serviceLocator<HomeRepository>().getDiscoveryUsers(
+      category: category,
+    );
+
     if (mounted) {
       result.fold(
         (failure) => setState(() {
@@ -52,140 +61,218 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF101828)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'SkillSwap',
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: const Color(0xFF101828),
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAECF0),
-                borderRadius: BorderRadius.circular(16),
+      backgroundColor: const Color(0xFF0C0A09),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            // Glass Header with Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 8.0,
               ),
-              child: TextField(
-                onSubmitted: (value) {
-                  // Could implement search by keyword here
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search for skills, mentors, or topics',
-                  hintStyle: GoogleFonts.inter(
-                    color: const Color(0xFF667085),
-                    fontSize: 15,
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
                   ),
-                  prefixIcon: const Icon(Icons.search, color: Color(0xFF667085)),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-              ),
-            ),
-          ),
-
-          // Horizontal Categories
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: _categories.map((category) {
-                final isSelected = _selectedCategory == category;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedCategory = category);
-                    _fetchUsers();
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF0B6A7A) : const Color(0xFFEAECF0),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      category,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? Colors.white : const Color(0xFF344054),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          child: TextField(
+                            style: GoogleFonts.dmSans(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: 'Search skills or experts',
+                              hintStyle: GoogleFonts.dmSans(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                fontSize: 15,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search_rounded,
+                                color: Colors.white.withValues(alpha: 0.5),
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                );
-              }).toList(),
+                ],
+              ),
             ),
-          ),
 
-          const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
-          // Recommended Experts Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CURATED FOR YOU',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF0B6A7A),
-                        letterSpacing: 0.5,
+            // Premium Category Selector
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                children: _categories.map((category) {
+                  final isSelected = _selectedCategory == category;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedCategory = category);
+                      _fetchUsers();
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFFCA8A04)
+                            : Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFFCA8A04)
+                              : Colors.white.withValues(alpha: 0.1),
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFFCA8A04,
+                                  ).withValues(alpha: 0.3),
+                                  blurRadius: 15,
+                                  spreadRadius: -2,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Text(
+                        category,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 14,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.6),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Recommended Experts',
-                      style: GoogleFonts.inter(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF101828),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  );
+                }).toList(),
+              ),
             ),
-          ),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 32),
 
-          // Experts List
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _errorMessage != null
-                    ? Center(child: Text(_errorMessage!))
-                    : _users.isEmpty
-                        ? const Center(child: Text("No experts found in this category."))
-                        : ListView.builder(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            itemCount: _users.length,
-                            itemBuilder: (context, index) {
-                              return ExpertCard(user: _users[index]);
-                            },
-                          ),
-          ),
-        ],
+            // Section Label
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCA8A04),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'CURATED TALENT',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFFCA8A04),
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      Text(
+                        'Recommended Experts',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Experts List
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFCA8A04),
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : _errorMessage != null
+                  ? Center(
+                      child: Text(
+                        _errorMessage!,
+                        style: GoogleFonts.dmSans(color: Colors.white70),
+                      ),
+                    )
+                  : _users.isEmpty
+                  ? Center(
+                      child: Text(
+                        "No experts found.",
+                        style: GoogleFonts.dmSans(color: Colors.white30),
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 24),
+                      itemCount: _users.length,
+                      itemBuilder: (context, index) {
+                        return ExpertCard(user: _users[index]);
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
