@@ -91,6 +91,7 @@ class LikesView extends StatelessWidget {
                         state.passedUsers,
                         'No passed profiles',
                         'Your skip history will appear here.',
+                        isPassed: true,
                       ),
                     ],
                   ),
@@ -139,6 +140,7 @@ class LikesView extends StatelessWidget {
     String emptySubtitle, {
     bool isReceived = false,
     bool isSent = false,
+    bool isPassed = false,
   }) {
     if (users.isEmpty) {
       return RefreshIndicator(
@@ -187,6 +189,7 @@ class LikesView extends StatelessWidget {
             users[index],
             isReceived: isReceived,
             isSent: isSent,
+            isPassed: isPassed,
           );
         },
       ),
@@ -198,6 +201,7 @@ class LikesView extends StatelessWidget {
     User user, {
     bool isReceived = false,
     bool isSent = false,
+    bool isPassed = false,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
@@ -330,8 +334,9 @@ class LikesView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (isReceived || isSent) const SizedBox(width: 16),
-                    if (isReceived)
+                    if (isReceived || isSent || isPassed)
+                      const SizedBox(width: 16),
+                    if (isReceived || isPassed)
                       Expanded(
                         flex: 2,
                         child: ElevatedButton(
@@ -349,7 +354,7 @@ class LikesView extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'Like Back',
+                            isPassed ? 'Like' : 'Like Back',
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
