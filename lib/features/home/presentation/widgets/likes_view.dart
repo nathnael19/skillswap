@@ -11,77 +11,94 @@ class LikesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LikesCubit, LikesState>(
-      builder: (context, state) {
-        if (state is LikesLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return DefaultTabController(
+      length: 3,
+      child: BlocBuilder<LikesCubit, LikesState>(
+        builder: (context, state) {
+          if (state is LikesLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (state is LikesError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(state.message),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () => context.read<LikesCubit>().fetchLikesReceived(),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        if (state is LikesLoaded) {
-          final likes = state.users;
-
-          if (likes.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: () => context.read<LikesCubit>().fetchLikesReceived(),
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          if (state is LikesError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 100),
-                  Center(
-                    child: Column(
-                      children: [
-                        const Icon(Icons.favorite_border,
-                            size: 64, color: Colors.grey),
-                        const SizedBox(height: 24),
-                        Text(
-                          'No likes yet',
-                          style: GoogleFonts.outfit(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text('Keep swiping to get noticed!'),
-                      ],
-                    ),
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(state.message),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => context.read<LikesCubit>().fetchLikes(),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: () => context.read<LikesCubit>().fetchLikesReceived(),
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          if (state is LikesLoaded) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 32),
-                ...likes.map((user) => _buildLikeCard(context, user)),
-                const SizedBox(height: 40),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: _buildHeader(),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: TabBar(
+                    isScrollable: true,
+                    indicatorColor: const Color(0xFF0B6A7A),
+                    labelColor: const Color(0xFF0B6A7A),
+                    unselectedLabelColor: const Color(0xFF667085),
+                    labelStyle: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                    indicatorWeight: 3,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    tabs: const [
+                      Tab(text: 'FOR YOU'),
+                      Tab(text: 'LIKED'),
+                      Tab(text: 'PASSED'),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _buildLikesList(
+                        context,
+                        state.receivedLikes,
+                        'No interest yet',
+                        'Keep swiping to get noticed!',
+                        isReceived: true,
+                      ),
+                      _buildLikesList(
+                        context,
+                        state.sentLikes,
+                        'No likes sent',
+                        'Find talented people in Discovery!',
+                      ),
+                      _buildLikesList(
+                        context,
+                        state.passedUsers,
+                        'No passed profiles',
+                        'Your skip history will appear here.',
+                      ),
+                    ],
+                  ),
+                ),
               ],
-            ),
-          );
-        }
+            );
+          }
 
-        return const SizedBox.shrink();
-      },
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
@@ -100,7 +117,7 @@ class LikesView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Interest shown to\nyou',
+          'Interaction History',
           style: GoogleFonts.outfit(
             fontSize: 34,
             fontWeight: FontWeight.w700,
@@ -108,20 +125,67 @@ class LikesView extends StatelessWidget {
             height: 1.1,
           ),
         ),
-        const SizedBox(height: 16),
-        Text(
-          'Discover talented individuals who are interested in your skills. Swap knowledge and grow your craft together.',
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: const Color(0xFF667085),
-            height: 1.5,
-          ),
-        ),
       ],
     );
   }
 
-  Widget _buildLikeCard(BuildContext context, User user) {
+  Widget _buildLikesList(
+    BuildContext context,
+    List<User> users,
+    String emptyTitle,
+    String emptySubtitle, {
+    bool isReceived = false,
+  }) {
+    if (users.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () => context.read<LikesCubit>().fetchLikes(),
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          children: [
+            const SizedBox(height: 60),
+            Center(
+              child: Column(
+                children: [
+                  const Icon(Icons.history, size: 48, color: Colors.grey),
+                  const SizedBox(height: 24),
+                  Text(
+                    emptyTitle,
+                    style: GoogleFonts.outfit(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF101828),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    emptySubtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: const Color(0xFF667085),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => context.read<LikesCubit>().fetchLikes(),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          return _buildLikeCard(context, users[index], isReceived: isReceived);
+        },
+      ),
+    );
+  }
+
+  Widget _buildLikeCard(BuildContext context, User user,
+      {bool isReceived = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
@@ -157,7 +221,7 @@ class LikesView extends StatelessWidget {
                   child: user.imageUrl.startsWith('http')
                       ? Image.network(
                           user.imageUrl,
-                          height: 240,
+                          height: 200,
                           width: double.infinity,
                           fit: BoxFit.cover,
                         )
@@ -165,7 +229,7 @@ class LikesView extends StatelessWidget {
                           user.imageUrl.isEmpty
                               ? 'assets/images/placeholder.png'
                               : user.imageUrl,
-                          height: 240,
+                          height: 200,
                           width: double.infinity,
                           fit: BoxFit.cover,
                         ),
@@ -184,12 +248,12 @@ class LikesView extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFDECDA), // Light peach
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           user.teaching?.name.toUpperCase() ?? 'EXPERT',
                           style: GoogleFonts.inter(
-                            fontSize: 10,
+                            fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: const Color(0xFF9E6400),
                             letterSpacing: 0.5,
@@ -217,30 +281,11 @@ class LikesView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: Color(0xFF0B6A7A),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      user.location.isEmpty ? 'Location private' : user.location,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF667085),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
                 Text(
                   user.bio.isEmpty
                       ? "Passionate about crafting digital experiences that feel human."
                       : user.bio,
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
                     fontSize: 14,
@@ -272,34 +317,33 @@ class LikesView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Like Back
-                          context.read<LikesCubit>().likeBackUser(user.id);
-                          // Refresh matches to show the new match immediately
-                          context.read<MatchesCubit>().fetchMatches();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0B6A7A),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                    if (isReceived) const SizedBox(width: 16),
+                    if (isReceived)
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.read<LikesCubit>().likeBackUser(user.id);
+                            context.read<MatchesCubit>().fetchMatches();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0B6A7A),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Like Back',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                          child: Text(
+                            'Like Back',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],
