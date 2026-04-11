@@ -38,15 +38,17 @@ class ExpertCard extends StatelessWidget {
               // Avatar
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: user.imageUrl.startsWith('http') || user.imageUrl.startsWith('/static')
+                child:
+                    user.imageUrl.startsWith('http') ||
+                        user.imageUrl.startsWith('/static')
                     ? Image.network(
-                        user.imageUrl.startsWith('/') 
-                            ? 'http://10.0.2.2:8000${user.imageUrl}' 
+                        user.imageUrl.startsWith('/')
+                            ? 'http://10.0.2.2:8000${user.imageUrl}'
                             : user.imageUrl,
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Image.asset(
+                        errorBuilder: (_, _, _) => Image.asset(
                           'assets/home.png',
                           width: 80,
                           height: 80,
@@ -122,7 +124,9 @@ class ExpertCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      user.bio.isEmpty ? 'Passionate about sharing skills and growing together.' : user.bio,
+                      user.bio.isEmpty
+                          ? 'Passionate about sharing skills and growing together.'
+                          : user.bio,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
