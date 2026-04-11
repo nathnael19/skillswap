@@ -467,7 +467,10 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                           onLike: () => _runSwipeAnimation(true),
                           onDislike: () => _runSwipeAnimation(false),
                           onChat: () {
-                            // Could open partial profile or similar
+                            final authState = context.read<AuthCubit>().state;
+                            if (authState is! AuthSuccess) {
+                              Navigator.of(context).push(OnboardingPage.route());
+                            }
                           },
                           enabled: !isInteractionDisabled,
                         ),
