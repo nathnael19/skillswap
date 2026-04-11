@@ -4,7 +4,7 @@ import 'package:skillswap/features/home/domain/models/user_model.dart';
 
 abstract interface class HomeRepository {
   Future<Either<Failure, List<User>>> getDiscoveryUsers({String? category});
-  Future<Either<Failure, List<User>>> getMatches();
+  Future<Either<Failure, List<Conversation>>> getMatches();
   Future<Either<Failure, List<User>>> getLikesReceived();
   Future<Either<Failure, Map<String, dynamic>>> getCredits();
   Future<Either<Failure, bool>> swipeUser({
