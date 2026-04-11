@@ -38,12 +38,27 @@ class ExpertCard extends StatelessWidget {
               // Avatar
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  user.imageUrl,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
+                child: user.imageUrl.startsWith('http') || user.imageUrl.startsWith('/static')
+                    ? Image.network(
+                        user.imageUrl.startsWith('/') 
+                            ? 'http://10.0.2.2:8000${user.imageUrl}' 
+                            : user.imageUrl,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Image.asset(
+                          'assets/home.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Image.asset(
+                        'assets/home.png', // Fallback for local assets
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(width: 16),
               // Content
@@ -83,7 +98,7 @@ class ExpertCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                user.rating.toString(),
+                                user.rating.toStringAsFixed(1),
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -97,7 +112,7 @@ class ExpertCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      user.teaching.name.toUpperCase(),
+                      (user.teaching?.name ?? 'EXPERT').toUpperCase(),
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -107,7 +122,7 @@ class ExpertCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      user.bio,
+                      user.bio.isEmpty ? 'Passionate about sharing skills and growing together.' : user.bio,
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
