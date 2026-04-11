@@ -144,7 +144,12 @@ class LikesView extends StatelessWidget {
   }) {
     if (users.isEmpty) {
       return RefreshIndicator(
-        onRefresh: () => context.read<LikesCubit>().fetchLikes(),
+        onRefresh: () async {
+          await context.read<LikesCubit>().fetchLikes();
+          if (context.mounted) {
+            await context.read<MatchesCubit>().fetchMatches();
+          }
+        },
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           children: [
@@ -179,7 +184,12 @@ class LikesView extends StatelessWidget {
     }
 
     return RefreshIndicator(
-      onRefresh: () => context.read<LikesCubit>().fetchLikes(),
+      onRefresh: () async {
+        await context.read<LikesCubit>().fetchLikes();
+        if (context.mounted) {
+          await context.read<MatchesCubit>().fetchMatches();
+        }
+      },
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         itemCount: users.length,
