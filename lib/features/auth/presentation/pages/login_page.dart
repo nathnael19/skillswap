@@ -7,7 +7,7 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/widgets/auth_social_button.dart';
 import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/home/presentation/pages/home_page.dart';
-import 'package:skillswap/features/auth/presentation/pages/register_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 
 class LoginPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -214,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.of(context).push(RegisterPage.route());
+                              Navigator.of(context).push(OnboardingPage.route());
                             },
                             child: Text(
                               "Sign Up",
