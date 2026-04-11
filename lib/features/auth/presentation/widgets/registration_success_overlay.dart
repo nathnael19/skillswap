@@ -197,7 +197,7 @@ class ParticlePainter extends CustomPainter {
       double dy = particle.vy * t + 0.5 * 0.1 * t * t; // Adding subtle gravity
 
       double opacity = (1.0 - progress).clamp(0.0, 1.0);
-      paint.color = particle.color.withOpacity(opacity);
+      paint.color = particle.color.withValues(alpha: opacity);
       
       canvas.drawCircle(
         Offset(center.dx + dx, center.dy + dy),

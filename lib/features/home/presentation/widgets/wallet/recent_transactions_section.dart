@@ -38,7 +38,7 @@ class RecentTransactionsSection extends StatelessWidget {
                 subtitle: 'Oct 24, 2023 • UI Design Review',
                 amount: '+1',
                 isPositive: true,
-                iconColor: const Color(0xFF9E6400).withOpacity(0.1),
+                iconColor: const Color(0xFF9E6400).withValues(alpha: 0.1),
                 iconSymbolColor: const Color(0xFF9E6400),
               ),
               const SizedBox(height: 16),

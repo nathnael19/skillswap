@@ -198,7 +198,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF0B6A7A) : const Color(0xFFE4E7EC).withOpacity(0.5),
+                  color: isSelected ? const Color(0xFF0B6A7A) : const Color(0xFFE4E7EC).withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -234,7 +234,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFE4E7EC).withOpacity(0.5),
+            color: const Color(0xFFE4E7EC).withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20),
           ),
           child: TextField(
@@ -265,7 +265,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0B6A7A).withOpacity(0.3),
+            color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),

@@ -109,7 +109,7 @@ class ProfileHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0B6A7A).withOpacity(0.2),
+                        color: const Color(0xFF0B6A7A).withValues(alpha: 0.2),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),

@@ -423,7 +423,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                           padding: const EdgeInsets.all(24),
                                           decoration: BoxDecoration(
                                             color:
-                                                Colors.white.withOpacity(0.2),
+                                                Colors.white.withValues(alpha: 0.2),
                                             shape: BoxShape.circle,
                                           ),
                                           child: const Icon(
@@ -454,7 +454,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                             padding: const EdgeInsets.all(24),
                                             decoration: BoxDecoration(
                                               color:
-                                                  Colors.white.withOpacity(0.2),
+                                                  Colors.white.withValues(alpha: 0.2),
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Icon(

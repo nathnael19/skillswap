@@ -11,9 +11,9 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 class ChatRepositoryImpl implements ChatRepository {
   final ApiClient _apiClient;
   WebSocketChannel? _channel;
-  String? _activeMatchId;
 
   ChatRepositoryImpl(this._apiClient);
+
 
   @override
   Future<Either<Failure, List<Message>>> getMessages(String matchId) async {
@@ -31,7 +31,6 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<Message> getMessagesStream(String matchId) async* {
-    _activeMatchId = matchId;
     
     // Get fresh token for WebSocket
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();

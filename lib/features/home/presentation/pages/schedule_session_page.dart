@@ -102,7 +102,7 @@ class ScheduleSessionPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0B6A7A).withOpacity(0.3),
+              color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

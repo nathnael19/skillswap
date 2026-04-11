@@ -123,7 +123,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                color: tealColor.withOpacity(0.5),
+                color: tealColor.withValues(alpha: 0.5),
                 letterSpacing: 1.5,
               ),
             ),
@@ -138,7 +138,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   decoration: BoxDecoration(
                     color: index <= _currentStep
                         ? tealColor
-                        : tealColor.withOpacity(0.1),
+                        : tealColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 );

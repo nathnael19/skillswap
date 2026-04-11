@@ -35,7 +35,7 @@ class NewMatchBubble extends StatelessWidget {
                     border: Border.all(
                       color: isTopMatch
                           ? const Color(0xFF9E6400) // Gold
-                          : const Color(0xFF0B6A7A).withOpacity(0.5), // Teal
+                          : const Color(0xFF0B6A7A).withValues(alpha: 0.5), // Teal
                       width: 2,
                     ),
                   ),

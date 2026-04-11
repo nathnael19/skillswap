@@ -227,7 +227,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF0B6A7A).withOpacity(0.2),
+                            color: const Color(0xFF0B6A7A).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),

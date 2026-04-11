@@ -35,7 +35,7 @@ class MeetingHubSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEAECF5).withOpacity(0.5),
+            color: const Color(0xFFEAECF5).withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(24),
           ),
           child: Row(

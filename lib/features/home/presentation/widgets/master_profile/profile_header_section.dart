@@ -52,7 +52,7 @@ class ProfileHeaderSection extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            user.profession?.toUpperCase() ?? 'EXPERT',
+            user.profession.toUpperCase(),
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w800,

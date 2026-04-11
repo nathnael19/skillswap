@@ -18,7 +18,7 @@ class ProfileStickyFooter extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, -5)),
           ],
@@ -33,7 +33,7 @@ class ProfileStickyFooter extends StatelessWidget {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                        color: const Color(0xFF0B6A7A).withOpacity(0.3),
+                        color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 8)),
                   ],

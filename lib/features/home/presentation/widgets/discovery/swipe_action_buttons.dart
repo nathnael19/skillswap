@@ -24,7 +24,7 @@ class SwipeActionButtons extends StatelessWidget {
         children: [
           _buildCircleButton(
             icon: Icons.close,
-            color: Colors.white.withOpacity(0.2), // Glass effect
+            color: Colors.white.withValues(alpha: 0.2), // Glass effect
             iconColor: Colors.white,
             onTap: onDislike,
             enabled: enabled,
@@ -44,7 +44,7 @@ class SwipeActionButtons extends StatelessWidget {
           const SizedBox(width: 16),
           _buildCircleButton(
             icon: Icons.chat_bubble_outline,
-            color: Colors.white.withOpacity(0.2), // Glass effect
+            color: Colors.white.withValues(alpha: 0.2), // Glass effect
             iconColor: Colors.white,
             onTap: onChat,
             enabled: enabled,
@@ -79,24 +79,24 @@ class SwipeActionButtons extends StatelessWidget {
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: enabled ? color : color.withOpacity(0.3),
+              color: enabled ? color : color.withValues(alpha: 0.3),
               shape: BoxShape.circle,
               boxShadow: hasShadow && enabled
                   ? [
                       BoxShadow(
-                        color: color.withOpacity(0.4),
+                        color: color.withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
                     ]
                   : null,
               border: isGlass
-                  ? Border.all(color: Colors.white.withOpacity(0.2), width: 1.5)
+                  ? Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5)
                   : null,
             ),
             child: Icon(
               icon,
-              color: enabled ? iconColor : iconColor.withOpacity(0.5),
+              color: enabled ? iconColor : iconColor.withValues(alpha: 0.5),
               size: iconSize,
             ),
           ),

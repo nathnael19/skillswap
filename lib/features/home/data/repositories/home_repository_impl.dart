@@ -1,18 +1,39 @@
 import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:fpdart/fpdart.dart';
 import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/network/api_constants.dart';
+import 'package:skillswap/features/home/domain/models/message_model.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   final ApiClient _apiClient;
+  WebSocketChannel? _channel;
 
   HomeRepositoryImpl(this._apiClient);
 
   @override
-  Future<Either<Failure, List<User>>> getDiscoveryUsers({String? category}) async {
+  Stream<Message> getGlobalMessageStream() async* {
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    if (token == null) return;
+
+    final wsUrl = '${ApiConstants.wsBaseUrl}${ApiConstants.messages}/ws/$token';
+    _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+
+    yield* _channel!.stream.map((event) {
+      final data = jsonDecode(event);
+      return Message.fromMap(data);
+    });
+  }
+
+  @override
+  Future<Either<Failure, List<User>>> getDiscoveryUsers({
+    String? category,
+  }) async {
     try {
       final response = await _apiClient.get(
         ApiConstants.discover,
@@ -22,7 +43,9 @@ class HomeRepositoryImpl implements HomeRepository {
         final List<dynamic> data = jsonDecode(response.body);
         return right(data.map((map) => User.fromMap(map)).toList());
       }
-      return left(ServerFailure('Failed to fetch discovery users: ${response.body}'));
+      return left(
+        ServerFailure('Failed to fetch discovery users: ${response.body}'),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -64,7 +87,9 @@ class HomeRepositoryImpl implements HomeRepository {
         final List data = jsonDecode(response.body);
         return right(data.map((m) => User.fromMap(m)).toList());
       }
-      return left(ServerFailure('Failed to fetch sent likes: ${response.body}'));
+      return left(
+        ServerFailure('Failed to fetch sent likes: ${response.body}'),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -79,7 +104,8 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(data.map((m) => User.fromMap(m)).toList());
       }
       return left(
-          ServerFailure('Failed to fetch sent dislikes: ${response.body}'));
+        ServerFailure('Failed to fetch sent dislikes: ${response.body}'),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -99,7 +125,10 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> swipeUser({required String targetId, required String direction}) async {
+  Future<Either<Failure, bool>> swipeUser({
+    required String targetId,
+    required String direction,
+  }) async {
     try {
       final response = await _apiClient.post(
         ApiConstants.swipes,
@@ -122,7 +151,9 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         return right(User.fromMap(jsonDecode(response.body)));
       }
-      return left(ServerFailure('Failed to fetch user profile: ${response.body}'));
+      return left(
+        ServerFailure('Failed to fetch user profile: ${response.body}'),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -151,7 +182,9 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         return right(User.fromMap(jsonDecode(response.body)));
       }
-      return left(ServerFailure('Failed to update user profile: ${response.body}'));
+      return left(
+        ServerFailure('Failed to update user profile: ${response.body}'),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }

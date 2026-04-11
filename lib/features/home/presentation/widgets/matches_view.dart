@@ -99,12 +99,11 @@ class MatchesView extends StatelessWidget {
                                           isOnline: true,
                                         ),
                                       ),
-                                    ).then((_) {
+                                    );
+                                    if (context.mounted) {
                                       // Refresh matches when returning from chat
-                                      context
-                                          .read<MatchesCubit>()
-                                          .fetchMatches();
-                                    });
+                                      context.read<MatchesCubit>().fetchMatches();
+                                    }
                                   },
                                 );
                               }).toList(),
@@ -147,10 +146,11 @@ class MatchesView extends StatelessWidget {
                                         isOnline: true,
                                       ),
                                     ),
-                                  ).then((_) {
+                                  );
+                                  if (context.mounted) {
                                     // Refresh matches when returning from chat to clear unread dots
                                     context.read<MatchesCubit>().fetchMatches();
-                                  });
+                                  }
                                 },
                               );
                             },

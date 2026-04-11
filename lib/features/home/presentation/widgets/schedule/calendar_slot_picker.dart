@@ -9,7 +9,7 @@ class CalendarSlotPicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAECF5).withOpacity(0.3),
+        color: const Color(0xFFEAECF5).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(

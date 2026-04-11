@@ -273,7 +273,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               border: Border.all(color: Colors.white, width: 3),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                 ),
               ],
@@ -417,7 +417,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => onRemove(skill),
-            child: Icon(Icons.cancel, color: textColor.withOpacity(0.3), size: 18),
+            child: Icon(Icons.cancel, color: textColor.withValues(alpha: 0.3), size: 18),
           ),
         ],
       ),

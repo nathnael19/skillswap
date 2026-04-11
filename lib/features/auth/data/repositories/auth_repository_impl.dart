@@ -36,10 +36,10 @@ class AuthRepositoryImpl implements AuthRepository {
         body: {
           'name': name,
           'email': email,
-          if (bio != null) 'bio': bio,
-          if (profession != null) 'profession': profession,
-          if (location != null) 'location': location,
-          if (skills != null) 'skills': skills,
+          'bio': ? bio,
+          'profession': ? profession,
+          'location': ? location,
+          'skills': ? skills,
         },
       );
 

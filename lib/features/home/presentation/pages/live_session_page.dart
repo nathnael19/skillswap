@@ -31,10 +31,10 @@ class LiveSessionPage extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.4),
+                      Colors.black.withValues(alpha: 0.4),
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.4),
+                      Colors.black.withValues(alpha: 0.4),
                     ],
                     stops: const [0.0, 0.2, 0.8, 1.0],
                   ),
@@ -67,7 +67,7 @@ class LiveSessionPage extends StatelessWidget {
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               letterSpacing: 1,
                             ),
                           ),
@@ -159,7 +159,7 @@ class LiveSessionPage extends StatelessWidget {
               right: 20,
               child: _buildGlassCard(
                 width: 200,
-                color: const Color(0xFFB47E00).withOpacity(0.4),
+                color: const Color(0xFFB47E00).withValues(alpha: 0.4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -168,7 +168,7 @@ class LiveSessionPage extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -200,7 +200,7 @@ class LiveSessionPage extends StatelessWidget {
                   ),
                   border: Border.all(color: Colors.white30, width: 1),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20),
                   ],
                 ),
                 child: Stack(
@@ -211,7 +211,7 @@ class LiveSessionPage extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.4),
+                          color: Colors.black.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
@@ -242,7 +242,7 @@ class LiveSessionPage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -274,7 +274,7 @@ class LiveSessionPage extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(40),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 30),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 30),
                   ],
                 ),
                 child: Row(
@@ -304,7 +304,7 @@ class LiveSessionPage extends StatelessWidget {
           width: width,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color ?? Colors.white.withOpacity(0.1),
+            color: color ?? Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white12, width: 1),
           ),
@@ -321,7 +321,7 @@ class LiveSessionPage extends StatelessWidget {
         children: [
           Icon(
             isDone ? Icons.check_circle_outlined : Icons.radio_button_unchecked,
-            color: isDone ? Colors.white : Colors.white.withOpacity(0.4),
+            color: isDone ? Colors.white : Colors.white.withValues(alpha: 0.4),
             size: 18,
           ),
           const SizedBox(width: 12),
@@ -330,7 +330,7 @@ class LiveSessionPage extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isDone ? Colors.white : Colors.white.withOpacity(0.5),
+              color: isDone ? Colors.white : Colors.white.withValues(alpha: 0.5),
             ),
           ),
         ],
