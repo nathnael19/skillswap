@@ -11,6 +11,8 @@ abstract interface class HomeRepository {
     required String targetId,
     required String direction,
   });
+  Future<Either<Failure, List<User>>> getSentLikes();
+  Future<Either<Failure, List<User>>> getSentDislikes();
   Future<Either<Failure, User>> getMe();
   Future<Either<Failure, User>> getUserById(String userId);
   Future<Either<Failure, User>> updateUserProfile(User user);
