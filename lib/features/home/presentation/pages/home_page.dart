@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/search_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches_view.dart';
@@ -143,6 +144,9 @@ class _HomePageState extends State<HomePage> {
         ),
         BlocProvider(
           create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
         ),
       ],
       child: Scaffold(
