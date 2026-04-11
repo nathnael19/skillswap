@@ -26,6 +26,8 @@ class ApiConstants {
   static const String swipes = '/matches/swipes';
   static const String matches = '/matches/matches';
   static const String likesReceived = '/matches/received-likes';
+  static const String sentLikes = '/matches/sent-likes';
+  static const String sentDislikes = '/matches/sent-dislikes';
   
   // Chat
   static const String messages = '/messages'; // /messages/{match_id}
