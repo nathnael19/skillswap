@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:skillswap/core/error/failures.dart';
+import 'package:skillswap/core/network/api_client.dart';
+import 'package:skillswap/core/network/api_constants.dart';
 import 'package:skillswap/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
+  final ApiClient _apiClient;
 
-  const AuthRepositoryImpl(this._firebaseAuth);
+  const AuthRepositoryImpl(this._firebaseAuth, this._apiClient);
 
   @override
   Future<Either<Failure, String>> signUpWithEmailPassword({
@@ -22,6 +25,20 @@ class AuthRepositoryImpl implements AuthRepository {
       if (credential.user == null) {
         return left(ServerFailure('User is null!'));
       }
+
+      // Initialize user in our backend
+      final response = await _apiClient.post(
+        ApiConstants.initUser,
+        body: {
+          'name': name,
+          'email': email,
+        },
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return left(ServerFailure('Failed to initialize user in backend: ${response.body}'));
+      }
+
       return right(credential.user!.uid);
     } on FirebaseAuthException catch (e) {
       return left(ServerFailure(e.message ?? 'Unknown error.'));
