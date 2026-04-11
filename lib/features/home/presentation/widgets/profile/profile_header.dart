@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/edit_profile_page.dart';
 
+import 'package:skillswap/features/home/domain/models/user_model.dart';
+
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key});
+  final User user;
+  const ProfileHeader({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +23,11 @@ class ProfileHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFF2F4F7), width: 1.5),
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 64,
-                backgroundImage: AssetImage(
-                  'assets/home.png',
-                ),
+                backgroundImage: user.imageUrl.startsWith('http')
+                    ? NetworkImage(user.imageUrl) as ImageProvider
+                    : AssetImage(user.imageUrl),
               ),
             ),
             Positioned(
@@ -62,7 +67,7 @@ class ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'Jordan Smith',
+          user.name,
           style: GoogleFonts.outfit(
             fontSize: 32,
             fontWeight: FontWeight.w700,
@@ -71,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'UX RESEARCHER • LONDON, UK',
+          '${user.profession.toUpperCase()} • ${user.location.toUpperCase()}',
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -86,10 +91,15 @@ class ProfileHeader extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () {
+                  final profileCubit = context.read<ProfileCubit>();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const EditProfilePage()),
+                      builder: (context) => BlocProvider.value(
+                        value: profileCubit,
+                        child: EditProfilePage(user: user),
+                      ),
+                    ),
                   );
                 },
                 child: Container(
