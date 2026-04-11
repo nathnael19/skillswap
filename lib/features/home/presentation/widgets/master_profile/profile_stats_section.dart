@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 
 class ProfileStatsSection extends StatelessWidget {
-  const ProfileStatsSection({super.key});
+  final User user;
+  const ProfileStatsSection({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -11,11 +13,11 @@ class ProfileStatsSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         children: [
-          _buildStatCard('RATING', '4.98', '/ 5'),
+          _buildStatCard('RATING', user.rating.toStringAsFixed(2), '/ 5'),
           const SizedBox(width: 12),
-          _buildStatCard('SWAPS', '142', ''),
+          _buildStatCard('SWAPS', '24', ''), // Placeholder for real swap count
           const SizedBox(width: 12),
-          _buildStatCard('RESPONSE', 'Instant', ''),
+          _buildStatCard('RESPONSE', 'Fast', ''), // Placeholder for response time
         ],
       ),
     );
