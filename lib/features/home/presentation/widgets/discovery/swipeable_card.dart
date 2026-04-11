@@ -7,11 +7,7 @@ class SwipeableCard extends StatelessWidget {
   final User user;
   final bool isDraggable;
 
-  const SwipeableCard({
-    super.key,
-    required this.user,
-    this.isDraggable = true,
-  });
+  const SwipeableCard({super.key, required this.user, this.isDraggable = true});
 
   @override
   Widget build(BuildContext context) {
@@ -31,21 +27,18 @@ class SwipeableCard extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(
-              child: user.imageUrl.startsWith('http') || user.imageUrl.startsWith('/static')
+              child:
+                  user.imageUrl.startsWith('http') ||
+                      user.imageUrl.startsWith('/static')
                   ? Image.network(
-                      user.imageUrl.startsWith('/') 
-                          ? 'http://10.0.2.2:8000${user.imageUrl}' 
+                      user.imageUrl.startsWith('/')
+                          ? 'http://10.0.2.2:8000${user.imageUrl}'
                           : user.imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Image.asset(
-                        'assets/home.png',
-                        fit: BoxFit.cover,
-                      ),
+                      errorBuilder: (_, _, _) =>
+                          Image.asset('assets/home.png', fit: BoxFit.cover),
                     )
-                  : Image.asset(
-                      'assets/home.png',
-                      fit: BoxFit.cover,
-                    ),
+                  : Image.asset('assets/home.png', fit: BoxFit.cover),
             ),
             Positioned.fill(
               child: Container(
@@ -54,10 +47,7 @@ class SwipeableCard extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     stops: const [0.4, 0.9],
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
-                    ],
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
                   ),
                 ),
               ),
@@ -68,11 +58,12 @@ class SwipeableCard extends StatelessWidget {
               right: 24,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const MasterProfilePage()),
-                  );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MasterProfilePage(userId: user.id),
+                      ),
+                    );
                 },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
