@@ -47,6 +47,20 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<Either<Failure, List<User>>> getLikesReceived() async {
+    try {
+      final response = await _apiClient.get(ApiConstants.likesReceived);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return right(data.map((map) => User.fromMap(map)).toList());
+      }
+      return left(ServerFailure('Failed to fetch received likes: ${response.body}'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> getCredits() async {
     try {
       final response = await _apiClient.get(ApiConstants.credits);
@@ -84,6 +98,19 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(User.fromMap(jsonDecode(response.body)));
       }
       return left(ServerFailure('Failed to fetch user profile: ${response.body}'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> getUserById(String userId) async {
+    try {
+      final response = await _apiClient.get('${ApiConstants.userById}/$userId');
+      if (response.statusCode == 200) {
+        return right(User.fromMap(jsonDecode(response.body)));
+      }
+      return left(ServerFailure('Failed to fetch user: ${response.body}'));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
