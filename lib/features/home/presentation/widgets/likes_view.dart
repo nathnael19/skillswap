@@ -42,8 +42,10 @@ class LikesView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
+                  ),
                   child: _buildHeader(),
                 ),
                 Container(
@@ -82,6 +84,7 @@ class LikesView extends StatelessWidget {
                         state.sentLikes,
                         'No likes sent',
                         'Find talented people in Discovery!',
+                        isSent: true,
                       ),
                       _buildLikesList(
                         context,
@@ -135,6 +138,7 @@ class LikesView extends StatelessWidget {
     String emptyTitle,
     String emptySubtitle, {
     bool isReceived = false,
+    bool isSent = false,
   }) {
     if (users.isEmpty) {
       return RefreshIndicator(
@@ -178,14 +182,23 @@ class LikesView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         itemCount: users.length,
         itemBuilder: (context, index) {
-          return _buildLikeCard(context, users[index], isReceived: isReceived);
+          return _buildLikeCard(
+            context,
+            users[index],
+            isReceived: isReceived,
+            isSent: isSent,
+          );
         },
       ),
     );
   }
 
-  Widget _buildLikeCard(BuildContext context, User user,
-      {bool isReceived = false}) {
+  Widget _buildLikeCard(
+    BuildContext context,
+    User user, {
+    bool isReceived = false,
+    bool isSent = false,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
@@ -317,7 +330,7 @@ class LikesView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (isReceived) const SizedBox(width: 16),
+                    if (isReceived || isSent) const SizedBox(width: 16),
                     if (isReceived)
                       Expanded(
                         flex: 2,
@@ -344,10 +357,79 @@ class LikesView extends StatelessWidget {
                           ),
                         ),
                       ),
+                    if (isSent)
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              _showRetractConfirmation(context, user),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF2F4F7),
+                            foregroundColor: const Color(0xFF101828),
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            'Pass',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRetractConfirmation(BuildContext context, User user) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(
+          'Pass on ${user.name}?',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'This will remove them from your likes. If you\'ve already matched, your conversation will be permanently deleted.',
+          style: GoogleFonts.inter(color: const Color(0xFF667085)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(
+                color: const Color(0xFF667085),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<LikesCubit>().undoLike(user.id);
+              context.read<MatchesCubit>().fetchMatches();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD92D20),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Confirm Pass'),
           ),
         ],
       ),
