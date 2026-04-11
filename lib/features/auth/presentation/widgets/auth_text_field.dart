@@ -10,6 +10,7 @@ class AuthTextField extends StatelessWidget {
   final IconData icon;
   final bool isPassword;
   final bool iconIsPrefix;
+  final int maxLines;
 
   const AuthTextField({
     super.key,
@@ -19,6 +20,7 @@ class AuthTextField extends StatelessWidget {
     required this.icon,
     this.isPassword = false,
     this.iconIsPrefix = true,
+    this.maxLines = 1,
   });
 
   @override
@@ -49,6 +51,7 @@ class AuthTextField extends StatelessWidget {
           child: TextFormField(
             controller: controller,
             obscureText: isPassword,
+            maxLines: maxLines,
             style: GoogleFonts.inter(fontSize: 14),
             decoration: InputDecoration(
               hintText: hint,
