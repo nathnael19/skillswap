@@ -1,9 +1,17 @@
 import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 
 class ApiConstants {
-  static const String baseUrl = kIsWeb 
-      ? 'http://localhost:8000/api/v1' 
-      : 'http://10.0.2.2:8000/api/v1';
+  static String get _host {
+    if (kIsWeb) return '127.0.0.1:8000';
+    try {
+      if (Platform.isAndroid) return '10.0.2.2:8000';
+    } catch (_) {}
+    return '127.0.0.1:8000';
+  }
+
+  static String get baseUrl => 'http://$_host/api/v1';
+  static String get wsBaseUrl => 'ws://$_host/api/v1';
   
   // Auth & Users
   static const String initUser = '/users/init';
