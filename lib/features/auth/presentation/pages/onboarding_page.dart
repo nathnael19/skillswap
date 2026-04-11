@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/app_button.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
 import 'package:skillswap/features/home/presentation/pages/home_page.dart';
@@ -87,14 +88,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _register() {
     context.read<AuthCubit>().signUp(
-          name: nameController.text.trim(),
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-          bio: bioController.text.trim(),
-          profession: professionController.text.trim(),
-          location: locationController.text.trim(),
-          skills: _skills,
-        );
+      name: nameController.text.trim(),
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      bio: bioController.text.trim(),
+      profession: professionController.text.trim(),
+      location: locationController.text.trim(),
+      skills: _skills,
+    );
   }
 
   @override
@@ -150,19 +151,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
             showDialog(
               context: context,
               barrierDismissible: false,
               builder: (context) => RegistrationSuccessOverlay(
                 onAnimationComplete: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    HomePage.route(),
-                    (route) => false,
-                  );
+                  Navigator.of(
+                    context,
+                  ).pushAndRemoveUntil(HomePage.route(), (route) => false);
                 },
               ),
             );
@@ -188,6 +188,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildStep1() {
+    const tealColor = Color(0xFF0B6A7A);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -240,6 +241,33 @@ class _OnboardingPageState extends State<OnboardingPage> {
               }
             },
           ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Already have an account? ",
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: const Color(0xFF667085),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(LoginPage.route());
+                },
+                child: Text(
+                  "Log In",
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: tealColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -303,7 +331,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF0B6A7A),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -316,21 +345,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 .asMap()
                 .entries
                 .where((e) => e.value['type'] == 'teach')
-                .map((e) => Chip(
-                      label: Text(e.value['name']!),
-                      onDeleted: () => _removeSkill(e.key),
-                      backgroundColor: const Color(0xFFF2F4F7),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                    ))
+                .map(
+                  (e) => Chip(
+                    label: Text(e.value['name']!),
+                    onDeleted: () => _removeSkill(e.key),
+                    backgroundColor: const Color(0xFFF2F4F7),
+                    side: BorderSide.none,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 48),
-          AppButton(
-            label: 'Continue',
-            onTap: _nextStep,
-          ),
+          AppButton(label: 'Continue', onTap: _nextStep),
         ],
       ),
     );
@@ -386,7 +415,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF0B6A7A),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -399,21 +429,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 .asMap()
                 .entries
                 .where((e) => e.value['type'] == 'learn')
-                .map((e) => Chip(
-                      label: Text(e.value['name']!),
-                      onDeleted: () => _removeSkill(e.key),
-                      backgroundColor: const Color(0xFFF2F4F7),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                    ))
+                .map(
+                  (e) => Chip(
+                    label: Text(e.value['name']!),
+                    onDeleted: () => _removeSkill(e.key),
+                    backgroundColor: const Color(0xFFF2F4F7),
+                    side: BorderSide.none,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 48),
-          AppButton(
-            label: 'Continue',
-            onTap: _nextStep,
-          ),
+          AppButton(label: 'Continue', onTap: _nextStep),
         ],
       ),
     );
