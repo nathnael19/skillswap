@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 
 class ProfileHeaderSection extends StatelessWidget {
-  const ProfileHeaderSection({super.key});
+  final User user;
+  const ProfileHeaderSection({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,13 @@ class ProfileHeaderSection extends StatelessWidget {
                     height: 120,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(28),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/home.png'),
+                      image: DecorationImage(
+                        image: user.imageUrl.startsWith('http')
+                            ? NetworkImage(user.imageUrl)
+                            : AssetImage(user.imageUrl.isEmpty
+                                    ? 'assets/home.png'
+                                    : user.imageUrl)
+                                as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -45,7 +52,7 @@ class ProfileHeaderSection extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'UX ARCHITECT & CERAMICIST',
+            user.profession?.toUpperCase() ?? 'EXPERT',
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -55,7 +62,7 @@ class ProfileHeaderSection extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Elena Moretti',
+            user.name,
             style: GoogleFonts.outfit(
               fontSize: 32,
               fontWeight: FontWeight.w800,
@@ -64,7 +71,9 @@ class ProfileHeaderSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Bridging the gap between digital systems and tactile arts. 10 years in Product Design, 5 years at the potter\'s wheel.',
+            user.bio.isEmpty
+                ? "Interested in swapping skills and growing together."
+                : user.bio,
             style: GoogleFonts.inter(
               fontSize: 15,
               color: const Color(0xFF475467),
