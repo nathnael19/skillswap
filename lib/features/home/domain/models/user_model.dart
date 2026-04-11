@@ -88,6 +88,8 @@ class User extends Equatable {
       teaching: teachingSkill,
       learning: learningSkill,
       allSkills: skills,
+      bio: map['bio'] ?? '',
+      location: map['location'] ?? '',
       profession: map['profession'] ?? 'Skill Swapper',
       matchId: map['match_id'],
     );
