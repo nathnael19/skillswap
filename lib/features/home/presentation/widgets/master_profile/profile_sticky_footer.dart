@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 
 class ProfileStickyFooter extends StatelessWidget {
-  const ProfileStickyFooter({super.key});
+  final User user;
+  const ProfileStickyFooter({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
