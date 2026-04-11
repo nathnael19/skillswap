@@ -35,6 +35,10 @@ class AuthCubit extends Cubit<AuthState> {
     required String name,
     required String email,
     required String password,
+    String? bio,
+    String? profession,
+    String? location,
+    List<Map<String, dynamic>>? skills,
   }) async {
     emit(AuthLoading());
     final res = await _userSignUp(
@@ -42,6 +46,10 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
         name: name,
+        bio: bio,
+        profession: profession,
+        location: location,
+        skills: skills,
       ),
     );
 
