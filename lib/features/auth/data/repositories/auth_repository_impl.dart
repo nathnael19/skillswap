@@ -16,6 +16,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required String name,
     required String email,
     required String password,
+    String? bio,
+    String? profession,
+    String? location,
+    List<Map<String, dynamic>>? skills,
   }) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -32,6 +36,10 @@ class AuthRepositoryImpl implements AuthRepository {
         body: {
           'name': name,
           'email': email,
+          if (bio != null) 'bio': bio,
+          if (profession != null) 'profession': profession,
+          if (location != null) 'location': location,
+          if (skills != null) 'skills': skills,
         },
       );
 
