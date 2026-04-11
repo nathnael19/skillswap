@@ -47,6 +47,7 @@ class User extends Equatable {
   final String bio;
   final String location;
   final String profession;
+  final String? matchId;
 
   const User({
     required this.id,
@@ -60,6 +61,7 @@ class User extends Equatable {
     this.bio = '',
     this.location = '',
     this.profession = '',
+    this.matchId,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -87,6 +89,7 @@ class User extends Equatable {
       learning: learningSkill,
       allSkills: skills,
       profession: map['profession'] ?? 'Skill Swapper',
+      matchId: map['match_id'],
     );
   }
 
@@ -116,6 +119,7 @@ class User extends Equatable {
     bio,
     location,
     profession,
+    matchId,
   ];
 }
 
