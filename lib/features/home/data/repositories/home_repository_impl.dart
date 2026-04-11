@@ -29,16 +29,12 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<Either<Failure, List<User>>> getMatches() async {
+  Future<Either<Failure, List<Conversation>>> getMatches() async {
     try {
       final response = await _apiClient.get(ApiConstants.matches);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return right(data.map((map) {
-          final userMap = Map<String, dynamic>.from(map['user']);
-          userMap['match_id'] = map['match_id'];
-          return User.fromMap(userMap);
-        }).toList());
+        return right(data.map((map) => Conversation.fromMap(map)).toList());
       }
       return left(ServerFailure('Failed to fetch matches: ${response.body}'));
     } catch (e) {
