@@ -112,18 +112,23 @@ class ProfileView extends StatelessWidget {
 
         if (state is ProfileLoaded) {
           final user = state.user;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
-                ProfileHeader(user: user),
-                const SizedBox(height: 32),
-                ExpertisePortfolio(user: user),
-                const SizedBox(height: 32),
-                const RecentActivitySection(),
-                const SizedBox(height: 40),
-              ],
+          return RefreshIndicator(
+            onRefresh: () => context.read<ProfileCubit>().fetchUserProfile(),
+            color: const Color(0xFF0B6A7A),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  ProfileHeader(user: user),
+                  const SizedBox(height: 32),
+                  ExpertisePortfolio(user: user),
+                  const SizedBox(height: 32),
+                  const RecentActivitySection(),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           );
         }
