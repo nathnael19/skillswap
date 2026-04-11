@@ -141,27 +141,22 @@ final List<Conversation> mockConversations = [
   Conversation(
     user: mockUsers[3], // Marcus
     lastMessage: 'That portfolio review really helped...',
-    timestamp: '2m ago',
-    isOnline: true,
-    skillTag: 'VISUAL DESIGN',
+    lastMessageTime: '2026-04-11T17:40:00Z',
   ),
   Conversation(
     user: mockUsers[4], // Elena
     lastMessage: 'Are you free for our React sessio...',
-    timestamp: '1h ago',
+    lastMessageTime: '2026-04-11T16:00:00Z',
     hasUnread: true,
-    skillTag: 'REACT.JS',
   ),
   Conversation(
     user: mockUsers[9], // Sam
     lastMessage: 'Sent an image',
-    timestamp: 'Yesterday',
-    skillTag: 'COPYWRITING',
+    lastMessageTime: '2026-04-10T12:00:00Z',
   ),
   Conversation(
     user: mockUsers[0], // Sophie
     lastMessage: 'The lighting on those shots is per...',
-    timestamp: 'Oct 24',
-    skillTag: 'PHOTOGRAPHY',
+    lastMessageTime: '2025-10-24T10:00:00Z',
   ),
 ];
