@@ -334,152 +334,169 @@ class _DiscoveryTabState extends State<DiscoveryTab>
           }
 
           final currentUser = users[_currentIndex];
+          final screenHeight = MediaQuery.of(context).size.height;
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Text(
-                      'DISCOVER EXPERTS',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                        color: const Color(0xFF667085),
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${_currentIndex + 1}/${users.length}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black45,
-                      ),
-                    ),
-                  ],
+          return RefreshIndicator(
+            onRefresh: () =>
+                context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+            color: const Color(0xFF0B6A7A),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: screenHeight - kBottomNavigationBarHeight - 100,
                 ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Next Card (Background)
-                      if (_currentIndex + 1 < users.length)
-                        Transform.scale(
-                          scale:
-                              0.9 +
-                              (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
-                          child: Opacity(
-                            opacity:
-                                0.5 +
-                                (_swipeOffset.dx.abs() / 1000).clamp(0, 0.5),
-                            child: SwipeableCard(
-                              user: users[_currentIndex + 1],
+                      Row(
+                        children: [
+                          Text(
+                            'DISCOVER EXPERTS',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                              color: const Color(0xFF667085),
                             ),
                           ),
-                        ),
-
-                      // Top Card (Draggable)
-                      GestureDetector(
-                        onDoubleTap: _triggerLikeAnimation,
-                        onPanUpdate: _onPanUpdate,
-                        onPanEnd: _onPanEnd,
-                        child: Transform.translate(
-                          offset: _swipeOffset,
-                          child: Transform.rotate(
-                            angle: _swipeAngle,
-                            child: SwipeableCard(user: currentUser),
+                          const Spacer(),
+                          Text(
+                            '${_currentIndex + 1}/${users.length}',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black45,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-
-                      // Like overlay
-                      if (_showHeart)
-                        IgnorePointer(
-                          child: AnimatedBuilder(
-                            animation: _likeAnimationController,
-                            builder: (context, child) {
-                              return Opacity(
-                                opacity: _likeOpacityAnimation.value,
-                                child: Transform.scale(
-                                  scale: _likeScaleAnimation.value,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.favorite,
-                                      color: Colors.white,
-                                      size: 100,
-                                    ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: screenHeight * 0.65,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Next Card (Background)
+                            if (_currentIndex + 1 < users.length)
+                              Transform.scale(
+                                scale: 0.9 +
+                                    (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
+                                child: Opacity(
+                                  opacity: 0.5 +
+                                      (_swipeOffset.dx.abs() / 1000)
+                                          .clamp(0, 0.5),
+                                  child: SwipeableCard(
+                                    user: users[_currentIndex + 1],
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                              ),
 
-                      // Dislike overlay
-                      if (_showClose)
-                        IgnorePointer(
-                          child: AnimatedBuilder(
-                            animation: _dislikeAnimationController,
-                            builder: (context, child) {
-                              return Opacity(
-                                opacity: _dislikeOpacityAnimation.value,
+                            // Top Card (Draggable)
+                            GestureDetector(
+                              onDoubleTap: _triggerLikeAnimation,
+                              onPanUpdate: _onPanUpdate,
+                              onPanEnd: _onPanEnd,
+                              child: Transform.translate(
+                                offset: _swipeOffset,
                                 child: Transform.rotate(
-                                  angle: _dislikeShakeAnimation.value,
-                                  child: Transform.scale(
-                                    scale: _dislikeScaleAnimation.value,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(24),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 100,
-                                      ),
-                                    ),
-                                  ),
+                                  angle: _swipeAngle,
+                                  child: SwipeableCard(user: currentUser),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                              ),
+                            ),
 
-                      // Action Buttons Row
-                      Positioned(
-                        bottom: -35,
-                        left: 0,
-                        right: 0,
-                        child: SwipeActionButtons(
-                          onLike: () => _runSwipeAnimation(true),
-                          onDislike: () => _runSwipeAnimation(false),
-                          onChat: () {
-                            final authState = context.read<AuthCubit>().state;
-                            if (authState is! AuthSuccess) {
-                              Navigator.of(context).push(OnboardingPage.route());
-                            }
-                          },
-                          enabled: !isInteractionDisabled,
+                            // Like overlay
+                            if (_showHeart)
+                              IgnorePointer(
+                                child: AnimatedBuilder(
+                                  animation: _likeAnimationController,
+                                  builder: (context, child) {
+                                    return Opacity(
+                                      opacity: _likeOpacityAnimation.value,
+                                      child: Transform.scale(
+                                        scale: _likeScaleAnimation.value,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(24),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.favorite,
+                                            color: Colors.white,
+                                            size: 100,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+
+                            // Dislike overlay
+                            if (_showClose)
+                              IgnorePointer(
+                                child: AnimatedBuilder(
+                                  animation: _dislikeAnimationController,
+                                  builder: (context, child) {
+                                    return Opacity(
+                                      opacity: _dislikeOpacityAnimation.value,
+                                      child: Transform.rotate(
+                                        angle: _dislikeShakeAnimation.value,
+                                        child: Transform.scale(
+                                          scale: _dislikeScaleAnimation.value,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(24),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.white.withOpacity(0.2),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 100,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+
+                            // Action Buttons Row
+                            Positioned(
+                              bottom: -35,
+                              left: 0,
+                              right: 0,
+                              child: SwipeActionButtons(
+                                onLike: () => _runSwipeAnimation(true),
+                                onDislike: () => _runSwipeAnimation(false),
+                                onChat: () {
+                                  final authState =
+                                      context.read<AuthCubit>().state;
+                                  if (authState is! AuthSuccess) {
+                                    Navigator.of(context)
+                                        .push(OnboardingPage.route());
+                                  }
+                                },
+                                enabled: !isInteractionDisabled,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 50),
                     ],
                   ),
                 ),
-                const SizedBox(height: 50),
-              ],
+              ),
             ),
           );
         }
