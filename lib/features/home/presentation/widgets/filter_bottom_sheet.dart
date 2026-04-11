@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -31,7 +30,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     'Marketing',
     'Writing',
     'Business',
-    'Data Science'
+    'Data Science',
   ];
 
   final List<String> _expertiseLevels = ['Beginner', 'Intermediate', 'Expert'];
@@ -186,7 +185,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF0B6A7A) : const Color(0xFFF2F4F7),
+              color: isSelected
+                  ? const Color(0xFF0B6A7A)
+                  : const Color(0xFFF2F4F7),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -219,7 +220,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF0B6A7A) : Colors.transparent,
+                  color: isSelected
+                      ? const Color(0xFF0B6A7A)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: isSelected
                       ? [
@@ -227,7 +230,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             color: const Color(0xFF0B6A7A).withOpacity(0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
-                          )
+                          ),
                         ]
                       : null,
                 ),
@@ -267,8 +270,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Icon(
-                    index < _tempRating ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: index < _tempRating ? const Color(0xFFFDB022) : const Color(0xFFD0D5DD),
+                    index < _tempRating
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color: index < _tempRating
+                        ? const Color(0xFFFDB022)
+                        : const Color(0xFFD0D5DD),
                     size: 32,
                   ),
                 ),
