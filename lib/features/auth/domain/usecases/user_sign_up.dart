@@ -13,6 +13,10 @@ class UserSignUp implements UseCase<String, UserSignUpParams> {
       name: params.name,
       email: params.email,
       password: params.password,
+      bio: params.bio,
+      profession: params.profession,
+      location: params.location,
+      skills: params.skills,
     );
   }
 }
@@ -21,10 +25,18 @@ class UserSignUpParams {
   final String email;
   final String password;
   final String name;
+  final String? bio;
+  final String? profession;
+  final String? location;
+  final List<Map<String, dynamic>>? skills;
 
   UserSignUpParams({
     required this.email,
     required this.password,
     required this.name,
+    this.bio,
+    this.profession,
+    this.location,
+    this.skills,
   });
 }
