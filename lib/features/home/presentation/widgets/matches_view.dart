@@ -127,7 +127,8 @@ class MatchesView extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
-                        children: matches.map((user) {
+                        children: matches.map((conv) {
+                          final user = conv.user;
                           return NewMatchBubble(
                             name: user.name,
                             imageUrl: user.imageUrl,
@@ -146,7 +147,10 @@ class MatchesView extends StatelessWidget {
                                     isOnline: true,
                                   ),
                                 ),
-                              );
+                              ).then((_) {
+                                // Refresh matches when returning from chat
+                                context.read<MatchesCubit>().fetchMatches();
+                              });
                             },
                           );
                         }).toList(),
@@ -162,15 +166,16 @@ class MatchesView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: matches.length,
                       itemBuilder: (context, index) {
-                        final user = matches[index];
+                        final conv = matches[index];
+                        final user = conv.user;
                         return ConversationItem(
                           userName: user.name,
                           userImageUrl: user.imageUrl,
-                          lastMessage: "Start a conversation!",
-                          timestamp: "Just now",
+                          lastMessage: conv.lastMessage ?? "Start a conversation!",
+                          timestamp: _formatTimestamp(conv.lastMessageTime),
                           skillTag: user.teaching?.name ?? 'Expert',
                           isOnline: true,
-                          hasUnread: false,
+                          hasUnread: conv.hasUnread,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -184,7 +189,10 @@ class MatchesView extends StatelessWidget {
                                   isOnline: true,
                                 ),
                               ),
-                            );
+                            ).then((_) {
+                              // Refresh matches when returning from chat to clear unread dots
+                              context.read<MatchesCubit>().fetchMatches();
+                            });
                           },
                         );
                       },
@@ -200,6 +208,24 @@ class MatchesView extends StatelessWidget {
         return const SizedBox.shrink();
       },
     );
+  }
+
+  String _formatTimestamp(String? timestampStr) {
+    if (timestampStr == null) return "Just now";
+    try {
+      final dateTime = DateTime.parse(timestampStr).toLocal();
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inMinutes < 1) return "Just now";
+      if (difference.inMinutes < 60) return "${difference.inMinutes}m ago";
+      if (difference.inHours < 24) return "${difference.inHours}h ago";
+      if (difference.inDays < 7) return "${difference.inDays}d ago";
+      
+      return "${dateTime.day}/${dateTime.month}";
+    } catch (e) {
+      return "Just now";
+    }
   }
 
   Widget _buildSectionHeader(String title) {
