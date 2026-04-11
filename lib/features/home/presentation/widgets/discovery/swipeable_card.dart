@@ -30,7 +30,23 @@ class SwipeableCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(48),
         child: Stack(
           children: [
-            Positioned.fill(child: Image.asset(user.imageUrl, fit: BoxFit.cover)),
+            Positioned.fill(
+              child: user.imageUrl.startsWith('http') || user.imageUrl.startsWith('/static')
+                  ? Image.network(
+                      user.imageUrl.startsWith('/') 
+                          ? 'http://10.0.2.2:8000${user.imageUrl}' 
+                          : user.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Image.asset(
+                        'assets/home.png',
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Image.asset(
+                      'assets/home.png',
+                      fit: BoxFit.cover,
+                    ),
+            ),
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -64,13 +80,16 @@ class SwipeableCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${user.name}, ${user.age}',
-                          style: GoogleFonts.inter(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
+                        Expanded(
+                          child: Text(
+                            '${user.name}, ${user.age == 0 ? 'Expert' : user.age}',
+                            style: GoogleFonts.inter(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Container(
@@ -96,7 +115,7 @@ class SwipeableCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                user.rating.toString(),
+                                user.rating.toStringAsFixed(1),
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -120,7 +139,7 @@ class SwipeableCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      user.teaching.name,
+                      user.teaching?.name ?? 'Expertise',
                       style: GoogleFonts.inter(
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
@@ -140,7 +159,7 @@ class SwipeableCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      user.learning.name,
+                      user.learning?.name ?? 'New Skills',
                       style: GoogleFonts.inter(
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
