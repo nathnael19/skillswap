@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 
 class EditProfilePage extends StatefulWidget {
   final User user;
@@ -103,7 +106,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ProfileCubit, ProfileState>(
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthInitial) {
+          Navigator.of(context).pushAndRemoveUntil(
+            LoginPage.route(),
+            (route) => false,
+          );
+        }
+      },
+      child: BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
         if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -217,14 +229,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(height: 8),
                 _buildSettingsTile(
                     Icons.verified_user_outlined, 'Identity Verification'),
+                const SizedBox(height: 32),
+                const Divider(color: Color(0xFFF2F4F7), height: 1),
+                const SizedBox(height: 16),
+                _buildLogoutTile(),
                 const SizedBox(height: 100),
               ],
             ),
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildAvatarEditor() {
     return Stack(
@@ -425,6 +442,71 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
           const Icon(Icons.chevron_right, color: Color(0xFF98A2B3), size: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutTile() {
+    return InkWell(
+      onTap: () => _showLogoutConfirmation(),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          children: [
+            const Icon(Icons.logout_rounded, color: Color(0xFFD92D20), size: 24),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                'Sign Out',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFD92D20),
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFD92D20), size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Sign Out',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          'Are you sure you want to sign out of your account?',
+          style: GoogleFonts.inter(color: const Color(0xFF667085)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600, color: const Color(0xFF667085)),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AuthCubit>().signOut();
+            },
+            child: Text(
+              'Sign Out',
+              style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w700, color: const Color(0xFFD92D20)),
+            ),
+          ),
         ],
       ),
     );
