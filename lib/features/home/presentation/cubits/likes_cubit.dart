@@ -12,11 +12,20 @@ abstract class LikesState extends Equatable {
 class LikesInitial extends LikesState {}
 class LikesLoading extends LikesState {}
 class LikesLoaded extends LikesState {
-  final List<User> users;
-  const LikesLoaded(this.users);
+  final List<User> receivedLikes;
+  final List<User> sentLikes;
+  final List<User> passedUsers;
+
+  const LikesLoaded({
+    required this.receivedLikes,
+    required this.sentLikes,
+    required this.passedUsers,
+  });
+
   @override
-  List<Object?> get props => [users];
+  List<Object?> get props => [receivedLikes, sentLikes, passedUsers];
 }
+
 class LikesError extends LikesState {
   final String message;
   const LikesError(this.message);
@@ -29,27 +38,40 @@ class LikesCubit extends Cubit<LikesState> {
 
   LikesCubit(this._homeRepository) : super(LikesInitial());
 
-  Future<void> fetchLikesReceived() async {
+  Future<void> fetchLikes() async {
     emit(LikesLoading());
-    final result = await _homeRepository.getLikesReceived();
-    result.fold(
-      (failure) => emit(LikesError(failure.message)),
-      (users) => emit(LikesLoaded(users)),
-    );
+    try {
+      final receivedResult = await _homeRepository.getLikesReceived();
+      final sentResult = await _homeRepository.getSentLikes();
+      final passedResult = await _homeRepository.getSentDislikes();
+
+      receivedResult.fold(
+        (l) => emit(LikesError(l.message)),
+        (receivedList) {
+          sentResult.fold(
+            (l) => emit(LikesError(l.message)),
+            (sentList) {
+              passedResult.fold(
+                (l) => emit(LikesError(l.message)),
+                (passedList) => emit(LikesLoaded(
+                  receivedLikes: receivedList,
+                  sentLikes: sentList,
+                  passedUsers: passedList,
+                )),
+              );
+            },
+          );
+        },
+      );
+    } catch (e) {
+      emit(LikesError(e.toString()));
+    }
   }
 
-  Future<void> likeBackUser(String targetId) async {
-    final result = await _homeRepository.swipeUser(targetId: targetId, direction: 'like');
-    result.fold(
-      (failure) => null, // Handle error
-      (isMatch) {
-        // Remove the user from the likes list locally for snappy UI
-        if (state is LikesLoaded) {
-          final currentUsers = (state as LikesLoaded).users;
-          final updatedUsers = currentUsers.where((u) => u.id != targetId).toList();
-          emit(LikesLoaded(updatedUsers));
-        }
-      },
-    );
+  Future<void> likeBackUser(String userId) async {
+    await _homeRepository.swipeUser(targetId: userId, direction: 'like');
+    fetchLikes();
   }
+
+  Future<void> fetchLikesReceived() => fetchLikes();
 }
