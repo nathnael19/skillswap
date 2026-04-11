@@ -108,78 +108,92 @@ class MatchesView extends StatelessWidget {
             );
           }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              _buildSectionHeader('NEW MATCHES • SUCCESS'),
-              const SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: matches.map((user) {
-                    return NewMatchBubble(
-                      name: user.name,
-                      imageUrl: user.imageUrl,
-                      teachingSkill: user.teaching?.name ?? 'Expert',
-                      isTopMatch: false,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(
-                              userName: user.name,
-                              userImageUrl: user.imageUrl,
-                              userTitle: user.teaching?.name ?? 'Expert',
-                              matchId: user.matchId ?? '',
-                              userId: user.id,
-                              isOnline: true,
-                            ),
-                          ),
+          return RefreshIndicator(
+            onRefresh: () => context.read<MatchesCubit>().fetchMatches(),
+            color: const Color(0xFF0B6A7A),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - 100,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildSectionHeader('NEW MATCHES • SUCCESS'),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: matches.map((user) {
+                          return NewMatchBubble(
+                            name: user.name,
+                            imageUrl: user.imageUrl,
+                            teachingSkill: user.teaching?.name ?? 'Expert',
+                            isTopMatch: false,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatPage(
+                                    userName: user.name,
+                                    userImageUrl: user.imageUrl,
+                                    userTitle: user.teaching?.name ?? 'Expert',
+                                    matchId: user.matchId ?? '',
+                                    userId: user.id,
+                                    isOnline: true,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('CONVERSATIONS • ACTIVE'),
+                    const SizedBox(height: 16),
+                    // Use ListView.builder with shrinkWrap inside SingleChildScrollView
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: matches.length,
+                      itemBuilder: (context, index) {
+                        final user = matches[index];
+                        return ConversationItem(
+                          userName: user.name,
+                          userImageUrl: user.imageUrl,
+                          lastMessage: "Start a conversation!",
+                          timestamp: "Just now",
+                          skillTag: user.teaching?.name ?? 'Expert',
+                          isOnline: true,
+                          hasUnread: false,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                  userName: user.name,
+                                  userImageUrl: user.imageUrl,
+                                  userTitle: user.teaching?.name ?? 'Expert',
+                                  matchId: user.matchId ?? '',
+                                  userId: user.id,
+                                  isOnline: true,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
-                    );
-                  }).toList(),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
                 ),
               ),
-              const SizedBox(height: 32),
-              _buildSectionHeader('CONVERSATIONS • ACTIVE'),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: matches.length,
-                  itemBuilder: (context, index) {
-                    final user = matches[index];
-                    return ConversationItem(
-                      userName: user.name,
-                      userImageUrl: user.imageUrl,
-                      lastMessage: "Start a conversation!",
-                      timestamp: "Just now",
-                      skillTag: user.teaching?.name ?? 'Expert',
-                      isOnline: true,
-                      hasUnread: false,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(
-                              userName: user.name,
-                              userImageUrl: user.imageUrl,
-                              userTitle: user.teaching?.name ?? 'Expert',
-                              matchId: user.matchId ?? '',
-                              userId: user.id,
-                              isOnline: true,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           );
         }
 
