@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../data/mock_data.dart';
+import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import '../../domain/models/user_model.dart';
 import '../pages/master_profile_page.dart';
 
@@ -9,22 +11,77 @@ class LikesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We'll use the same pool of mock users to represent interest shown
-    final likes = [
-      mockUsers[2], // Sarah
-      mockUsers[1], // Marcus
-      mockUsers[0], // Elena
-      mockUsers[3], // Let's use David or another mock
-    ];
+    return BlocBuilder<LikesCubit, LikesState>(
+      builder: (context, state) {
+        if (state is LikesLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      children: [
-        _buildHeader(),
-        const SizedBox(height: 32),
-        ...likes.map((user) => _buildLikeCard(context, user)),
-        const SizedBox(height: 40),
-      ],
+        if (state is LikesError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(state.message),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => context.read<LikesCubit>().fetchLikesReceived(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (state is LikesLoaded) {
+          final likes = state.users;
+
+          if (likes.isEmpty) {
+            return RefreshIndicator(
+              onRefresh: () => context.read<LikesCubit>().fetchLikesReceived(),
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                children: [
+                  const SizedBox(height: 100),
+                  Center(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.favorite_border,
+                            size: 64, color: Colors.grey),
+                        const SizedBox(height: 24),
+                        Text(
+                          'No likes yet',
+                          style: GoogleFonts.outfit(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('Keep swiping to get noticed!'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => context.read<LikesCubit>().fetchLikesReceived(),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 32),
+                ...likes.map((user) => _buildLikeCard(context, user)),
+                const SizedBox(height: 40),
+              ],
+            ),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -87,7 +144,7 @@ class LikesView extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MasterProfilePage(),
+                  builder: (context) => MasterProfilePage(userId: user.id),
                 ),
               );
             },
@@ -97,12 +154,21 @@ class LikesView extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(32),
                   ),
-                  child: Image.asset(
-                    user.imageUrl,
-                    height: 240,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: user.imageUrl.startsWith('http')
+                      ? Image.network(
+                          user.imageUrl,
+                          height: 240,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          user.imageUrl.isEmpty
+                              ? 'assets/images/placeholder.png'
+                              : user.imageUrl,
+                          height: 240,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 // Skill Tag overlay
                 Positioned(
@@ -160,7 +226,7 @@ class LikesView extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '2 miles away',
+                      user.location.isEmpty ? 'Location private' : user.location,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -172,7 +238,7 @@ class LikesView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   user.bio.isEmpty
-                      ? "Passionate about crafting digital experiences that feel human. Looking to swap design systems knowledge for advanced React tips."
+                      ? "Passionate about crafting digital experiences that feel human."
                       : user.bio,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -191,7 +257,8 @@ class LikesView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const MasterProfilePage(),
+                              builder: (context) =>
+                                  MasterProfilePage(userId: user.id),
                             ),
                           );
                         },
@@ -209,7 +276,12 @@ class LikesView extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // Like Back
+                          context.read<LikesCubit>().likeBackUser(user.id);
+                          // Refresh matches to show the new match immediately
+                          context.read<MatchesCubit>().fetchMatches();
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0B6A7A),
                           foregroundColor: Colors.white,
