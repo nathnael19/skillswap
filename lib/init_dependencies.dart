@@ -20,6 +20,8 @@ import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
+import 'package:skillswap/features/home/presentation/cubits/master_profile_cubit.dart';
 import 'package:skillswap/features/home/domain/repositories/chat_repository.dart';
 import 'package:skillswap/features/home/data/repositories/chat_repository_impl.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
@@ -105,6 +107,12 @@ void _initHome() {
   );
   serviceLocator.registerFactory(
     () => ProfileCubit(serviceLocator<HomeRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => LikesCubit(serviceLocator<HomeRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => MasterProfileCubit(serviceLocator<HomeRepository>()),
   );
 }
 
