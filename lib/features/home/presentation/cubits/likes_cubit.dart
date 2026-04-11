@@ -73,5 +73,10 @@ class LikesCubit extends Cubit<LikesState> {
     fetchLikes();
   }
 
+  Future<void> undoLike(String userId) async {
+    await _homeRepository.swipeUser(targetId: userId, direction: 'dislike');
+    fetchLikes();
+  }
+
   Future<void> fetchLikesReceived() => fetchLikes();
 }
