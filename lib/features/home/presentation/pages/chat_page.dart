@@ -7,7 +7,6 @@ import 'package:skillswap/features/home/presentation/pages/schedule_session_page
 import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/chat/chat_input_bar.dart';
 import 'package:skillswap/features/home/presentation/widgets/chat/chat_quick_actions.dart';
-import 'package:skillswap/features/home/presentation/widgets/chat/date_separator.dart';
 import 'package:skillswap/features/home/presentation/widgets/chat/message_bubble.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
