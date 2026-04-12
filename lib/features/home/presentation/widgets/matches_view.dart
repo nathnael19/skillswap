@@ -9,6 +9,7 @@ import 'package:skillswap/features/home/presentation/pages/chat_page.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches/conversation_item.dart';
 import 'package:skillswap/features/home/presentation/widgets/matches/new_match_bubble.dart';
+import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 
 class MatchesView extends StatelessWidget {
   const MatchesView({super.key});
@@ -35,7 +36,10 @@ class MatchesView extends StatelessWidget {
                     }
 
                     if (state is MatchesError) {
-                      return _buildErrorView(context, state.message);
+                      return AppErrorWidget(
+                        message: state.message,
+                        onRetry: () => context.read<MatchesCubit>().fetchMatches(),
+                      );
                     }
 
                     if (state is MatchesLoaded) {
@@ -207,62 +211,6 @@ class MatchesView extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorView(BuildContext context, String message) {
-    const accentColor = Color(0xFFCA8A04);
-    
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.cloud_off_rounded,
-              size: 48,
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              "HUB OFFLINE",
-              style: GoogleFonts.dmSans(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              "We encountered an echo in the matrix. Reconnect to manifest your matches.",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
-                color: Colors.white.withValues(alpha: 0.4),
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
-            TextButton(
-              onPressed: () => context.read<MatchesCubit>().fetchMatches(),
-              style: TextButton.styleFrom(
-                foregroundColor: accentColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                backgroundColor: Colors.white.withValues(alpha: 0.05),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(
-                "RETRY CONNECTION",
-                style: GoogleFonts.dmSans(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildGuestWall(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
