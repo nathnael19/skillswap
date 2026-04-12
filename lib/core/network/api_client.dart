@@ -33,10 +33,16 @@ class ApiClient {
   Future<http.Response> post(String endpoint, {dynamic body}) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    // POST + application/json + zero-length body breaks some browsers (Failed to fetch).
+    if (body == null) {
+      final withoutContentType = Map<String, String>.from(headers)
+        ..remove('Content-Type');
+      return await _client.post(uri, headers: withoutContentType);
+    }
     return await _client.post(
       uri,
       headers: headers,
-      body: body != null ? jsonEncode(body) : null,
+      body: jsonEncode(body),
     );
   }
 
