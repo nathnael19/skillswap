@@ -10,7 +10,6 @@ import 'package:skillswap/features/home/presentation/widgets/chat/chat_input_bar
 import 'package:skillswap/features/home/presentation/widgets/chat/chat_quick_actions.dart';
 import 'package:skillswap/features/home/presentation/widgets/chat/message_bubble.dart';
 import 'package:skillswap/init_dependencies.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 class ChatPage extends StatefulWidget {
@@ -19,6 +18,7 @@ class ChatPage extends StatefulWidget {
   final String userTitle;
   final String matchId;
   final String userId;
+  final String currentUserId;
   final bool isOnline;
 
   const ChatPage({
@@ -28,6 +28,7 @@ class ChatPage extends StatefulWidget {
     required this.userTitle,
     required this.matchId,
     required this.userId,
+    required this.currentUserId,
     this.isOnline = true,
   });
 
@@ -38,7 +39,6 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final String _currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
@@ -176,7 +176,11 @@ class _ChatPageState extends State<ChatPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                ScheduleSessionPage(matchId: widget.matchId),
+                                ScheduleSessionPage(
+                                  matchId: widget.matchId,
+                                  peerName: widget.userName,
+                                  peerImageUrl: widget.userImageUrl,
+                                ),
                           ),
                         );
                       },
@@ -308,7 +312,7 @@ class _ChatPageState extends State<ChatPage> {
           itemCount: state.messages.length,
           itemBuilder: (context, index) {
             final msg = state.messages[index];
-            final isMe = msg.senderId == _currentUserId;
+            final isMe = msg.senderId == widget.currentUserId;
 
             return MessageBubble(
               text: msg.content,
