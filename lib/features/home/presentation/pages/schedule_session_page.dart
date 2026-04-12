@@ -1,14 +1,19 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/schedule/calendar_slot_picker.dart';
 import 'package:skillswap/features/home/presentation/widgets/schedule/meeting_hub_section.dart';
 import 'package:skillswap/features/home/presentation/widgets/schedule/session_progress_header.dart';
 import 'package:skillswap/features/home/presentation/widgets/schedule/teaching_points_section.dart';
+import 'package:skillswap/init_dependencies.dart';
 
 class ScheduleSessionPage extends StatefulWidget {
-  const ScheduleSessionPage({super.key});
+  final String matchId;
+
+  const ScheduleSessionPage({super.key, required this.matchId});
 
   @override
   State<ScheduleSessionPage> createState() => _ScheduleSessionPageState();
@@ -19,6 +24,14 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
   String? selectedTime = '10:30 AM';
   final List<String> manifestations = [];
   final TextEditingController _topicController = TextEditingController();
+  bool _creatingSession = false;
+
+  DateTime _combinedSchedule() {
+    final d = selectedDate!;
+    final slot = selectedTime ?? '10:30 AM';
+    final timePart = DateFormat.jm().parse(slot);
+    return DateTime(d.year, d.month, d.day, timePart.hour, timePart.minute);
+  }
 
   void _addManifestation() {
     if (_topicController.text.trim().isNotEmpty) {
@@ -157,14 +170,45 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
 
   Widget _buildConfirmButton(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
-    
+
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LiveSessionPage(agenda: manifestations)),
-        );
-      },
+      onTap: _creatingSession
+          ? null
+          : () async {
+              setState(() => _creatingSession = true);
+              final repo = serviceLocator<HomeRepository>();
+              final result = await repo.createSession(
+                matchId: widget.matchId,
+                scheduledTime: _combinedSchedule(),
+              );
+              if (!mounted) return;
+              setState(() => _creatingSession = false);
+              result.fold(
+                (failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(failure.message)),
+                  );
+                },
+                (data) {
+                  final id = data['id'] as String? ?? '';
+                  if (id.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Session created but missing id.')),
+                    );
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LiveSessionPage(
+                        agenda: manifestations,
+                        sessionId: id,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
       child: Container(
         width: double.infinity,
         height: 72,
@@ -185,10 +229,20 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
+              if (_creatingSession)
+                const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              else
+                const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
               const SizedBox(width: 16),
               Text(
-                'MANIFEST SYNERGY',
+                _creatingSession ? 'SYNCHRONIZING…' : 'MANIFEST SYNERGY',
                 style: GoogleFonts.dmSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
