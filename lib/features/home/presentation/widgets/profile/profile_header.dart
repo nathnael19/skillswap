@@ -21,42 +21,60 @@ class ProfileHeader extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFF2F4F7), width: 1.5),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 2,
+                ),
               ),
-              child: CircleAvatar(
-                radius: 64,
-                backgroundImage: user.imageUrl.startsWith('http')
-                    ? NetworkImage(user.imageUrl) as ImageProvider
-                    : AssetImage(user.imageUrl),
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 64,
+                  backgroundColor: const Color(0xFF1C1917),
+                  backgroundImage: user.imageUrl.startsWith('http')
+                      ? NetworkImage(user.imageUrl) as ImageProvider
+                      : AssetImage(user.imageUrl),
+                ),
               ),
             ),
             Positioned(
               bottom: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+                  horizontal: 12,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF9E6400),
+                  color: const Color(0xFFCA8A04),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: const Color(0xFF0C0A09), width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFCA8A04).withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
-                      Icons.stars_rounded,
-                      color: Color(0xFFFFD700),
+                      Icons.verified_rounded,
+                      color: Colors.white,
                       size: 14,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     Text(
-                      '99% Trust',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                      'VERIFIED EXPERT',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
@@ -65,76 +83,80 @@ class ProfileHeader extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Text(
           user.name,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.dmSans(
             fontSize: 32,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF101828),
+            color: Colors.white,
+            letterSpacing: -1.0,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           '${user.profession.toUpperCase()} • ${user.location.toUpperCase()}',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.dmSans(
             fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF0B6A7A),
-            letterSpacing: 1,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFFCA8A04),
+            letterSpacing: 1.5,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  final profileCubit = context.read<ProfileCubit>();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider.value(
-                        value: profileCubit,
-                        child: EditProfilePage(user: user),
-                      ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFCA8A04).withValues(alpha: 0.25),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
-                  );
-                },
-                child: Container(
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0B6A7A),
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0B6A7A).withValues(alpha: 0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    final profileCubit = context.read<ProfileCubit>();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider.value(
+                          value: profileCubit,
+                          child: EditProfilePage(user: user),
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.edit_document, size: 20),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Edit Profile',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.edit_outlined,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Edit Profile',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -143,13 +165,16 @@ class ProfileHeader extends StatelessWidget {
             Container(
               height: 56,
               width: 56,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF2F4F7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
               ),
               child: const Icon(
-                Icons.share_outlined,
-                color: Color(0xFF1D2939),
+                Icons.ios_share_rounded,
+                color: Colors.white,
                 size: 24,
               ),
             ),
