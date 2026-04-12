@@ -9,14 +9,21 @@ abstract class CreditsState extends Equatable {
 }
 
 class CreditsInitial extends CreditsState {}
+
 class CreditsLoading extends CreditsState {}
+
 class CreditsLoaded extends CreditsState {
-  final int balance;
+  /// Stored in centi-credits (1 credit = 100 minor units).
+  final int balanceMinor;
+  final double balance;
   final List<dynamic> transactions;
-  const CreditsLoaded(this.balance, this.transactions);
+
+  const CreditsLoaded(this.balanceMinor, this.balance, this.transactions);
+
   @override
-  List<Object?> get props => [balance, transactions];
+  List<Object?> get props => [balanceMinor, balance, transactions];
 }
+
 class CreditsError extends CreditsState {
   final String message;
   const CreditsError(this.message);
@@ -34,7 +41,18 @@ class CreditsCubit extends Cubit<CreditsState> {
     final result = await _homeRepository.getCredits();
     result.fold(
       (failure) => emit(CreditsError(failure.message)),
-      (data) => emit(CreditsLoaded(data['balance'] ?? 0, data['transactions'] ?? [])),
+      (data) {
+        final balanceMinor = (data['balance_minor'] as num?)?.toInt() ?? 0;
+        final balance = (data['balance'] as num?)?.toDouble() ??
+            balanceMinor / 100.0;
+        emit(
+          CreditsLoaded(
+            balanceMinor,
+            balance,
+            List<dynamic>.from(data['transactions'] ?? []),
+          ),
+        );
+      },
     );
   }
 }
