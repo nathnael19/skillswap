@@ -9,8 +9,13 @@ import 'package:skillswap/features/home/presentation/pages/review_session_page.d
 
 class LiveSessionPage extends StatefulWidget {
   final List<String> agenda;
+  final String? sessionId;
 
-  const LiveSessionPage({super.key, required this.agenda});
+  const LiveSessionPage({
+    super.key,
+    required this.agenda,
+    this.sessionId,
+  });
 
   @override
   State<LiveSessionPage> createState() => _LiveSessionPageState();
@@ -661,7 +666,9 @@ class _LiveSessionPageState extends State<LiveSessionPage>
       onTap: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ReviewSessionPage()),
+          MaterialPageRoute(
+            builder: (context) => ReviewSessionPage(sessionId: widget.sessionId),
+          ),
         );
       },
       child: Container(
