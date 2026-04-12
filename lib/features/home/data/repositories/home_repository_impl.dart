@@ -49,7 +49,11 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(data.map((map) => User.fromMap(map)).toList());
       }
       return left(
-        ServerFailure('Failed to fetch discovery users: ${response.body}'),
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch discovery users',
+        ),
       );
     } catch (e) {
       return left(ServerFailure(e.toString()));
@@ -64,7 +68,11 @@ class HomeRepositoryImpl implements HomeRepository {
         final List<dynamic> data = jsonDecode(response.body);
         return right(data.map((map) => Conversation.fromMap(map)).toList());
       }
-      return left(ServerFailure('Failed to fetch matches: ${response.body}'));
+      return left(ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch matches',
+      ));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -78,7 +86,11 @@ class HomeRepositoryImpl implements HomeRepository {
         final List data = jsonDecode(response.body);
         return right(data.map((m) => User.fromMap(m)).toList());
       }
-      return left(ServerFailure('Failed to fetch likes: ${response.body}'));
+      return left(ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch likes',
+      ));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -93,7 +105,11 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(data.map((m) => User.fromMap(m)).toList());
       }
       return left(
-        ServerFailure('Failed to fetch sent likes: ${response.body}'),
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch sent likes',
+        ),
       );
     } catch (e) {
       return left(ServerFailure(e.toString()));
@@ -109,7 +125,11 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(data.map((m) => User.fromMap(m)).toList());
       }
       return left(
-        ServerFailure('Failed to fetch sent dislikes: ${response.body}'),
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch sent dislikes',
+        ),
       );
     } catch (e) {
       return left(ServerFailure(e.toString()));
@@ -123,7 +143,11 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         return right(jsonDecode(response.body));
       }
-      return left(ServerFailure('Failed to fetch credits: ${response.body}'));
+      return left(ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch credits',
+      ));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -143,7 +167,11 @@ class HomeRepositoryImpl implements HomeRepository {
         final data = jsonDecode(response.body);
         return right(data['match_created'] ?? false);
       }
-      return left(ServerFailure('Failed to swipe user: ${response.body}'));
+      return left(ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to swipe user',
+      ));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -157,7 +185,11 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(User.fromMap(jsonDecode(response.body)));
       }
       return left(
-        ServerFailure('Failed to fetch user profile: ${response.body}'),
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch user profile',
+        ),
       );
     } catch (e) {
       return left(ServerFailure(e.toString()));
@@ -171,7 +203,11 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         return right(User.fromMap(jsonDecode(response.body)));
       }
-      return left(ServerFailure('Failed to fetch user: ${response.body}'));
+      return left(ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch user',
+      ));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -188,7 +224,11 @@ class HomeRepositoryImpl implements HomeRepository {
         return right(User.fromMap(jsonDecode(response.body)));
       }
       return left(
-        ServerFailure('Failed to update user profile: ${response.body}'),
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to update user profile',
+        ),
       );
     } catch (e) {
       return left(ServerFailure(e.toString()));
