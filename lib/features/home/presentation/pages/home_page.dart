@@ -19,8 +19,25 @@ import 'package:skillswap/init_dependencies.dart';
 import '../widgets/filter_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
-  static MaterialPageRoute<dynamic> route() =>
-      MaterialPageRoute(builder: (context) => const HomePage());
+  static MaterialPageRoute<dynamic> route() => MaterialPageRoute(
+        builder: (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
+            ),
+            BlocProvider(
+              create: (_) => serviceLocator<MatchesCubit>()..fetchMatches(),
+            ),
+            BlocProvider(
+              create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
+            ),
+            BlocProvider(
+              create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
+            ),
+          ],
+          child: const HomePage(),
+        ),
+      );
   const HomePage({super.key});
 
   @override
@@ -65,22 +82,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     const primaryBgColor = Color(0xFF0C0A09);
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
-        ),
-        BlocProvider(
-          create: (_) => serviceLocator<MatchesCubit>()..fetchMatches(),
-        ),
-        BlocProvider(
-          create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
-        ),
-        BlocProvider(
-          create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
-        ),
-      ],
-      child: Builder(
+    return Builder(
         builder: (context) {
           String title = "SkillSwap";
           Widget bodyContent = const DiscoveryTab();
@@ -207,7 +209,6 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         },
-      ),
     );
   }
 
@@ -237,10 +238,30 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.auto_awesome_rounded, 'DISCOVER'),
-              _buildNavItem(1, Icons.handshake_rounded, 'MATCHES'),
-              _buildNavItem(2, Icons.favorite_rounded, 'LIKES'),
-              _buildNavItem(3, Icons.person_rounded, 'PROFILE'),
+              _NavItem(
+                icon: Icons.auto_awesome_rounded,
+                label: 'DISCOVER',
+                isSelected: _selectedIndex == 0,
+                onTap: () => setState(() => _selectedIndex = 0),
+              ),
+              _NavItem(
+                icon: Icons.handshake_rounded,
+                label: 'MATCHES',
+                isSelected: _selectedIndex == 1,
+                onTap: () => setState(() => _selectedIndex = 1),
+              ),
+              _NavItem(
+                icon: Icons.favorite_rounded,
+                label: 'LIKES',
+                isSelected: _selectedIndex == 2,
+                onTap: () => setState(() => _selectedIndex = 2),
+              ),
+              _NavItem(
+                icon: Icons.person_rounded,
+                label: 'PROFILE',
+                isSelected: _selectedIndex == 3,
+                onTap: () => setState(() => _selectedIndex = 3),
+              ),
             ],
           ),
         ),
@@ -248,12 +269,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    final isSelected = _selectedIndex == index;
-    const accentColor = Color(0xFFCA8A04);
 
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Center(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 48,
+          width: 48,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -299,34 +364,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Center(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 48,
-          width: 48,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
       ),
     );
   }
