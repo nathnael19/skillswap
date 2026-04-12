@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/widgets/wallet/balance_header.dart';
+import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/features/home/presentation/widgets/wallet/recent_transactions_section.dart';
 
 class WalletPage extends StatelessWidget {
@@ -67,31 +68,9 @@ class WalletPage extends StatelessWidget {
           }
 
           if (state is CreditsError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.inventory_2_rounded, size: 48, color: Colors.white.withValues(alpha: 0.2)),
-                    const SizedBox(height: 24),
-                    Text(
-                      "TREASURY OFFLINE",
-                      style: GoogleFonts.dmSans(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white.withValues(alpha: 0.4),
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      state.message,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.3)),
-                    ),
-                  ],
-                ),
-              ),
+            return AppErrorWidget(
+               message: state.message,
+               onRetry: () => context.read<CreditsCubit>().fetchCredits(),
             );
           }
 
