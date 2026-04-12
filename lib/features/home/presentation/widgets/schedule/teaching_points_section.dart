@@ -2,73 +2,108 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TeachingPointsSection extends StatelessWidget {
-  const TeachingPointsSection({super.key});
+  final List<String> topics;
+  final TextEditingController controller;
+  final VoidCallback onAdd;
+  final Function(int) onRemove;
+
+  const TeachingPointsSection({
+    super.key,
+    required this.topics,
+    required this.controller,
+    required this.onAdd,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF9E6400),
-                borderRadius: BorderRadius.circular(12),
+                color: accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: accentColor.withValues(alpha: 0.2)),
               ),
-              child: const Icon(Icons.list_alt_rounded,
-                  color: Colors.white, size: 24),
+              child: const Icon(Icons.auto_awesome_mosaic_rounded,
+                  color: accentColor, size: 22),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 20),
             Text(
-              '2. Teaching Points',
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF101828),
+              '2. MANIFEST TOPICS',
+              style: GoogleFonts.dmSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: 2.0,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        _buildPointCard(
-          title: 'MARCUS WILL TEACH',
-          topic: 'Intro to Figma Components',
-          desc: 'Mastering auto-layout and variants for responsive web design.',
-          isDone: true,
-        ),
-        const SizedBox(height: 16),
-        _buildPointCard(
-          title: 'YOU WILL TEACH',
-          topic: 'Basic Tailwind Layouts',
-          desc: 'Waiting for Marcus to confirm your proposed topics...',
-          isDone: false,
-        ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
+        // Dynamic Topic List
+        if (topics.isEmpty)
+          _buildEmptyTopics()
+        else
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: topics.asMap().entries.map((entry) {
+              return _buildTopicChip(entry.key, entry.value);
+            }).toList(),
+          ),
+        const SizedBox(height: 32),
+        // Premium Input Field
         Container(
-          width: double.infinity,
-          height: 56,
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: const Color(0xFFD0D5DD),
-                width: 1.5,
-                style: BorderStyle.solid),
+            color: Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.add_circle_outline,
-                  color: Color(0xFF667085), size: 20),
-              const SizedBox(width: 10),
-              Text(
-                'SUGGEST TEACHING POINT',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF667085),
-                  letterSpacing: 0.5,
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Manifest a new teaching point...',
+                    hintStyle: GoogleFonts.dmSans(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      fontSize: 14,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  onSubmitted: (_) => onAdd(),
+                ),
+              ),
+              GestureDetector(
+                onTap: onAdd,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                      )
+                    ],
+                  ),
+                  child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
                 ),
               ),
             ],
@@ -78,95 +113,82 @@ class TeachingPointsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildPointCard({
-    required String title,
-    required String topic,
-    required String desc,
-    required bool isDone,
-  }) {
+  Widget _buildTopicChip(int index, String label) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4)),
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: GoogleFonts.dmSans(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Colors.white.withValues(alpha: 0.6),
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => onRemove(index),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close_rounded,
+                  color: accentColor, size: 12),
+            ),
+          ),
         ],
       ),
-      child: Stack(
+    );
+  }
+
+  Widget _buildEmptyTopics() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.05),
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isDone
-                      ? const Color(0xFF9E6400).withValues(alpha: 0.1)
-                      : const Color(0xFFE0F2F1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isDone ? Icons.check_circle_rounded : Icons.more_horiz_rounded,
-                  color: isDone ? const Color(0xFF9E6400) : const Color(0xFF0B6A7A),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF98A2B3),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      topic,
-                      style: GoogleFonts.outfit(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF101828),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      desc,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: const Color(0xFF667085),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (!isDone)
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 4,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0B6A7A),
-                  borderRadius:
-                      BorderRadius.horizontal(right: Radius.circular(24)),
-                ),
-              ),
+          Icon(Icons.auto_awesome_rounded,
+              color: Colors.white.withValues(alpha: 0.1), size: 32),
+          const SizedBox(height: 16),
+          Text(
+            'EMPTY NEXUS',
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              color: Colors.white.withValues(alpha: 0.2),
+              letterSpacing: 2.0,
             ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Suggest topics to sharpen the synergy between both masters.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.dmSans(
+              fontSize: 12,
+              color: Colors.white.withValues(alpha: 0.15),
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );
