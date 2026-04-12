@@ -154,6 +154,81 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> createBillingCheckout() async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.billingCheckout,
+        body: <String, dynamic>{},
+      );
+      if (response.statusCode == 200) {
+        return right(jsonDecode(response.body) as Map<String, dynamic>);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to start checkout',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> createSession({
+    required String matchId,
+    required DateTime scheduledTime,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.sessions,
+        body: {
+          'match_id': matchId,
+          'scheduled_time': scheduledTime.toUtc().toIso8601String(),
+        },
+      );
+      if (response.statusCode == 200) {
+        return right(jsonDecode(response.body) as Map<String, dynamic>);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to create session',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> updateSessionStatus({
+    required String sessionId,
+    required String status,
+  }) async {
+    try {
+      final response = await _apiClient.patch(
+        '${ApiConstants.sessions}/$sessionId',
+        body: {'status': status},
+      );
+      if (response.statusCode == 200) {
+        return right(unit);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to update session',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, bool>> swipeUser({
     required String targetId,
     required String direction,
