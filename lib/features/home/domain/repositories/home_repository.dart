@@ -9,6 +9,15 @@ abstract interface class HomeRepository {
   Stream<Message> getGlobalMessageStream();
   Future<Either<Failure, List<User>>> getLikesReceived();
   Future<Either<Failure, Map<String, dynamic>>> getCredits();
+  Future<Either<Failure, Map<String, dynamic>>> createBillingCheckout();
+  Future<Either<Failure, Map<String, dynamic>>> createSession({
+    required String matchId,
+    required DateTime scheduledTime,
+  });
+  Future<Either<Failure, Unit>> updateSessionStatus({
+    required String sessionId,
+    required String status,
+  });
   Future<Either<Failure, bool>> swipeUser({
     required String targetId,
     required String direction,
