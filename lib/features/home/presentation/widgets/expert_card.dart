@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/network/api_constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ExpertCard extends StatelessWidget {
   final User user;
@@ -49,14 +50,14 @@ class ExpertCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       child: user.imageUrl.startsWith('http') ||
                               user.imageUrl.startsWith('/static')
-                          ? Image.network(
-                              user.imageUrl.startsWith('/')
+                          ? CachedNetworkImage(
+                              imageUrl: user.imageUrl.startsWith('/')
                                   ? '${ApiConstants.mediaBaseUrl}${user.imageUrl}'
                                   : user.imageUrl,
                               width: 72,
                               height: 72,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => Image.asset(
+                              errorWidget: (_, _, _) => Image.asset(
                                 'assets/home.png',
                                 width: 72,
                                 height: 72,
