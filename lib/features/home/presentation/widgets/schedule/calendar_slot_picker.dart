@@ -2,15 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CalendarSlotPicker extends StatelessWidget {
-  const CalendarSlotPicker({super.key});
+  final DateTime? selectedDate;
+  final String? selectedTime;
+  final Function(DateTime) onDateSelected;
+  final Function(String) onTimeSelected;
+
+  const CalendarSlotPicker({
+    super.key,
+    required this.selectedDate,
+    required this.selectedTime,
+    required this.onDateSelected,
+    required this.onTimeSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAECF5).withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -18,81 +32,69 @@ class CalendarSlotPicker extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0B6A7A),
-                  borderRadius: BorderRadius.circular(12),
+                  color: accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: accentColor.withValues(alpha: 0.2)),
                 ),
-                child: const Icon(Icons.calendar_today_outlined,
-                    color: Colors.white, size: 24),
+                child: const Icon(Icons.calendar_month_rounded,
+                    color: accentColor, size: 22),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               Text(
-                '1. Choose Your Slot',
-                style: GoogleFonts.outfit(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF101828),
+                '1. TEMPORAL SLOT',
+                style: GoogleFonts.dmSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 2.0,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Icon(Icons.chevron_left, color: Color(0xFF667085)),
-                    Text(
-                      'October 2023',
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF101828),
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right, color: Color(0xFF667085)),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildCalendarGrid(context),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    _buildTimeChip('09:00 AM', false),
-                    const SizedBox(width: 8),
-                    _buildTimeChip('10:30 AM', true),
-                    const SizedBox(width: 8),
-                    _buildTimeChip('02:00 PM', false),
-                  ],
-                ),
-              ],
-            ),
+          const SizedBox(height: 40),
+          // Calendar Grid
+          _buildPremiumCalendar(context),
+          const SizedBox(height: 48),
+          // Time Slots
+          Row(
+            children: [
+              _buildTimeChip('09:00 AM'),
+              const SizedBox(width: 12),
+              _buildTimeChip('10:30 AM'),
+              const SizedBox(width: 12),
+              _buildTimeChip('02:00 PM'),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCalendarGrid(BuildContext context) {
+  Widget _buildPremiumCalendar(BuildContext context) {
     final days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    final dates = [
-      '28', '29', '30', '1', '2', '3', '4',
-      '5', '6', '7', '8', '9', '', ''
-    ];
-
-    // Replacing the window size access with MediaQuery.of(context)
-    final width = MediaQuery.of(context).size.width;
-
+    const accentColor = Color(0xFFCA8A04);
+    
     return Column(
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(Icons.chevron_left_rounded, color: Colors.white24),
+            Text(
+              'OCTOBER 2026',
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: Colors.white.withValues(alpha: 0.6),
+                letterSpacing: 2.0,
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Colors.white24),
+          ],
+        ),
+        const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: days
@@ -101,45 +103,54 @@ class CalendarSlotPicker extends StatelessWidget {
                     child: Center(
                       child: Text(
                         d,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.dmSans(
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF98A2B3),
+                          fontWeight: FontWeight.w800,
+                          color: accentColor.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
                   ))
               .toList(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
         Wrap(
-          spacing: (width - 48 - 80 - 224) / 6,
-          runSpacing: 12,
-          children: List.generate(12, (index) {
-            String date = dates[index];
-            bool isPast = index < 3;
-            bool isSelected = date == '5';
+          spacing: (MediaQuery.of(context).size.width - 150 - 224) / 6,
+          runSpacing: 16,
+          children: List.generate(14, (index) {
+            int dateValue = index + 1;
+            bool isPast = dateValue < 12;
+            bool isSelected = selectedDate?.day == dateValue;
 
-            return Container(
-              width: 32,
-              height: 32,
-              decoration: isSelected
-                  ? const BoxDecoration(
-                      color: Color(0xFF0B6A7A),
-                      shape: BoxShape.circle,
-                    )
-                  : null,
-              child: Center(
-                child: Text(
-                  date,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected
-                        ? Colors.white
-                        : (isPast
-                            ? const Color(0xFFD0D5DD)
-                            : const Color(0xFF101828)),
+            return GestureDetector(
+              onTap: isPast ? null : () => onDateSelected(DateTime(2026, 10, dateValue)),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: isSelected
+                    ? BoxDecoration(
+                        color: accentColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.4),
+                            blurRadius: 10,
+                          )
+                        ],
+                      )
+                    : null,
+                child: Center(
+                  child: Text(
+                    dateValue.toString(),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                      color: isSelected
+                          ? Colors.white
+                          : (isPast
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.white),
+                    ),
                   ),
                 ),
               ),
@@ -150,21 +161,30 @@ class CalendarSlotPicker extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeChip(String label, bool isSelected) {
+  Widget _buildTimeChip(String label) {
+    bool isSelected = selectedTime == label;
+    const accentColor = Color(0xFFCA8A04);
+    
     return Expanded(
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0B6A7A) : const Color(0xFFEAECF5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: isSelected ? Colors.white : const Color(0xFF475467),
+      child: GestureDetector(
+        onTap: () => onTimeSelected(label),
+        child: Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: isSelected ? accentColor.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? accentColor.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.08),
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                color: isSelected ? accentColor : Colors.white.withValues(alpha: 0.4),
+              ),
             ),
           ),
         ),
