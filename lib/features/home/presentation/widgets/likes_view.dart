@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import '../../domain/models/user_model.dart';
 import '../pages/master_profile_page.dart';
+import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 
 class LikesView extends StatelessWidget {
   const LikesView({super.key});
@@ -29,45 +30,9 @@ class LikesView extends StatelessWidget {
           }
 
           if (state is LikesError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.cloud_off_rounded,
-                    size: 48,
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    "FEED OFFLINE",
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white.withValues(alpha: 0.4),
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextButton(
-                    onPressed: () => context.read<LikesCubit>().fetchLikes(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: accentColor,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      backgroundColor: Colors.white.withValues(alpha: 0.05),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(
-                      'RECONNECT',
-                      style: GoogleFonts.dmSans(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            return AppErrorWidget(
+              message: state.message,
+              onRetry: () => context.read<LikesCubit>().fetchLikes(),
             );
           }
 
