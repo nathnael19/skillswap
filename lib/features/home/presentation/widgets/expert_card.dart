@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/network/api_constants.dart';
 
 class ExpertCard extends StatelessWidget {
   final User user;
@@ -50,7 +51,7 @@ class ExpertCard extends StatelessWidget {
                               user.imageUrl.startsWith('/static')
                           ? Image.network(
                               user.imageUrl.startsWith('/')
-                                  ? 'http://10.0.2.2:8000${user.imageUrl}'
+                                  ? '${ApiConstants.mediaBaseUrl}${user.imageUrl}'
                                   : user.imageUrl,
                               width: 72,
                               height: 72,
