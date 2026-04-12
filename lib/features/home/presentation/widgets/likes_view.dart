@@ -7,6 +7,7 @@ import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import '../../domain/models/user_model.dart';
 import '../pages/master_profile_page.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class LikesView extends StatelessWidget {
   const LikesView({super.key});
@@ -242,9 +243,8 @@ class LikesView extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemCount: users.length,
         itemBuilder: (context, index) {
-          return _buildLikeCard(
-            context,
-            users[index],
+          return LikeCard(
+            user: users[index],
             isReceived: isReceived,
             isSent: isSent,
             isPassed: isPassed,
@@ -254,13 +254,24 @@ class LikesView extends StatelessWidget {
     );
   }
 
-  Widget _buildLikeCard(
-    BuildContext context,
-    User user, {
-    bool isReceived = false,
-    bool isSent = false,
-    bool isPassed = false,
-  }) {
+}
+
+class LikeCard extends StatelessWidget {
+  final User user;
+  final bool isReceived;
+  final bool isSent;
+  final bool isPassed;
+
+  const LikeCard({
+    super.key,
+    required this.user,
+    this.isReceived = false,
+    this.isSent = false,
+    this.isPassed = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
     
     return Container(
@@ -304,8 +315,8 @@ class LikesView extends StatelessWidget {
                   },
                   blendMode: BlendMode.darken,
                   child: user.imageUrl.startsWith('http')
-                      ? Image.network(
-                          user.imageUrl,
+                      ? CachedNetworkImage(
+                          imageUrl: user.imageUrl,
                           height: 280,
                           width: double.infinity,
                           fit: BoxFit.cover,
