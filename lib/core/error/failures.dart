@@ -18,12 +18,26 @@ class ServerFailure extends Failure {
         return ServerFailure('LOGIN_REQUIRED');
       }
 
-      final map = jsonDecode(body);
+      final map = jsonDecode(body) as Map<String, dynamic>;
+
+      if (statusCode == 402) {
+        final detail = map['detail'];
+        if (detail is Map && detail['error'] == 'insufficient_credits') {
+          return ServerFailure('INSUFFICIENT_CREDITS');
+        }
+      }
       if (map['detail'] == 'Not authenticated') {
         return ServerFailure('LOGIN_REQUIRED');
       }
       if (map['detail'] != null) {
-        return ServerFailure(map['detail']);
+        final detail = map['detail'];
+        if (detail is Map) {
+          if (detail['error'] == 'insufficient_credits') {
+            return ServerFailure('INSUFFICIENT_CREDITS');
+          }
+          return ServerFailure(detail.toString());
+        }
+        return ServerFailure(detail is String ? detail : detail.toString());
       }
     } catch (_) {}
     return ServerFailure(fallbackMessage ?? 'Server returned an error: $body');
