@@ -22,82 +22,91 @@ class SwipeActionButtons extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildCircleButton(
-            icon: Icons.close,
-            color: Colors.white.withValues(alpha: 0.2), // Glass effect
-            iconColor: Colors.white,
+          _buildGlassButton(
+            icon: Icons.close_rounded,
             onTap: onDislike,
             enabled: enabled,
-            isGlass: true,
+            size: 64,
           ),
-          const SizedBox(width: 16),
-          _buildCircleButton(
-            icon: Icons.favorite,
-            color: const Color(0xFF9E6400), // Rich brown/orange
-            iconColor: Colors.white,
-            size: 84,
-            iconSize: 34,
-            hasShadow: true,
+          const SizedBox(width: 24),
+          _buildPrimaryButton(
+            icon: Icons.favorite_rounded,
             onTap: onLike,
             enabled: enabled,
+            size: 88,
           ),
-          const SizedBox(width: 16),
-          _buildCircleButton(
-            icon: Icons.chat_bubble_outline,
-            color: Colors.white.withValues(alpha: 0.2), // Glass effect
-            iconColor: Colors.white,
+          const SizedBox(width: 24),
+          _buildGlassButton(
+            icon: Icons.chat_bubble_outline_rounded,
             onTap: onChat,
             enabled: enabled,
-            isGlass: true,
+            size: 64,
+            isSecondary: true,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCircleButton({
+  Widget _buildPrimaryButton({
     required IconData icon,
-    required Color color,
-    required Color iconColor,
-    double size = 56,
-    double iconSize = 24,
-    bool hasShadow = false,
-    VoidCallback? onTap,
-    bool enabled = true,
-    bool isGlass = false,
+    required VoidCallback onTap,
+    required bool enabled,
+    required double size,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: const Color(0xFFCA8A04), // Premium Gold
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFCA8A04).withValues(alpha: 0.4),
+              blurRadius: 25,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: size * 0.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool enabled,
+    required double size,
+    bool isSecondary = false,
   }) {
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: isGlass ? 10 : 0,
-            sigmaY: isGlass ? 10 : 0,
-          ),
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: enabled ? color : color.withValues(alpha: 0.3),
+              color: Colors.white.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              boxShadow: hasShadow && enabled
-                  ? [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.4),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ]
-                  : null,
-              border: isGlass
-                  ? Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5)
-                  : null,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
             ),
             child: Icon(
               icon,
-              color: enabled ? iconColor : iconColor.withValues(alpha: 0.5),
-              size: iconSize,
+              color: Colors.white,
+              size: size * 0.4,
             ),
           ),
         ),
