@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NewMatchBubble extends StatelessWidget {
   final String name;
@@ -72,12 +73,12 @@ class NewMatchBubble extends StatelessWidget {
                                 height: 72,
                                 fit: BoxFit.cover,
                               )
-                            : Image.network(
-                                imageUrl,
+                            : CachedNetworkImage(
+                                imageUrl: imageUrl,
                                 width: 72,
                                 height: 72,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
+                                errorWidget: (context, error, stackTrace) =>
                                     Image.asset('assets/home.png',
                                         width: 72, height: 72, fit: BoxFit.cover),
                               ),
