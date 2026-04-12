@@ -15,194 +15,247 @@ class MatchesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryBgColor = Color(0xFF0C0A09);
+    const accentColor = Color(0xFFCA8A04);
+    
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
-        if (authState is AuthSuccess) {
-          return BlocBuilder<MatchesCubit, MatchesState>(
-            builder: (context, state) {
-              if (state is MatchesLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state is MatchesError) {
-                return _buildErrorView(context, state.message);
-              }
-
-              if (state is MatchesLoaded) {
-                final matches = state.matches;
-
-                if (matches.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.handshake_outlined,
-                          size: 64,
-                          color: Colors.grey,
+        return Scaffold(
+          backgroundColor: primaryBgColor,
+          body: authState is AuthSuccess
+              ? BlocBuilder<MatchesCubit, MatchesState>(
+                  builder: (context, state) {
+                    if (state is MatchesLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: accentColor,
+                          strokeWidth: 2,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "No matches yet!",
-                          style: GoogleFonts.outfit(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                      );
+                    }
+
+                    if (state is MatchesError) {
+                      return _buildErrorView(context, state.message);
+                    }
+
+                    if (state is MatchesLoaded) {
+                      final matches = state.matches;
+
+                      if (matches.isEmpty) {
+                        return _buildEmptyState(context);
+                      }
+
+                      return RefreshIndicator(
+                        onRefresh: () =>
+                            context.read<MatchesCubit>().fetchMatches(),
+                        color: accentColor,
+                        backgroundColor: const Color(0xFF1C1917),
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          "Start swiping to find skill-swap partners.",
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () => context.read<MatchesCubit>().fetchMatches(),
-                  color: const Color(0xFF0B6A7A),
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height - 100,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 24),
-                          _buildSectionHeader('NEW MATCHES • SUCCESS'),
-                          const SizedBox(height: 16),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: matches.map((conv) {
-                                final user = conv.user;
-                                return NewMatchBubble(
-                                  name: user.name,
-                                  imageUrl: user.imageUrl,
-                                  teachingSkill:
-                                      user.teaching?.name ?? 'Expert',
-                                  isTopMatch: false,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ChatPage(
-                                          userName: user.name,
-                                          userImageUrl: user.imageUrl,
-                                          userTitle:
-                                              user.teaching?.name ?? 'Expert',
-                                          matchId: user.matchId ?? '',
-                                          userId: user.id,
-                                          isOnline: true,
+                          children: [
+                            const SizedBox(height: 32),
+                            _buildSectionHeader('NEW CONNECTIONS'),
+                            const SizedBox(height: 24),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              child: Row(
+                                children: matches.map((conv) {
+                                  final user = conv.user;
+                                  return NewMatchBubble(
+                                    name: user.name,
+                                    imageUrl: user.imageUrl,
+                                    teachingSkill:
+                                        user.teaching?.name ?? 'Expert',
+                                    isTopMatch: true, // Making them glow for premium feel
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatPage(
+                                            userName: user.name,
+                                            userImageUrl: user.imageUrl,
+                                            userTitle:
+                                                user.teaching?.name ?? 'Expert',
+                                            matchId: user.matchId ?? '',
+                                            userId: user.id,
+                                            isOnline: true,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                    if (context.mounted) {
-                                      // Refresh matches when returning from chat
-                                      context.read<MatchesCubit>().fetchMatches();
-                                    }
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          _buildSectionHeader('CONVERSATIONS • ACTIVE'),
-                          const SizedBox(height: 16),
-                          // Use ListView.builder with shrinkWrap inside SingleChildScrollView
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            itemCount: matches.length,
-                            itemBuilder: (context, index) {
-                              final conv = matches[index];
-                              final user = conv.user;
-                              return ConversationItem(
-                                userName: user.name,
-                                userImageUrl: user.imageUrl,
-                                lastMessage:
-                                    conv.lastMessage ?? "Start a conversation!",
-                                timestamp: _formatTimestamp(
-                                  conv.lastMessageTime,
-                                ),
-                                skillTag: user.teaching?.name ?? 'Expert',
-                                isOnline: true,
-                                hasUnread: conv.hasUnread,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatPage(
-                                        userName: user.name,
-                                        userImageUrl: user.imageUrl,
-                                        userTitle:
-                                            user.teaching?.name ?? 'Expert',
-                                        matchId: user.matchId ?? '',
-                                        userId: user.id,
-                                        isOnline: true,
-                                      ),
-                                    ),
+                                      );
+                                      if (context.mounted) {
+                                        context
+                                            .read<MatchesCubit>()
+                                            .fetchMatches();
+                                      }
+                                    },
                                   );
-                                  if (context.mounted) {
-                                    // Refresh matches when returning from chat to clear unread dots
-                                    context.read<MatchesCubit>().fetchMatches();
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 54),
+                            _buildSectionHeader('CENTRAL MESSAGES'),
+                            const SizedBox(height: 24),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              child: Column(
+                                children: matches.map((conv) {
+                                  final user = conv.user;
+                                  return ConversationItem(
+                                    userName: user.name,
+                                    userImageUrl: user.imageUrl,
+                                    lastMessage:
+                                        conv.lastMessage ??
+                                        "Start your skill exchange...",
+                                    timestamp: _formatTimestamp(
+                                      conv.lastMessageTime,
+                                    ),
+                                    skillTag: user.teaching?.name ?? 'Expert',
+                                    isOnline: true,
+                                    hasUnread: conv.hasUnread,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatPage(
+                                            userName: user.name,
+                                            userImageUrl: user.imageUrl,
+                                            userTitle:
+                                                user.teaching?.name ?? 'Expert',
+                                            matchId: user.matchId ?? '',
+                                            userId: user.id,
+                                            isOnline: true,
+                                          ),
+                                        ),
+                                      );
+                                      if (context.mounted) {
+                                        context
+                                            .read<MatchesCubit>()
+                                            .fetchMatches();
+                                      }
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 120), // Extra space for nav bar
+                          ],
+                        ),
+                      );
+                    }
 
-              return const SizedBox.shrink();
-            },
-          );
-        }
-
-        // Guest Mode or Loading Auth
-        return _buildGuestWall(context);
+                    return const SizedBox.shrink();
+                  },
+                )
+              : _buildGuestWall(context),
+        );
       },
     );
   }
 
-  Widget _buildErrorView(BuildContext context, String message) {
+  Widget _buildEmptyState(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              "Sync Interrupted",
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              child: Icon(
+                Icons.auto_awesome_rounded,
+                size: 64,
+                color: accentColor.withValues(alpha: 0.4),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 48),
             Text(
-              "We couldn't reach the matches database. Please check your connection.",
+              "The Void Awaits",
+              style: GoogleFonts.dmSans(
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: -0.6,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Start discovering masterminds to manifest\nyour collaborative success.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: Colors.grey),
+              style: GoogleFonts.dmSans(
+                fontSize: 16,
+                color: Colors.white.withValues(alpha: 0.3),
+                height: 1.6,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorView(BuildContext context, String message) {
+    const accentColor = Color(0xFFCA8A04);
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 48,
+              color: Colors.white.withValues(alpha: 0.2),
             ),
             const SizedBox(height: 24),
-            TextButton.icon(
+            Text(
+              "HUB OFFLINE",
+              style: GoogleFonts.dmSans(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "We encountered an echo in the matrix. Reconnect to manifest your matches.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.dmSans(
+                color: Colors.white.withValues(alpha: 0.4),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            TextButton(
               onPressed: () => context.read<MatchesCubit>().fetchMatches(),
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text("RETRY CONNECTION"),
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF0B6A7A),
+                foregroundColor: accentColor,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                "RETRY CONNECTION",
+                style: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.2,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],
@@ -212,84 +265,106 @@ class MatchesView extends StatelessWidget {
   }
 
   Widget _buildGuestWall(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Spacer(flex: 2),
+          const Spacer(flex: 3),
           Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF2F4F7),
+            padding: const EdgeInsets.all(48),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.02),
               shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
             ),
             child: const Icon(
-              Icons.handshake_rounded,
-              color: Color(0xFF0B6A7A),
-              size: 64,
+              Icons.stars_rounded,
+              color: accentColor,
+              size: 80,
             ),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 54),
           Text(
-            'Your Connections',
-            style: GoogleFonts.outfit(
-              fontSize: 32,
+            'Manifest Growth',
+            style: GoogleFonts.dmSans(
+              fontSize: 34,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
+              color: Colors.white,
+              letterSpacing: -1.0,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
-            'Once you connect with an expert, your shared journey and messages will appear here.',
+            'Unlock your matched connections and shared knowledge journeys by becoming a member.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: const Color(0xFF667085),
-              height: 1.5,
+            style: GoogleFonts.dmSans(
+              fontSize: 17,
+              color: Colors.white.withValues(alpha: 0.3),
+              height: 1.7,
             ),
           ),
-          const Spacer(flex: 3),
+          const Spacer(flex: 2),
           SizedBox(
             width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(OnboardingPage.route());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0B6A7A),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            height: 64,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [accentColor, Color(0xFFB47B03)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.3),
+                    blurRadius: 25,
+                    spreadRadius: -5,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              child: Text(
-                'Get Started',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(OnboardingPage.route());
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                ),
+                child: Text(
+                  'Start Manifesting',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           TextButton(
             onPressed: () {
               Navigator.of(context).push(LoginPage.route());
             },
             child: Text(
-              'LOG IN TO YOUR ACCOUNT',
-              style: GoogleFonts.inter(
-                fontSize: 12,
+              'LOG IN TO YOUR HUB',
+              style: GoogleFonts.dmSans(
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF0B6A7A),
-                letterSpacing: 1.2,
+                color: accentColor,
+                letterSpacing: 2.0,
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
         ],
       ),
     );
@@ -314,16 +389,31 @@ class MatchesView extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(String title) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        title,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: const Color(0xFF0B6A7A),
-          letterSpacing: 1.2,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 16,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: GoogleFonts.dmSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: accentColor,
+              letterSpacing: 2.0,
+            ),
+          ),
+        ],
       ),
     );
   }
