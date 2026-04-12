@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,12 +12,20 @@ class LikesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    const accentColor = Color(0xFFCA8A04);
+
     return DefaultTabController(
       length: 3,
       child: BlocBuilder<LikesCubit, LikesState>(
         builder: (context, state) {
           if (state is LikesLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(
+                color: accentColor,
+                strokeWidth: 2,
+              ),
+            );
           }
 
           if (state is LikesError) {
@@ -24,13 +33,38 @@ class LikesView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(state.message),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
+                  Icon(
+                    Icons.cloud_off_rounded,
+                    size: 48,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    "FEED OFFLINE",
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white.withValues(alpha: 0.4),
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextButton(
                     onPressed: () => context.read<LikesCubit>().fetchLikes(),
-                    child: const Text('Retry'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: accentColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      backgroundColor: Colors.white.withValues(alpha: 0.05),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'RECONNECT',
+                      style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -38,65 +72,77 @@ class LikesView extends StatelessWidget {
           }
 
           if (state is LikesLoaded) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 24,
+            return SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                    child: _buildHeader(),
                   ),
-                  child: _buildHeader(),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: TabBar(
-                    isScrollable: true,
-                    indicatorColor: const Color(0xFF0B6A7A),
-                    labelColor: const Color(0xFF0B6A7A),
-                    unselectedLabelColor: const Color(0xFF667085),
-                    labelStyle: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
+                  // Premium Glassy TabBar
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.03),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
                     ),
-                    indicatorWeight: 3,
-                    indicatorSize: TabBarIndicatorSize.label,
-                    tabs: const [
-                      Tab(text: 'FOR YOU'),
-                      Tab(text: 'LIKED'),
-                      Tab(text: 'PASSED'),
-                    ],
+                    child: TabBar(
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicator: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      ),
+                      dividerColor: Colors.transparent,
+                      labelColor: accentColor,
+                      unselectedLabelColor: Colors.white.withValues(alpha: 0.3),
+                      labelStyle: GoogleFonts.dmSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      tabs: const [
+                        Tab(text: 'INTERESTS'),
+                        Tab(text: 'MY LIKES'),
+                        Tab(text: 'HISTORY'),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _buildLikesList(
-                        context,
-                        state.receivedLikes,
-                        'No interest yet',
-                        'Keep swiping to get noticed!',
-                        isReceived: true,
-                      ),
-                      _buildLikesList(
-                        context,
-                        state.sentLikes,
-                        'No likes sent',
-                        'Find talented people in Discovery!',
-                        isSent: true,
-                      ),
-                      _buildLikesList(
-                        context,
-                        state.passedUsers,
-                        'No passed profiles',
-                        'Your skip history will appear here.',
-                        isPassed: true,
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildLikesList(
+                          context,
+                          state.receivedLikes,
+                          'The Stage is Set',
+                          'Wait for masters to express interest in your craft and manifest your synergy.',
+                          isReceived: true,
+                        ),
+                        _buildLikesList(
+                          context,
+                          state.sentLikes,
+                          'Path of Discovery',
+                          'Reach out to experts to manifest your journey and build your circle.',
+                          isSent: true,
+                        ),
+                        _buildLikesList(
+                          context,
+                          state.passedUsers,
+                          'Inner Circle Only',
+                          'Your filtration history remains encrypted and private.',
+                          isPassed: true,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           }
 
@@ -107,26 +153,41 @@ class LikesView extends StatelessWidget {
   }
 
   Widget _buildHeader() {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'CURATION',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF0B6A7A),
-            letterSpacing: 1.5,
-          ),
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 16,
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'CURATED FEED',
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: accentColor,
+                letterSpacing: 2.0,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Text(
-          'Interaction History',
-          style: GoogleFonts.outfit(
+          'Manifest Curation',
+          style: GoogleFonts.dmSans(
             fontSize: 34,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF101828),
-            height: 1.1,
+            color: Colors.white,
+            letterSpacing: -1.0,
           ),
         ),
       ],
@@ -142,6 +203,8 @@ class LikesView extends StatelessWidget {
     bool isSent = false,
     bool isPassed = false,
   }) {
+    const accentColor = Color(0xFFCA8A04);
+    
     if (users.isEmpty) {
       return RefreshIndicator(
         onRefresh: () async {
@@ -150,29 +213,46 @@ class LikesView extends StatelessWidget {
             await context.read<MatchesCubit>().fetchMatches();
           }
         },
+        color: accentColor,
+        backgroundColor: const Color(0xFF1C1917),
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 80),
             Center(
               child: Column(
                 children: [
-                  const Icon(Icons.history, size: 48, color: Colors.grey),
-                  const SizedBox(height: 24),
-                  Text(
-                    emptyTitle,
-                    style: GoogleFonts.outfit(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF101828),
+                  Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.02),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                    ),
+                    child: Icon(
+                      Icons.auto_awesome_rounded,
+                      size: 56,
+                      color: accentColor.withValues(alpha: 0.3),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 48),
+                  Text(
+                    emptyTitle,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     emptySubtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: const Color(0xFF667085),
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 15,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      height: 1.6,
                     ),
                   ),
                 ],
@@ -190,8 +270,11 @@ class LikesView extends StatelessWidget {
           await context.read<MatchesCubit>().fetchMatches();
         }
       },
+      color: accentColor,
+      backgroundColor: const Color(0xFF1C1917),
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+        physics: const BouncingScrollPhysics(),
         itemCount: users.length,
         itemBuilder: (context, index) {
           return _buildLikeCard(
@@ -213,23 +296,23 @@ class LikesView extends StatelessWidget {
     bool isSent = false,
     bool isPassed = false,
   }) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image Section
+          // Premium Image Section
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -241,30 +324,41 @@ class LikesView extends StatelessWidget {
             },
             child: Stack(
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(32),
-                  ),
+                ShaderMask(
+                  shaderCallback: (rect) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.0),
+                        Colors.black.withValues(alpha: 0.7),
+                        Colors.black.withValues(alpha: 0.9),
+                      ],
+                      stops: const [0.0, 0.7, 1.0],
+                    ).createShader(rect);
+                  },
+                  blendMode: BlendMode.darken,
                   child: user.imageUrl.startsWith('http')
                       ? Image.network(
                           user.imageUrl,
-                          height: 200,
+                          height: 280,
                           width: double.infinity,
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
                           user.imageUrl.isEmpty
-                              ? 'assets/images/placeholder.png'
+                              ? 'assets/home.png'
                               : user.imageUrl,
-                          height: 200,
+                          height: 280,
                           width: double.infinity,
                           fit: BoxFit.cover,
                         ),
                 ),
-                // Skill Tag overlay
+                // Premium Overlay Metadata
                 Positioned(
-                  left: 16,
-                  bottom: 16,
+                  left: 24,
+                  bottom: 24,
+                  right: 24,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -274,26 +368,30 @@ class LikesView extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFDECDA), // Light peach
-                          borderRadius: BorderRadius.circular(10),
+                          color: accentColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: accentColor.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Text(
                           user.teaching?.name.toUpperCase() ?? 'EXPERT',
-                          style: GoogleFonts.inter(
-                            fontSize: 9,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF9E6400),
-                            letterSpacing: 0.5,
+                            color: accentColor,
+                            letterSpacing: 1.0,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 14),
                       Text(
                         '${user.name}, ${user.age}',
-                        style: GoogleFonts.outfit(
-                          fontSize: 24,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 28,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
+                          letterSpacing: -0.8,
                         ),
                       ),
                     ],
@@ -302,7 +400,7 @@ class LikesView extends StatelessWidget {
               ],
             ),
           ),
-          // Content Section
+          // Editorial Content Section
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -314,60 +412,87 @@ class LikesView extends StatelessWidget {
                       : user.bio,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.dmSans(
                     fontSize: 14,
-                    color: const Color(0xFF475467),
-                    height: 1.5,
+                    color: Colors.white.withValues(alpha: 0.4),
+                    height: 1.6,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 Row(
                   children: [
                     Expanded(
-                      child: TextButton(
-                        onPressed: () {
+                      child: GestureDetector(
+                        onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  MasterProfilePage(userId: user.id),
+                              builder: (context) => MasterProfilePage(userId: user.id),
                             ),
                           );
                         },
-                        child: Text(
-                          'See Profile',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF0B6A7A),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Profile',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                     if (isReceived || isSent || isPassed)
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 14),
                     if (isReceived || isPassed)
                       Expanded(
                         flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            context.read<LikesCubit>().likeBackUser(user.id);
-                            context.read<MatchesCubit>().fetchMatches();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0B6A7A),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [accentColor, Color(0xFFB47B03)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: accentColor.withValues(alpha: 0.3),
+                                blurRadius: 15,
+                                spreadRadius: -2,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            isPassed ? 'Like' : 'Like Back',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              context.read<LikesCubit>().likeBackUser(user.id);
+                              context.read<MatchesCubit>().fetchMatches();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              isPassed ? 'Express Interest' : 'Interconnect',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
@@ -375,23 +500,24 @@ class LikesView extends StatelessWidget {
                     if (isSent)
                       Expanded(
                         flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () =>
-                              _showRetractConfirmation(context, user),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFF2F4F7),
-                            foregroundColor: const Color(0xFF101828),
-                            elevation: 0,
+                        child: GestureDetector(
+                          onTap: () => _showRetractConfirmation(context, user),
+                          child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                             ),
-                          ),
-                          child: Text(
-                            'Pass',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                            child: Center(
+                              child: Text(
+                                'Withdraw',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -409,44 +535,68 @@ class LikesView extends StatelessWidget {
   void _showRetractConfirmation(BuildContext context, User user) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          'Pass on ${user.name}?',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'This will remove them from your likes. If you\'ve already matched, your conversation will be permanently deleted.',
-          style: GoogleFonts.inter(color: const Color(0xFF667085)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.inter(
-                color: const Color(0xFF667085),
-                fontWeight: FontWeight.bold,
-              ),
+      builder: (dialogContext) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF0C0A09).withValues(alpha: 0.9),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: Text(
+            'Withdraw interest for ${user.name}?',
+            style: GoogleFonts.dmSans(
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: -0.5,
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.read<LikesCubit>().undoLike(user.id);
-              context.read<MatchesCubit>().fetchMatches();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD92D20),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          content: Text(
+            'This action is final and will remove ${user.name} from your curated feed.',
+            style: GoogleFonts.dmSans(
+              color: Colors.white.withValues(alpha: 0.4),
+              height: 1.5,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'CANCEL',
+                style: GoogleFonts.dmSans(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  letterSpacing: 1.5,
+                ),
               ),
             ),
-            child: const Text('Confirm Pass'),
-          ),
-        ],
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(dialogContext);
+                context.read<LikesCubit>().undoLike(user.id);
+                context.read<MatchesCubit>().fetchMatches();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.2)),
+                ),
+                child: Text(
+                  'CONFIRM',
+                  style: GoogleFonts.dmSans(
+                    color: const Color(0xFFEF4444),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
