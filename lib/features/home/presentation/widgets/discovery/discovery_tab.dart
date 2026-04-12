@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -273,10 +274,26 @@ class _DiscoveryTabState extends State<DiscoveryTab>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DiscoveryCubit, DiscoveryState>(
-      builder: (context, state) {
-        if (state is DiscoveryLoading) {
-          return const Center(child: CircularProgressIndicator());
+    return BlocListener<DiscoveryCubit, DiscoveryState>(
+      listener: (context, state) {
+        if (state is DiscoveryLoaded) {
+          setState(() {
+            _currentIndex = 0;
+            _swipeOffset = Offset.zero;
+            _swipeAngle = 0;
+            _isAnimatingOffScreen = false;
+          });
+        }
+      },
+      child: BlocBuilder<DiscoveryCubit, DiscoveryState>(
+        builder: (context, state) {
+          if (state is DiscoveryLoading) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFCA8A04),
+              strokeWidth: 2,
+            ),
+          );
         }
 
         if (state is DiscoveryError) {
@@ -284,14 +301,36 @@ class _DiscoveryTabState extends State<DiscoveryTab>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: Color(0xFFEF4444),
+                  size: 48,
+                ),
                 const SizedBox(height: 16),
-                Text(state.message, textAlign: TextAlign.center),
-                const SizedBox(height: 16),
+                Text(
+                  state.message,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.dmSans(color: Colors.white70),
+                ),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () =>
                       context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-                  child: const Text('Try Again'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFCA8A04),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    'Try Again',
+                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -306,29 +345,45 @@ class _DiscoveryTabState extends State<DiscoveryTab>
 
           if (!hasMoreUsers) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.celebration,
-                    color: Color(0xFF0B6A7A),
-                    size: 64,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    "You're all caught up!",
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF101828),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Color(0xFFCA8A04),
+                        size: 64,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Come back later for more experts.",
-                    style: GoogleFonts.inter(color: Colors.grey),
-                  ),
-                ],
+                    const SizedBox(height: 32),
+                    Text(
+                      "All Caught Up",
+                      style: GoogleFonts.dmSans(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "You've explored all the talent for now. Come back soon for fresh connections.",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 16,
+                        color: Colors.white.withValues(alpha: 0.5),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -339,7 +394,8 @@ class _DiscoveryTabState extends State<DiscoveryTab>
           return RefreshIndicator(
             onRefresh: () =>
                 context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-            color: const Color(0xFF0B6A7A),
+            color: const Color(0xFFCA8A04),
+            backgroundColor: const Color(0xFF1C1917),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: ConstrainedBox(
@@ -347,35 +403,60 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                   minHeight: screenHeight - kBottomNavigationBarHeight - 100,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: 32),
                       Row(
                         children: [
-                          Text(
-                            'DISCOVER EXPERTS',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                              color: const Color(0xFF667085),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.flash_on_rounded,
+                                  color: Color(0xFFCA8A04),
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'DISCOVER TALENT',
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.5,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const Spacer(),
                           Text(
                             '${_currentIndex + 1}/${users.length}',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black45,
+                              color: Colors.white.withValues(alpha: 0.4),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 24),
                       SizedBox(
-                        height: screenHeight * 0.65,
+                        height: screenHeight * 0.68,
                         child: Stack(
                           alignment: Alignment.center,
                           clipBehavior: Clip.none,
@@ -383,12 +464,19 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                             // Next Card (Background)
                             if (_currentIndex + 1 < users.length)
                               Transform.scale(
-                                scale: 0.9 +
-                                    (_swipeOffset.dx.abs() / 2000).clamp(0, 0.1),
+                                scale:
+                                    0.9 +
+                                    (_swipeOffset.dx.abs() / 2000).clamp(
+                                      0,
+                                      0.1,
+                                    ),
                                 child: Opacity(
-                                  opacity: 0.5 +
-                                      (_swipeOffset.dx.abs() / 1000)
-                                          .clamp(0, 0.5),
+                                  opacity:
+                                      0.3 +
+                                      (_swipeOffset.dx.abs() / 1000).clamp(
+                                        0,
+                                        0.5,
+                                      ),
                                   child: SwipeableCard(
                                     user: users[_currentIndex + 1],
                                   ),
@@ -419,17 +507,30 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                       opacity: _likeOpacityAnimation.value,
                                       child: Transform.scale(
                                         scale: _likeScaleAnimation.value,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(24),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.white.withValues(alpha: 0.2),
-                                            shape: BoxShape.circle,
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                            sigmaX: 5,
+                                            sigmaY: 5,
                                           ),
-                                          child: const Icon(
-                                            Icons.favorite,
-                                            color: Colors.white,
-                                            size: 100,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(32),
+                                            decoration: BoxDecoration(
+                                              color: const Color(
+                                                0xFFCA8A04,
+                                              ).withValues(alpha: 0.3),
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: const Color(
+                                                  0xFFCA8A04,
+                                                ).withValues(alpha: 0.5),
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: const Icon(
+                                              Icons.favorite_rounded,
+                                              color: Colors.white,
+                                              size: 80,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -450,17 +551,29 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                         angle: _dislikeShakeAnimation.value,
                                         child: Transform.scale(
                                           scale: _dislikeScaleAnimation.value,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(24),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  Colors.white.withValues(alpha: 0.2),
-                                              shape: BoxShape.circle,
+                                          child: BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                              sigmaX: 5,
+                                              sigmaY: 5,
                                             ),
-                                            child: const Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                              size: 100,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(32),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.3),
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.close_rounded,
+                                                color: Colors.white,
+                                                size: 80,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -472,18 +585,20 @@ class _DiscoveryTabState extends State<DiscoveryTab>
 
                             // Action Buttons Row
                             Positioned(
-                              bottom: -35,
+                              bottom: -40,
                               left: 0,
                               right: 0,
                               child: SwipeActionButtons(
                                 onLike: () => _runSwipeAnimation(true),
                                 onDislike: () => _runSwipeAnimation(false),
                                 onChat: () {
-                                  final authState =
-                                      context.read<AuthCubit>().state;
+                                  final authState = context
+                                      .read<AuthCubit>()
+                                      .state;
                                   if (authState is! AuthSuccess) {
-                                    Navigator.of(context)
-                                        .push(OnboardingPage.route());
+                                    Navigator.of(
+                                      context,
+                                    ).push(OnboardingPage.route());
                                   }
                                 },
                                 enabled: !isInteractionDisabled,
@@ -492,7 +607,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 80),
                     ],
                   ),
                 ),
@@ -503,6 +618,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
 
         return const SizedBox.shrink();
       },
-    );
-  }
+    ),
+  );
+}
 }
