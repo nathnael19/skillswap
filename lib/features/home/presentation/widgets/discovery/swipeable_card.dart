@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
+import 'package:skillswap/core/network/api_constants.dart';
 
 class SwipeableCard extends StatelessWidget {
   final User user;
@@ -36,7 +37,7 @@ class SwipeableCard extends StatelessWidget {
                         user.imageUrl.startsWith('/static')
                     ? Image.network(
                         user.imageUrl.startsWith('/')
-                            ? 'http://10.0.2.2:8000${user.imageUrl}'
+                            ? '${ApiConstants.mediaBaseUrl}${user.imageUrl}'
                             : user.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) =>
