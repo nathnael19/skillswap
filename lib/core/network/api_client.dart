@@ -6,6 +6,9 @@ import 'api_constants.dart';
 class ApiClient {
   final FirebaseAuth _auth;
   final http.Client _client;
+  
+  String? _cachedToken;
+  DateTime? _tokenExpiry;
 
   ApiClient(this._auth, this._client);
 
@@ -14,10 +17,16 @@ class ApiClient {
     if (user == null) {
       return {'Content-Type': 'application/json'};
     }
-    final token = await user.getIdToken();
+    
+    // Cache for 45 minutes (Firebase tokens last 60 minutes) to avoid platform channel overhead
+    if (_cachedToken == null || _tokenExpiry == null || DateTime.now().isAfter(_tokenExpiry!)) {
+      _cachedToken = await user.getIdToken();
+      _tokenExpiry = DateTime.now().add(const Duration(minutes: 45));
+    }
+
     return {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
+      'Authorization': 'Bearer $_cachedToken',
     };
   }
 
