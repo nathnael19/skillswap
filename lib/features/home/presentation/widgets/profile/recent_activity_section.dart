@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/core/common/widgets/section_header.dart';
+
 
 class RecentActivitySection extends StatelessWidget {
   const RecentActivitySection({super.key});
@@ -10,24 +10,60 @@ class RecentActivitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader(
-          label: 'MY RECENT ACTIVITY',
-          title: 'Interaction History',
-          actionLabel: 'History',
-        ),
-        const SizedBox(height: 16),
+        _buildSectionTitle('MY RECENT ACTIVITY', 'Interaction History'),
+        const SizedBox(height: 20),
         _buildActivityItem(
-          icon: Icons.auto_stories_outlined,
+          icon: Icons.menu_book_rounded,
           title: 'Research Workshop',
           subtitle: 'Completed session with Alex R.',
           time: 'TODAY',
         ),
         const SizedBox(height: 12),
         _buildActivityItem(
-          icon: Icons.chat_bubble_outline_rounded,
+          icon: Icons.reviews_rounded,
           title: 'New Review Received',
           subtitle: 'Elena gave you 5 stars for "Accessibility".',
           time: '3D AGO',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String label, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 3,
+              height: 12,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCA8A04),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: GoogleFonts.dmSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFFCA8A04),
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: GoogleFonts.dmSans(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: -0.5,
+          ),
         ),
       ],
     );
@@ -42,19 +78,19 @@ class RecentActivitySection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF2F4F7)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF2F4F7),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFF667085), size: 20),
+            child: Icon(icon, color: const Color(0xFFCA8A04), size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -63,18 +99,18 @@ class RecentActivitySection extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.dmSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF101828),
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.dmSans(
                     fontSize: 12,
-                    color: const Color(0xFF667085),
+                    color: Colors.white.withValues(alpha: 0.4),
                   ),
                 ),
               ],
@@ -83,10 +119,11 @@ class RecentActivitySection extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             time,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.dmSans(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF98A2B3),
+              color: const Color(0xFFCA8A04),
+              letterSpacing: 0.5,
             ),
           ),
         ],
