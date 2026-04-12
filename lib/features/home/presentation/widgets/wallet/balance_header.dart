@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class BalanceHeader extends StatelessWidget {
-  final int balance;
-  final int nextRewardCredits;
-  final int totalRewardCredits;
+  final double balance;
+  final VoidCallback? onBuyCredits;
+  /// Progress bar target in display credits (purely visual).
+  final double progressCapCredits;
 
   const BalanceHeader({
     super.key,
     required this.balance,
-    required this.nextRewardCredits,
-    required this.totalRewardCredits,
+    this.onBuyCredits,
+    this.progressCapCredits = 50,
   });
 
   @override
   Widget build(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
-    final progress = (balance / totalRewardCredits).clamp(0.0, 1.0);
-    
+    final fmt = NumberFormat('#,##0.##');
+    final balanceLabel = fmt.format(balance);
+    final progress =
+        (balance / progressCapCredits).clamp(0.0, 1.0).toDouble();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
@@ -45,7 +50,7 @@ class BalanceHeader extends StatelessWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  balance.toString(),
+                  balanceLabel,
                   style: GoogleFonts.dmSans(
                     fontSize: 64,
                     fontWeight: FontWeight.w700,
@@ -69,7 +74,7 @@ class BalanceHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Next Reward Manifestation',
+                  'Progress toward ${fmt.format(progressCapCredits)} CR',
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -77,7 +82,7 @@ class BalanceHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$balance / $totalRewardCredits',
+                  '$balanceLabel / ${fmt.format(progressCapCredits)}',
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -87,7 +92,6 @@ class BalanceHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // Custom Glow Progress Bar
             Container(
               height: 8,
               width: double.infinity,
@@ -124,8 +128,9 @@ class BalanceHeader extends StatelessWidget {
                 Expanded(
                   child: _buildActionButton(
                     icon: Icons.add_circle_outline_rounded,
-                    label: 'EARN',
+                    label: 'BUY',
                     isPrimary: true,
+                    onTap: onBuyCredits,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -134,6 +139,7 @@ class BalanceHeader extends StatelessWidget {
                     icon: Icons.auto_awesome_rounded,
                     label: 'PERKS',
                     isPrimary: false,
+                    onTap: null,
                   ),
                 ),
               ],
@@ -148,46 +154,64 @@ class BalanceHeader extends StatelessWidget {
     required IconData icon,
     required String label,
     required bool isPrimary,
+    VoidCallback? onTap,
   }) {
     const accentColor = Color(0xFFCA8A04);
-    
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: isPrimary 
-          ? const LinearGradient(colors: [accentColor, Color(0xFFB47B03)])
-          : null,
-        color: isPrimary ? null : Colors.white.withValues(alpha: 0.05),
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(22),
-        border: isPrimary ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        boxShadow: isPrimary ? [
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.3),
-            blurRadius: 15,
-            spreadRadius: -2,
-            offset: const Offset(0, 5),
-          )
-        ] : null,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.4),
-            size: 18,
+        child: Ink(
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: isPrimary
+                ? const LinearGradient(
+                    colors: [accentColor, Color(0xFFB47B03)],
+                  )
+                : null,
+            color: isPrimary ? null : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(22),
+            border: isPrimary
+                ? null
+                : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            boxShadow: isPrimary
+                ? [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.3),
+                      blurRadius: 15,
+                      spreadRadius: -2,
+                      offset: const Offset(0, 5),
+                    ),
+                  ]
+                : null,
           ),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: GoogleFonts.dmSans(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.4),
-              letterSpacing: 1.5,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: isPrimary
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.4),
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: isPrimary
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.4),
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
