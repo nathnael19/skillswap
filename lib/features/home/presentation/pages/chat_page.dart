@@ -175,7 +175,8 @@ class _ChatPageState extends State<ChatPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ScheduleSessionPage(),
+                            builder: (context) =>
+                                ScheduleSessionPage(matchId: widget.matchId),
                           ),
                         );
                       },
@@ -198,7 +199,7 @@ class _ChatPageState extends State<ChatPage> {
             return Column(
               children: [
                 Expanded(child: _buildMessageList(state)),
-                const ChatQuickActions(),
+                ChatQuickActions(matchId: widget.matchId),
                 ChatInputBar(
                   controller: _messageController,
                   onSendTap: () {
