@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,8 +51,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _nextStep() {
     if (_currentStep < 3) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
       );
     } else {
       _register();
@@ -61,8 +62,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _previousStep() {
     if (_currentStep > 0) {
       _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
       );
     }
   }
@@ -100,69 +101,78 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    const tealColor = Color(0xFF0B6A7A);
+    const primaryBgColor = Color(0xFF0C0A09);
+    const accentColor = Color(0xFFCA8A04);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: _currentStep > 0
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: tealColor),
-                onPressed: _previousStep,
-              )
-            : IconButton(
-                icon: const Icon(Icons.close, color: tealColor),
-                onPressed: () => Navigator.pop(context),
-              ),
-        title: Column(
-          children: [
-            Text(
-              'STEP ${_currentStep + 1} OF 4',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: tealColor.withValues(alpha: 0.5),
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(4, (index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  height: 3,
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: index <= _currentStep
-                        ? tealColor
-                        : tealColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(2),
+      backgroundColor: primaryBgColor,
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: AppBar(
+              backgroundColor: primaryBgColor.withValues(alpha: 0.8),
+              elevation: 0,
+              leading: Center(
+                child: GestureDetector(
+                  onTap: _currentStep > 0 ? _previousStep : () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                    ),
+                    child: Icon(
+                      _currentStep > 0 ? Icons.arrow_back_rounded : Icons.close_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                );
-              }),
+                ),
+              ),
+              title: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'ENROLLMENT JOURNEY',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: accentColor,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildProgressTrack(accentColor),
+                ],
+              ),
+              centerTitle: true,
+              shape: Border(
+                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05), width: 1),
+              ),
             ),
-          ],
+          ),
         ),
-        centerTitle: true,
       ),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message, style: GoogleFonts.dmSans()),
+                backgroundColor: const Color(0xFFEF4444),
+              ),
+            );
           } else if (state is AuthSuccess) {
             showDialog(
               context: context,
               barrierDismissible: false,
               builder: (context) => RegistrationSuccessOverlay(
                 onAnimationComplete: () {
-                  Navigator.of(
-                    context,
-                  ).pushAndRemoveUntil(HomePage.route(), (route) => false);
+                  Navigator.of(context).pushAndRemoveUntil(HomePage.route(), (route) => false);
                 },
               ),
             );
@@ -171,15 +181,142 @@ class _OnboardingPageState extends State<OnboardingPage> {
         builder: (context, state) {
           final isLoading = state is AuthLoading;
 
-          return PageView(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            onPageChanged: (index) => setState(() => _currentStep = index),
+          return Stack(
             children: [
-              _buildStep1(),
-              _buildStep2(),
-              _buildStep3(),
-              _buildStep4(isLoading),
+              // Ambient Background Glows
+              Positioned(
+                top: -100,
+                right: -100,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        accentColor.withValues(alpha: 0.05),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (index) => setState(() => _currentStep = index),
+                children: [
+                  _buildStep(
+                    title: 'Digital Identity',
+                    subtitle: 'Manifest your profile within the SkillSwap ecosystem.',
+                    content: [
+                      AuthTextField(
+                        label: 'FULL NAME',
+                        controller: nameController,
+                        hint: 'Julian Vane',
+                        icon: Icons.person_outline_rounded,
+                      ),
+                      const SizedBox(height: 24),
+                      AuthTextField(
+                        label: 'PROFESSION',
+                        controller: professionController,
+                        hint: 'UX Designer / Full-stack Dev',
+                        icon: Icons.work_outline_rounded,
+                      ),
+                      const SizedBox(height: 24),
+                      AuthTextField(
+                        label: 'LOCATION',
+                        controller: locationController,
+                        hint: 'San Francisco, CA',
+                        icon: Icons.location_on_outlined,
+                      ),
+                    ],
+                    onContinue: () {
+                      if (nameController.text.isNotEmpty && professionController.text.isNotEmpty) {
+                        _nextStep();
+                      }
+                    },
+                    footer: _buildAuthSwitch('Already in the Nexus?', 'Log In', () {
+                      Navigator.of(context).push(LoginPage.route());
+                    }),
+                  ),
+                  _buildStep(
+                    title: 'Your Mastery',
+                    subtitle: 'What wisdom will you share with the community?',
+                    content: [
+                      AuthTextField(
+                        label: 'PERSONAL MANIFESTO',
+                        controller: bioController,
+                        hint: 'Briefly describe your journey...',
+                        icon: Icons.notes_rounded,
+                        maxLines: 4,
+                      ),
+                      const SizedBox(height: 40),
+                      Text(
+                        'SKILLS YOU TEACH',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white.withValues(alpha: 0.3),
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSkillInput('teach'),
+                      const SizedBox(height: 24),
+                      _buildSkillWrap('teach'),
+                    ],
+                    onContinue: _nextStep,
+                  ),
+                  _buildStep(
+                    title: 'Growth Vectors',
+                    subtitle: 'What would you like to manifest next?',
+                    content: [
+                      Text(
+                        'SKILLS YOU WANT TO LEARN',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white.withValues(alpha: 0.3),
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSkillInput('learn'),
+                      const SizedBox(height: 24),
+                      _buildSkillWrap('learn'),
+                    ],
+                    onContinue: _nextStep,
+                  ),
+                  _buildStep(
+                    title: 'Account Manifest',
+                    subtitle: 'Finalize your enrollment in the SkillSwap Nexus.',
+                    content: [
+                      AuthTextField(
+                        label: 'EMAIL ADDRESS',
+                        controller: emailController,
+                        hint: 'master@skillswap.com',
+                        icon: Icons.mail_outline_rounded,
+                      ),
+                      const SizedBox(height: 24),
+                      AuthTextField(
+                        label: 'SECURE KEY',
+                        controller: passwordController,
+                        hint: '........',
+                        icon: Icons.lock_outline_rounded,
+                        isPassword: true,
+                      ),
+                    ],
+                    onContinue: () {
+                      if (emailController.text.isNotEmpty && passwordController.text.length >= 6) {
+                        _register();
+                      }
+                    },
+                    isLoading: isLoading,
+                    ctaLabel: 'Complete Enrollment',
+                  ),
+                ],
+              ),
             ],
           );
         },
@@ -187,315 +324,188 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildStep1() {
-    const tealColor = Color(0xFF0B6A7A);
+  Widget _buildStep({
+    required String title,
+    required String subtitle,
+    required List<Widget> content,
+    required VoidCallback onContinue,
+    Widget? footer,
+    bool isLoading = false,
+    String ctaLabel = 'Continue',
+  }) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 140, 24, 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tell us about yourself',
-            style: GoogleFonts.outfit(
+            title,
+            style: GoogleFonts.dmSans(
               fontSize: 32,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
+              color: Colors.white,
+              letterSpacing: -1,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'Help us build your digital identity in the Nexus.',
-            style: GoogleFonts.inter(
+            subtitle,
+            style: GoogleFonts.dmSans(
               fontSize: 16,
-              color: const Color(0xFF667085),
+              color: Colors.white.withValues(alpha: 0.4),
+              height: 1.5,
             ),
           ),
-          const SizedBox(height: 40),
-          AuthTextField(
-            label: 'FULL NAME',
-            controller: nameController,
-            hint: 'Julian Vane',
-            icon: Icons.person_outline,
-          ),
-          const SizedBox(height: 24),
-          AuthTextField(
-            label: 'PROFESSION',
-            controller: professionController,
-            hint: 'UX Designer / Full-stack Dev',
-            icon: Icons.work_outline,
-          ),
-          const SizedBox(height: 24),
-          AuthTextField(
-            label: 'LOCATION',
-            controller: locationController,
-            hint: 'San Francisco, CA',
-            icon: Icons.location_on_outlined,
-          ),
           const SizedBox(height: 48),
+          ...content,
+          const SizedBox(height: 56),
           AppButton(
-            label: 'Continue',
-            onTap: () {
-              if (nameController.text.isNotEmpty &&
-                  professionController.text.isNotEmpty) {
-                _nextStep();
-              }
-            },
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Already have an account? ",
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: const Color(0xFF667085),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(LoginPage.route());
-                },
-                child: Text(
-                  "Log In",
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: tealColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStep2() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Your Expertise',
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'What wisdom can you share with the community?',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: const Color(0xFF667085),
-            ),
-          ),
-          const SizedBox(height: 40),
-          AuthTextField(
-            label: 'PERSONAL BIO',
-            controller: bioController,
-            hint: 'Briefly describe your journey...',
-            icon: Icons.notes,
-            maxLines: 4,
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'SKILLS YOU TEACH',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: AuthTextField(
-                  label: '',
-                  controller: _skillInputController,
-                  hint: 'e.g. Flutter, Design Thinking...',
-                  icon: Icons.add_task,
-                ),
-              ),
-              const SizedBox(width: 12),
-              IconButton.filled(
-                onPressed: () => _addSkill('teach'),
-                icon: const Icon(Icons.add),
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF0B6A7A),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _skills
-                .asMap()
-                .entries
-                .where((e) => e.value['type'] == 'teach')
-                .map(
-                  (e) => Chip(
-                    label: Text(e.value['name']!),
-                    onDeleted: () => _removeSkill(e.key),
-                    backgroundColor: const Color(0xFFF2F4F7),
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 48),
-          AppButton(label: 'Continue', onTap: _nextStep),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStep3() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Growth Goals',
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'What would you like to master next?',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: const Color(0xFF667085),
-            ),
-          ),
-          const SizedBox(height: 40),
-          Text(
-            'SKILLS YOU WANT TO LEARN',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: AuthTextField(
-                  label: '',
-                  controller: _skillInputController,
-                  hint: 'e.g. Advanced AI, Public Speaking...',
-                  icon: Icons.trending_up,
-                ),
-              ),
-              const SizedBox(width: 12),
-              IconButton.filled(
-                onPressed: () => _addSkill('learn'),
-                icon: const Icon(Icons.add),
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF0B6A7A),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _skills
-                .asMap()
-                .entries
-                .where((e) => e.value['type'] == 'learn')
-                .map(
-                  (e) => Chip(
-                    label: Text(e.value['name']!),
-                    onDeleted: () => _removeSkill(e.key),
-                    backgroundColor: const Color(0xFFF2F4F7),
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 48),
-          AppButton(label: 'Continue', onTap: _nextStep),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStep4(bool isLoading) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Finalize Account',
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Last step to join the SkillSwap community.',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: const Color(0xFF667085),
-            ),
-          ),
-          const SizedBox(height: 40),
-          AuthTextField(
-            label: 'EMAIL ADDRESS',
-            controller: emailController,
-            hint: 'julian@example.com',
-            icon: Icons.mail_outline,
-          ),
-          const SizedBox(height: 24),
-          AuthTextField(
-            label: 'PASSWORD',
-            controller: passwordController,
-            hint: '........',
-            icon: Icons.lock_outline,
-            isPassword: true,
-          ),
-          const SizedBox(height: 48),
-          AppButton(
-            label: 'Complete Registration',
+            label: ctaLabel,
             isLoading: isLoading,
-            onTap: () {
-              if (emailController.text.isNotEmpty &&
-                  passwordController.text.length >= 6) {
-                _register();
-              }
-            },
+            onTap: onContinue,
+          ),
+          if (footer != null) ...[
+            const SizedBox(height: 32),
+            footer,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressTrack(Color accent) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(4, (index) {
+        bool isActive = index <= _currentStep;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          height: 4,
+          width: 32,
+          decoration: BoxDecoration(
+            color: isActive ? accent : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(2),
+            boxShadow: isActive ? [
+              BoxShadow(color: accent.withValues(alpha: 0.3), blurRadius: 8)
+            ] : [],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildSkillInput(String type) {
+    const accentColor = Color(0xFFCA8A04);
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _skillInputController,
+              style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'e.g. Flutter, Advanced Design...',
+                hintStyle: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.15)),
+                border: InputBorder.none,
+              ),
+              onSubmitted: (_) => _addSkill(type),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _addSkill(type),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkillWrap(String type) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: _skills
+          .asMap()
+          .entries
+          .where((e) => e.value['type'] == type)
+          .map(
+            (e) => Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    e.value['name']!.toUpperCase(),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white.withValues(alpha: 0.6),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _removeSkill(e.key),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close_rounded, color: Colors.white24, size: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildAuthSwitch(String question, String action, VoidCallback onTap) {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "$question ",
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.3),
+            ),
+          ),
+          GestureDetector(
+            onTap: onTap,
+            child: Text(
+              action,
+              style: GoogleFonts.dmSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFFCA8A04),
+              ),
+            ),
           ),
         ],
       ),
