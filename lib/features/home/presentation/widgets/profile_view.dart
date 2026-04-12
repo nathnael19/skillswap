@@ -21,7 +21,12 @@ class ProfileView extends StatelessWidget {
           return BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) {
               if (state is ProfileLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFFCA8A04),
+                    strokeWidth: 2,
+                  ),
+                );
               }
 
               if (state is ProfileError) {
@@ -33,19 +38,20 @@ class ProfileView extends StatelessWidget {
                 return RefreshIndicator(
                   onRefresh: () =>
                       context.read<ProfileCubit>().fetchUserProfile(),
-                  color: const Color(0xFF0B6A7A),
+                  color: const Color(0xFFCA8A04),
+                  backgroundColor: const Color(0xFF1C1917),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         ProfileHeader(user: user),
-                        const SizedBox(height: 32),
-                        ExpertisePortfolio(user: user),
-                        const SizedBox(height: 32),
-                        const RecentActivitySection(),
                         const SizedBox(height: 40),
+                        ExpertisePortfolio(user: user),
+                        const SizedBox(height: 40),
+                        const RecentActivitySection(),
+                        const SizedBox(height: 120), // Extra space for bottom bar
                       ],
                     ),
                   ),
@@ -66,32 +72,42 @@ class ProfileView extends StatelessWidget {
   Widget _buildErrorView(BuildContext context, String message) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
+            Icon(Icons.cloud_off_rounded,
+                size: 48, color: Colors.white.withValues(alpha: 0.2)),
+            const SizedBox(height: 24),
             Text(
-              "Profile Unavailable",
-              style: GoogleFonts.outfit(
+              "Nexus Disconnected",
+              style: GoogleFonts.dmSans(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              "We're having trouble loading your expert profile. Please try again.",
+              "We're having trouble syncing your expert profile. Check your connection.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: Colors.grey),
+              style: GoogleFonts.dmSans(
+                color: Colors.white.withValues(alpha: 0.4),
+                height: 1.5,
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             TextButton.icon(
               onPressed: () => context.read<ProfileCubit>().fetchUserProfile(),
               icon: const Icon(Icons.refresh_rounded),
               label: const Text("RETRY CONNECTION"),
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF0B6A7A),
+                foregroundColor: const Color(0xFFCA8A04),
+                textStyle: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.2,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],
@@ -102,92 +118,102 @@ class ProfileView extends StatelessWidget {
 
   Widget _buildGuestWall(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F4F7),
+              color: Colors.white.withValues(alpha: 0.03),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: const Icon(
-              Icons.auto_awesome_rounded,
-              color: Color(0xFF0B6A7A),
-              size: 64,
+              Icons.fingerprint_rounded,
+              color: Color(0xFFCA8A04),
+              size: 72,
             ),
           ),
           const SizedBox(height: 48),
           Text(
-            'Join the Nexus',
-            style: GoogleFonts.outfit(
+            'Master Your Path',
+            style: GoogleFonts.dmSans(
               fontSize: 32,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF101828),
+              color: Colors.white,
+              letterSpacing: -1.0,
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Curate your expertise, connect with masters, and elevate your craft through shared wisdom.',
+            'Curate your expert persona, track your growth journey, and manifest your mastery.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.dmSans(
               fontSize: 16,
-              color: const Color(0xFF667085),
-              height: 1.5,
+              color: Colors.white.withValues(alpha: 0.4),
+              height: 1.6,
             ),
           ),
           const Spacer(flex: 3),
           SizedBox(
             width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(OnboardingPage.route());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0B6A7A),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            height: 60,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFCA8A04).withValues(alpha: 0.25),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              child: Text(
-                'Get Started',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(OnboardingPage.route());
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  'Build Your Profile',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           TextButton(
             onPressed: () {
               Navigator.of(context).push(LoginPage.route());
             },
             child: Text(
-              'LOG IN TO YOUR ACCOUNT',
-              style: GoogleFonts.inter(
+              'RECLAIM YOUR IDENTITY',
+              style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF0B6A7A),
-                letterSpacing: 1.2,
+                color: const Color(0xFFCA8A04),
+                letterSpacing: 1.5,
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 60),
         ],
       ),
     );
