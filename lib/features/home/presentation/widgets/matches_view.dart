@@ -54,72 +54,71 @@ class MatchesView extends StatelessWidget {
                             context.read<MatchesCubit>().fetchMatches(),
                         color: accentColor,
                         backgroundColor: const Color(0xFF1C1917),
-                        child: ListView(
+                        child: CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(
                             parent: BouncingScrollPhysics(),
                           ),
-                          children: [
-                            const SizedBox(height: 32),
-                            _buildSectionHeader('NEW CONNECTIONS'),
-                            const SizedBox(height: 24),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                              ),
-                              child: Row(
-                                children: matches.map((conv) {
-                                  final user = conv.user;
-                                  return NewMatchBubble(
-                                    name: user.name,
-                                    imageUrl: user.imageUrl,
-                                    teachingSkill:
-                                        user.teaching?.name ?? 'Expert',
-                                    isTopMatch: true, // Making them glow for premium feel
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ChatPage(
-                                            userName: user.name,
-                                            userImageUrl: user.imageUrl,
-                                            userTitle:
-                                                user.teaching?.name ?? 'Expert',
-                                            matchId: user.matchId ?? '',
-                                            userId: user.id,
-                                            isOnline: true,
+                          slivers: [
+                            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                            SliverToBoxAdapter(child: _buildSectionHeader('NEW CONNECTIONS')),
+                            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                            SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 140,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                  itemCount: matches.length,
+                                  itemBuilder: (context, index) {
+                                    final conv = matches[index];
+                                    final user = conv.user;
+                                    return NewMatchBubble(
+                                      key: ValueKey('bubble_${user.id}'),
+                                      name: user.name,
+                                      imageUrl: user.imageUrl,
+                                      teachingSkill: user.teaching?.name ?? 'Expert',
+                                      isTopMatch: true,
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatPage(
+                                              userName: user.name,
+                                              userImageUrl: user.imageUrl,
+                                              userTitle: user.teaching?.name ?? 'Expert',
+                                              matchId: user.matchId ?? '',
+                                              userId: user.id,
+                                              currentUserId: authState.uid,
+                                              isOnline: true,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                      if (context.mounted) {
-                                        context
-                                            .read<MatchesCubit>()
-                                            .fetchMatches();
-                                      }
-                                    },
-                                  );
-                                }).toList(),
+                                        );
+                                        if (context.mounted) {
+                                          context.read<MatchesCubit>().fetchMatches();
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 54),
-                            _buildSectionHeader('CENTRAL MESSAGES'),
-                            const SizedBox(height: 24),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                              ),
-                              child: Column(
-                                children: matches.map((conv) {
+                            const SliverToBoxAdapter(child: SizedBox(height: 54)),
+                            SliverToBoxAdapter(child: _buildSectionHeader('CENTRAL MESSAGES')),
+                            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                            SliverPadding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              sliver: SliverList.builder(
+                                itemCount: matches.length,
+                                itemBuilder: (context, index) {
+                                  final conv = matches[index];
                                   final user = conv.user;
                                   return ConversationItem(
+                                    key: ValueKey('conv_${user.id}'),
                                     userName: user.name,
                                     userImageUrl: user.imageUrl,
-                                    lastMessage:
-                                        conv.lastMessage ??
-                                        "Start your skill exchange...",
-                                    timestamp: _formatTimestamp(
-                                      conv.lastMessageTime,
-                                    ),
+                                    lastMessage: conv.lastMessage ?? "Start your skill exchange...",
+                                    timestamp: _formatTimestamp(conv.lastMessageTime),
                                     skillTag: user.teaching?.name ?? 'Expert',
                                     isOnline: true,
                                     hasUnread: conv.hasUnread,
@@ -130,25 +129,23 @@ class MatchesView extends StatelessWidget {
                                           builder: (context) => ChatPage(
                                             userName: user.name,
                                             userImageUrl: user.imageUrl,
-                                            userTitle:
-                                                user.teaching?.name ?? 'Expert',
+                                            userTitle: user.teaching?.name ?? 'Expert',
                                             matchId: user.matchId ?? '',
                                             userId: user.id,
+                                            currentUserId: authState.uid,
                                             isOnline: true,
                                           ),
                                         ),
                                       );
                                       if (context.mounted) {
-                                        context
-                                            .read<MatchesCubit>()
-                                            .fetchMatches();
+                                        context.read<MatchesCubit>().fetchMatches();
                                       }
                                     },
                                   );
-                                }).toList(),
+                                },
                               ),
                             ),
-                            const SizedBox(height: 120), // Extra space for nav bar
+                            const SliverToBoxAdapter(child: SizedBox(height: 120)),
                           ],
                         ),
                       );
