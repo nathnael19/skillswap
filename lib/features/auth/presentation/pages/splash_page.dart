@@ -135,10 +135,11 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                                   color: Colors.white.withValues(alpha: 0.08),
                                 ),
                               ),
-                              child: const Icon(
-                                Icons.auto_awesome_rounded,
-                                size: 48,
-                                color: accentColor,
+                              child: Image.asset(
+                                'assets/logo.png',
+                                width: 48,
+                                height: 48,
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ],
