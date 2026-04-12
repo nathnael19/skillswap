@@ -1,6 +1,3 @@
-import 'package:flutter/foundation.dart';
-import 'dart:io' show Platform;
-
 class ApiConstants {
   static String get baseUrl => 'https://skillswap-06182658.fastapicloud.dev/api/v1';
   static String get wsBaseUrl => 'wss://skillswap-06182658.fastapicloud.dev/api/v1';
@@ -34,4 +31,7 @@ class ApiConstants {
   
   // Credits
   static const String credits = '/credits';
+
+  // Billing
+  static const String billingCheckout = '/billing/checkout';
 }
