@@ -17,8 +17,10 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(
         crossAxisAlignment:
             isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -30,68 +32,81 @@ class MessageBubble extends StatelessWidget {
               Flexible(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                    horizontal: 18,
+                    vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        isMe ? const Color(0xFF0B6A7A) : const Color(0xFFE4E7EC),
+                    gradient: isMe ? const LinearGradient(
+                      colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ) : null,
+                    color: isMe ? null : Colors.white.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20),
-                      bottomLeft: Radius.circular(isMe ? 20 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 20),
+                      topLeft: const Radius.circular(24),
+                      topRight: const Radius.circular(24),
+                      bottomLeft: Radius.circular(isMe ? 24 : 6),
+                      bottomRight: Radius.circular(isMe ? 6 : 24),
+                    ),
+                    border: isMe ? null : Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
                     boxShadow: [
                       if (isMe)
                         BoxShadow(
-                          color: const Color(0xFF0B6A7A).withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          color: accentColor.withValues(alpha: 0.25),
+                          blurRadius: 15,
+                          offset: const Offset(0, 6),
                         ),
                     ],
                   ),
                   child: Text(
                     text,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.dmSans(
                       fontSize: 15,
-                      height: 1.5,
-                      color: isMe ? Colors.white : const Color(0xFF344054),
+                      height: 1.45,
+                      fontWeight: FontWeight.w500,
+                      color: isMe ? Colors.white : Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isMe) ...[
-                Text(
-                  time,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: const Color(0xFF98A2B3),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isMe) ...[
+                  Text(
+                    time,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: accentColor.withValues(alpha: 0.8),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.done_all,
-                  size: 16,
-                  color: isSeen
-                      ? const Color(0xFF2E90FA)
-                      : const Color(0xFF98A2B3),
-                ),
-              ] else
-                Text(
-                  time,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: const Color(0xFF98A2B3),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.done_all_rounded,
+                    size: 14,
+                    color: isSeen
+                        ? accentColor
+                        : Colors.white.withValues(alpha: 0.2),
                   ),
-                ),
-            ],
+                ] else
+                  Text(
+                    time,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
