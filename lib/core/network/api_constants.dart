@@ -2,16 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
 
 class ApiConstants {
-  static String get _host {
-    if (kIsWeb) return '127.0.0.1:8000';
-    try {
-      if (Platform.isAndroid) return '10.0.2.2:8000';
-    } catch (_) {}
-    return '127.0.0.1:8000';
-  }
-
-  static String get baseUrl => 'http://$_host/api/v1';
-  static String get wsBaseUrl => 'ws://$_host/api/v1';
+  static String get baseUrl => 'https://skillswap-06182658.fastapicloud.dev/api/v1';
+  static String get wsBaseUrl => 'wss://skillswap-06182658.fastapicloud.dev/api/v1';
+  static String get mediaBaseUrl => 'https://skillswap-06182658.fastapicloud.dev';
   
   // Auth & Users
   static const String initUser = '/users/init';
