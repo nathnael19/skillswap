@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,21 +33,22 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    const tealColor = Color(0xFF0B6A7A);
-    const borderColor = Color(0xFFE0E5EF);
+    const primaryBgColor = Color(0xFF0C0A09);
+    const accentColor = Color(0xFFCA8A04);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: primaryBgColor,
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message, style: GoogleFonts.dmSans()),
+                backgroundColor: const Color(0xFFEF4444),
+              ),
+            );
           } else if (state is AuthSuccess) {
-            Navigator.of(
-              context,
-            ).pushAndRemoveUntil(HomePage.route(), (route) => false);
+            Navigator.of(context).pushAndRemoveUntil(HomePage.route(), (route) => false);
           }
         },
         builder: (context, state) {
@@ -54,198 +56,244 @@ class _LoginPageState extends State<LoginPage> {
 
           return AbsorbPointer(
             absorbing: isLoading,
-            child: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 60),
-                      // Logo Text
-                      Text(
-                        'THE CURATOR',
-                        style: GoogleFonts.lora(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 3,
-                          color: tealColor,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Welcome Title
-                      Text(
-                        'Welcome Back',
-                        style: GoogleFonts.inter(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF1E1E1E),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Subtitle
-                      Text(
-                        'Please enter your credentials to continue.',
-                        style: GoogleFonts.lora(
-                          fontSize: 14,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 48),
-
-                      // Email Field
-                      AuthTextField(
-                        label: 'EMAIL ADDRESS',
-                        controller: emailController,
-                        hint: 'curator@skillswap.com',
-                        icon: Icons.mail_outline,
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Password Header (with Forgot Password)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'PASSWORD',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          Text(
-                            'FORGOT PASSWORD?',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: tealColor,
-                            ),
-                          ),
+            child: Stack(
+              children: [
+                // ambient glow
+                Positioned(
+                  top: -150,
+                  left: -50,
+                  child: Container(
+                    width: 400,
+                    height: 400,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          accentColor.withValues(alpha: 0.08),
+                          Colors.transparent,
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      
-                      // Using the field logic from AuthTextField but without the built-in label 
-                      // because this row is custom. Alternatively, I could just use AuthTextField
-                      // and add a trailing widget to it, but keeping it simple for now.
-                      AuthTextField(
-                        label: '', // Hidden label as we built it above
-                        controller: passwordController,
-                        hint: '........',
-                        icon: Icons.lock_outline,
-                        isPassword: true,
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Sign In Button
-                      AppButton(
-                        label: 'Sign In',
-                        isLoading: isLoading,
-                        onTap: () {
-                          if (formKey.currentState!.validate()) {
-                            context.read<AuthCubit>().signIn(
-                                  email: emailController.text.trim(),
-                                  password: passwordController.text.trim(),
-                                );
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 48),
-
-                      // Divider
-                      Row(
-                        children: [
-                          const Expanded(child: Divider(color: borderColor)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: Text(
-                              'OR CONTINUE WITH',
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1,
-                                color: Colors.black26,
-                              ),
-                            ),
-                          ),
-                          const Expanded(child: Divider(color: borderColor)),
-                        ],
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Social Login Buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AuthSocialButton(
-                              label: 'GOOGLE',
-                              icon: Icons.g_mobiledata,
-                              onTap: () {},
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: AuthSocialButton(
-                              label: 'APPLE',
-                              icon: Icons.apple,
-                              onTap: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 48),
-
-                      // Sign Up Link
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account? ",
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(OnboardingPage.route());
-                            },
-                            child: Text(
-                              "Sign Up",
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: tealColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 60),
+                          // Premium Logo Branding (Glass Halo)
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: RadialGradient(
+                                    colors: [
+                                      accentColor.withValues(alpha: 0.15),
+                                      primaryBgColor.withValues(alpha: 0.0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.03),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                                ),
+                                child: const Icon(
+                                  Icons.auto_awesome_rounded,
+                                  size: 40,
+                                  color: accentColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          Text(
+                            'SKILLSWAP NEXUS',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 4,
+                            ),
+                          ),
+                          const SizedBox(height: 60),
+                          // Welcome Title
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Manifest Entrance',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: -1,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Please synchronize your credentials to continue.',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 16,
+                                color: Colors.white.withValues(alpha: 0.4),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+
+                          // Email Field
+                          AuthTextField(
+                            label: 'EMAIL ADDRESS',
+                            controller: emailController,
+                            hint: 'master@skillswap.com',
+                            icon: Icons.mail_outline_rounded,
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Password Field
+                          AuthTextField(
+                            label: 'SECURE KEY',
+                            controller: passwordController,
+                            hint: '........',
+                            icon: Icons.lock_outline_rounded,
+                            isPassword: true,
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'FORGOT KEY?',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: accentColor,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 48),
+
+                          // Sign In Button
+                          AppButton(
+                            label: 'Manifest Synergy',
+                            isLoading: isLoading,
+                            onTap: () {
+                              if (formKey.currentState!.validate()) {
+                                context.read<AuthCubit>().signIn(
+                                      email: emailController.text.trim(),
+                                      password: passwordController.text.trim(),
+                                    );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 48),
+
+                          // Divider
+                          Row(
+                            children: [
+                              Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.05))),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                child: Text(
+                                  'EXTERNAL SOURCE',
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 2,
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                              ),
+                              Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.05))),
+                            ],
+                          ),
+                          const SizedBox(height: 40),
+
+                          // Social Login Buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: AuthSocialButton(
+                                  label: 'GOOGLE',
+                                  icon: Icons.g_mobiledata_rounded,
+                                  onTap: () {},
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: AuthSocialButton(
+                                  label: 'APPLE',
+                                  icon: Icons.apple_rounded,
+                                  onTap: () {},
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 60),
+
+                          // Sign Up Link
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "New to the Nexus? ",
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 14,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(OnboardingPage.route());
+                                },
+                                child: Text(
+                                  "Enroll Now",
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: accentColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(32.0),
         child: Text(
-          '© 2026 THE CURATOR • SKILLSWAP ECOSYSTEM',
+          '© 2026 THE NEXUS • SKILLSWAP ECOSYSTEM',
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.dmSans(
             fontSize: 8,
-            letterSpacing: 1,
-            color: Colors.black26,
-            fontWeight: FontWeight.w500,
+            letterSpacing: 1.5,
+            color: Colors.white.withValues(alpha: 0.1),
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
