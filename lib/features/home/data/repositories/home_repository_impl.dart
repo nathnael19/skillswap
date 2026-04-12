@@ -33,11 +33,16 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<Either<Failure, List<User>>> getDiscoveryUsers({
     String? category,
+    String? search,
   }) async {
     try {
+      final queryParams = <String, String>{};
+      if (category != null) queryParams['category'] = category;
+      if (search != null && search.isNotEmpty) queryParams['search'] = search;
+
       final response = await _apiClient.get(
         ApiConstants.discover,
-        queryParams: category != null ? {'category': category} : null,
+        queryParams: queryParams.isEmpty ? null : queryParams,
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
