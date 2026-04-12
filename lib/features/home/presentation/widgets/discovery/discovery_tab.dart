@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -125,13 +124,6 @@ class _DiscoveryTabState extends State<DiscoveryTab>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-
-    _swipeAnimationController.addListener(() {
-      setState(() {
-        _swipeOffset = _swipePositionAnimation.value;
-        _swipeAngle = _swipeAngleAnimation.value;
-      });
-    });
   }
 
   @override
@@ -396,21 +388,32 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                 children: [
                                   // Next Card (Background)
                                   if (_currentIndex + 1 < users.length)
-                                    Transform.scale(
-                                      scale:
-                                          0.9 +
-                                          (_swipeOffset.dx.abs() / 2000).clamp(
-                                            0,
-                                            0.1,
+                                    AnimatedBuilder(
+                                      animation: _swipeAnimationController,
+                                      builder: (context, child) {
+                                        final offset = _isAnimatingOffScreen
+                                            ? _swipePositionAnimation.value
+                                            : _swipeOffset;
+                                        return Transform.scale(
+                                          scale:
+                                              0.9 +
+                                              (offset.dx.abs() / 2000).clamp(
+                                                0,
+                                                0.1,
+                                              ),
+                                          child: Opacity(
+                                            opacity:
+                                                0.3 +
+                                                (offset.dx.abs() / 1000).clamp(
+                                                  0,
+                                                  0.5,
+                                                ),
+                                            child: child,
                                           ),
-                                      child: Opacity(
-                                        opacity:
-                                            0.3 +
-                                            (_swipeOffset.dx.abs() / 1000)
-                                                .clamp(0, 0.5),
-                                        child: SwipeableCard(
-                                          user: users[_currentIndex + 1],
-                                        ),
+                                        );
+                                      },
+                                      child: SwipeableCard(
+                                        user: users[_currentIndex + 1],
                                       ),
                                     ),
 
@@ -419,12 +422,24 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                     onDoubleTap: _triggerLikeAnimation,
                                     onPanUpdate: _onPanUpdate,
                                     onPanEnd: _onPanEnd,
-                                    child: Transform.translate(
-                                      offset: _swipeOffset,
-                                      child: Transform.rotate(
-                                        angle: _swipeAngle,
-                                        child: SwipeableCard(user: currentUser),
-                                      ),
+                                    child: AnimatedBuilder(
+                                      animation: _swipeAnimationController,
+                                      builder: (context, child) {
+                                        final offset = _isAnimatingOffScreen
+                                            ? _swipePositionAnimation.value
+                                            : _swipeOffset;
+                                        final angle = _isAnimatingOffScreen
+                                            ? _swipeAngleAnimation.value
+                                            : _swipeAngle;
+                                        return Transform.translate(
+                                          offset: offset,
+                                          child: Transform.rotate(
+                                            angle: angle,
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: SwipeableCard(user: currentUser),
                                     ),
                                   ),
 
@@ -439,32 +454,26 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                                 _likeOpacityAnimation.value,
                                             child: Transform.scale(
                                               scale: _likeScaleAnimation.value,
-                                              child: BackdropFilter(
-                                                filter: ImageFilter.blur(
-                                                  sigmaX: 5,
-                                                  sigmaY: 5,
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  32,
                                                 ),
-                                                child: Container(
-                                                  padding: const EdgeInsets.all(
-                                                    32,
-                                                  ),
-                                                  decoration: BoxDecoration(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFCA8A04,
+                                                  ).withValues(alpha: 0.3),
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
                                                     color: const Color(
                                                       0xFFCA8A04,
-                                                    ).withValues(alpha: 0.3),
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color: const Color(
-                                                        0xFFCA8A04,
-                                                      ).withValues(alpha: 0.5),
-                                                      width: 2,
-                                                    ),
+                                                    ).withValues(alpha: 0.5),
+                                                    width: 2,
                                                   ),
-                                                  child: const Icon(
-                                                    Icons.favorite_rounded,
-                                                    color: Colors.white,
-                                                    size: 80,
-                                                  ),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.favorite_rounded,
+                                                  color: Colors.white,
+                                                  size: 80,
                                                 ),
                                               ),
                                             ),
@@ -488,35 +497,26 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                               child: Transform.scale(
                                                 scale: _dislikeScaleAnimation
                                                     .value,
-                                                child: BackdropFilter(
-                                                  filter: ImageFilter.blur(
-                                                    sigmaX: 5,
-                                                    sigmaY: 5,
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(
+                                                    32,
                                                   ),
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          32,
-                                                        ),
-                                                    decoration: BoxDecoration(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withValues(alpha: 0.1),
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
                                                       color: Colors.white
                                                           .withValues(
-                                                            alpha: 0.1,
+                                                            alpha: 0.3,
                                                           ),
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(
-                                                        color: Colors.white
-                                                            .withValues(
-                                                              alpha: 0.3,
-                                                            ),
-                                                        width: 2,
-                                                      ),
+                                                      width: 2,
                                                     ),
-                                                    child: const Icon(
-                                                      Icons.close_rounded,
-                                                      color: Colors.white,
-                                                      size: 80,
-                                                    ),
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.close_rounded,
+                                                    color: Colors.white,
+                                                    size: 80,
                                                   ),
                                                 ),
                                               ),
