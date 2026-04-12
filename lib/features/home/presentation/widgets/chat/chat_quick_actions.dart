@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 
 class ChatQuickActions extends StatelessWidget {
-  const ChatQuickActions({super.key});
+  final String matchId;
+
+  const ChatQuickActions({super.key, required this.matchId});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class ChatQuickActions extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ScheduleSessionPage(),
+                    builder: (context) => ScheduleSessionPage(matchId: matchId),
                   ),
                 );
               },
