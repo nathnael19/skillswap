@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
+import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
+import 'package:skillswap/init_dependencies.dart';
 
 class ReviewSessionPage extends StatefulWidget {
-  const ReviewSessionPage({super.key});
+  final String? sessionId;
+
+  const ReviewSessionPage({super.key, this.sessionId});
 
   @override
   State<ReviewSessionPage> createState() => _ReviewSessionPageState();
@@ -12,6 +19,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   int _rating = 4;
   final Set<String> _selectedEndorsements = {'Patient Learner'};
   final TextEditingController _reviewController = TextEditingController();
+  bool _finishingSession = false;
 
   final List<String> _endorsementOptions = [
     'Great Teacher',
@@ -22,6 +30,81 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   ];
 
   @override
+  void dispose() {
+    _reviewController.dispose();
+    super.dispose();
+  }
+
+  void _exitAfterComplete(BuildContext context) {
+    final nav = Navigator.of(context);
+    nav.pop();
+    if (widget.sessionId != null) {
+      if (nav.canPop()) nav.pop();
+      if (nav.canPop()) nav.pop();
+    }
+  }
+
+  void _showInsufficientCreditsDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Not enough credits'),
+        content: const Text(
+          'You need at least 3 credits to complete this session as the learner. Buy credits to continue.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Later'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute<void>(builder: (_) => const WalletPage()),
+              ).then((_) {
+                if (context.mounted) {
+                  context.read<CreditsCubit>().fetchCredits();
+                }
+              });
+            },
+            child: const Text('Buy credits'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _tryCompleteThenExit(BuildContext context) async {
+    if (_finishingSession) return;
+    if (widget.sessionId == null) {
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+    setState(() => _finishingSession = true);
+    final repo = serviceLocator<HomeRepository>();
+    final result = await repo.updateSessionStatus(
+      sessionId: widget.sessionId!,
+      status: 'completed',
+    );
+    if (!mounted) return;
+    setState(() => _finishingSession = false);
+    result.fold(
+      (failure) {
+        if (failure.message == 'INSUFFICIENT_CREDITS') {
+          _showInsufficientCreditsDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
+        }
+      },
+      (_) => _exitAfterComplete(context),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -30,7 +113,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Color(0xFF101828), size: 24),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _finishingSession ? null : () => _tryCompleteThenExit(context),
         ),
         title: Text(
           'Review Session',
@@ -58,7 +141,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
             _buildSubmitButton(),
             const SizedBox(height: 20),
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: _finishingSession ? null : () => _tryCompleteThenExit(context),
               child: Text(
                 'Skip for now',
                 style: GoogleFonts.inter(
@@ -257,27 +340,43 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   }
 
   Widget _buildSubmitButton() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B6A7A),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _finishingSession ? null : () => _tryCompleteThenExit(context),
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+        child: Ink(
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B6A7A),
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          'Submit Review',
-          style: GoogleFonts.outfit(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+          child: Center(
+            child: _finishingSession
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    'Submit Review',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
         ),
       ),
