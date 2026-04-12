@@ -19,44 +19,70 @@ class NewMatchBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.only(right: 20),
+        padding: const EdgeInsets.only(right: 22),
         child: Column(
           children: [
             Stack(
               alignment: Alignment.center,
               children: [
+                // Luxury Halo
                 Container(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2.5),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isTopMatch
-                          ? const Color(0xFF9E6400) // Gold
-                          : const Color(0xFF0B6A7A).withValues(alpha: 0.5), // Teal
-                      width: 2,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFCA8A04), Color(0xFFB47B03), Colors.transparent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: 0.2),
+                        blurRadius: 10,
+                        spreadRadius: -2,
+                      ),
+                    ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: imageUrl.startsWith('assets')
-                        ? Image.asset(
-                            imageUrl,
-                            width: 72,
-                            height: 72,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.network(
-                            imageUrl,
-                            width: 72,
-                            height: 72,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Image.asset('assets/home.png',
-                                    width: 72, height: 72, fit: BoxFit.cover),
-                          ),
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF0C0A09),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: imageUrl.startsWith('assets')
+                            ? Image.asset(
+                                imageUrl,
+                                width: 72,
+                                height: 72,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.network(
+                                imageUrl,
+                                width: 72,
+                                height: 72,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset('assets/home.png',
+                                        width: 72, height: 72, fit: BoxFit.cover),
+                              ),
+                      ),
+                    ),
                   ),
                 ),
                 if (isTopMatch)
@@ -64,10 +90,22 @@ class NewMatchBubble extends StatelessWidget {
                     right: 0,
                     bottom: 0,
                     child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF9E6400),
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFF0C0A09), width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
                       child: const Icon(Icons.star_rounded,
                           color: Colors.white, size: 12),
@@ -75,22 +113,24 @@ class NewMatchBubble extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             Text(
               name,
-              style: GoogleFonts.inter(
-                fontSize: 14,
+              style: GoogleFonts.dmSans(
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF101828),
+                color: Colors.white,
+                letterSpacing: -0.2,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               teachingSkill.toUpperCase(),
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF667085),
-                letterSpacing: 0.5,
+              style: GoogleFonts.dmSans(
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                color: accentColor,
+                letterSpacing: 1.0,
               ),
             ),
           ],
