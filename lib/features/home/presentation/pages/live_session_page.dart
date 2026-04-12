@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:floating/floating.dart';
 import 'package:skillswap/features/home/presentation/pages/review_session_page.dart';
 
 class LiveSessionPage extends StatefulWidget {
-  const LiveSessionPage({super.key});
+  final List<String> agenda;
+
+  const LiveSessionPage({super.key, required this.agenda});
 
   @override
   State<LiveSessionPage> createState() => _LiveSessionPageState();
@@ -27,18 +30,18 @@ class _LiveSessionPageState extends State<LiveSessionPage>
   bool _isMuted = false;
   bool _isVideoEnabled = true;
   bool _isFlashOn = false;
-  bool _isSharingScreen = false;
+
+  // PiP State
+  late Floating _floating;
 
   // Agenda State
-  final Map<String, bool> _agendaManifestations = {
-    'Mastering Auto-layout': true,
-    'Nexus Component Logic': false,
-    'Manifestation Review': false,
-  };
+  late Map<String, bool> _agendaManifestations;
 
   @override
   void initState() {
     super.initState();
+    _floating = Floating();
+    _initializeAgenda();
     _initializeCamera();
 
     _pulseController = AnimationController(
@@ -51,6 +54,14 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     );
 
     _startTimer();
+  }
+
+  void _initializeAgenda() {
+    _agendaManifestations = {for (var item in widget.agenda) item: false};
+    // Default the first one as checked for visual baseline if it exists
+    if (_agendaManifestations.isNotEmpty) {
+      _agendaManifestations[widget.agenda.first] = true;
+    }
   }
 
   Future<void> _initializeCamera() async {
@@ -121,6 +132,19 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     setState(() => _isVideoEnabled = !_isVideoEnabled);
   }
 
+  Future<void> _togglePip() async {
+    try {
+      final canUsePip = await _floating.isPipAvailable;
+      if (canUsePip) {
+        await _floating.enable(
+          ImmediatePiP(aspectRatio: const Rational.landscape()),
+        );
+      }
+    } catch (e) {
+      debugPrint('PiP Error: $e');
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -134,16 +158,16 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     const accentColor = Color(0xFFCA8A04);
     const primaryBgColor = Color(0xFF0C0A09);
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. Background Layer (Camera or Shared Screen)
-          _buildPrimaryBackground(primaryBgColor),
+    return PiPSwitcher(
+      childWhenDisabled: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 1. Background Layer (Camera)
+            _buildPrimaryBackground(primaryBgColor),
 
-          // 2. Cinematic Gradient Overlay (Only if not sharing or if we want contrast)
-          if (!_isSharingScreen)
+            // 2. Cinematic Gradient Overlay
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -162,53 +186,71 @@ class _LiveSessionPageState extends State<LiveSessionPage>
               ),
             ),
 
-          // 3. Top Hud
-          _buildTopHud(accentColor, primaryBgColor),
+            // 3. Top Hud
+            _buildTopHud(accentColor, primaryBgColor),
 
-          // 4. Agenda & PiP (Reacting to Mini-mode)
-          if (_isSharingScreen)
-            _buildMiniPlayerOverlay(accentColor)
-          else ...[
+            // 4. Standard Overlays (Agenda & PiP)
             _buildStandardAgenda(accentColor),
             _buildStandardPiP(),
-          ],
 
-          // 5. Bottom Controls
-          _buildControlBar(accentColor, primaryBgColor),
-        ],
+            // 5. Bottom Controls
+            _buildControlBar(accentColor, primaryBgColor),
+          ],
+        ),
+      ),
+      childWhenEnabled: _buildPipModeUI(accentColor),
+    );
+  }
+
+  Widget _buildPipModeUI(Color accentColor) {
+    return GestureDetector(
+      onTap: () {
+        // Many PiP implementations automatically return to the app on tap,
+        // but adding an explicit tap area just in case.
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // Just the camera feed in PiP mode
+            if (_isInitialized && _controller != null && _isVideoEnabled)
+              Center(child: CameraPreview(_controller!))
+            else
+              const Center(
+                child: Icon(
+                  Icons.videocam_off_rounded,
+                  color: Colors.white24,
+                  size: 40,
+                ),
+              ),
+
+            // Small overlay for status
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _formatDuration(_secondsElapsed),
+                  style: GoogleFonts.dmSans(
+                    fontSize: 10,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildPrimaryBackground(Color bgColor) {
-    if (_isSharingScreen) {
-      return Container(
-        color: const Color(0xFF1A1A1A),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.monitor_rounded,
-                color: const Color(0xFFCA8A04).withValues(alpha: 0.3),
-                size: 120,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'BROADCASTING NEXUS SCREEN',
-                style: GoogleFonts.dmSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white.withValues(alpha: 0.2),
-                  letterSpacing: 4.0,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (_isInitialized && _controller != null && _isVideoEnabled) {
       return Center(child: CameraPreview(_controller!));
     }
@@ -282,9 +324,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
                     ),
                   ),
                   Text(
-                    _isSharingScreen
-                        ? 'Screen Sharing Active'
-                        : 'Session in Progress',
+                    'Session in Progress',
                     style: GoogleFonts.dmSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -338,6 +378,8 @@ class _LiveSessionPageState extends State<LiveSessionPage>
   }
 
   Widget _buildStandardAgenda(Color accentColor) {
+    if (_agendaManifestations.isEmpty) return const SizedBox.shrink();
+
     return Positioned(
       top: 140,
       right: 20,
@@ -369,8 +411,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
             Container(height: 1, color: Colors.white.withValues(alpha: 0.05)),
             const SizedBox(height: 16),
             ..._agendaManifestations.entries
-                .map((e) => _buildAgendaItem(e.key, e.value))
-                .toList(),
+                .map((e) => _buildAgendaItem(e.key, e.value)),
           ],
         ),
       ),
@@ -389,17 +430,12 @@ class _LiveSessionPageState extends State<LiveSessionPage>
         padding: const EdgeInsets.only(bottom: 14),
         child: Row(
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              child: Icon(
-                isDone
-                    ? Icons.check_circle_rounded
-                    : Icons.radio_button_unchecked_rounded,
-                color: isDone
-                    ? accentColor
-                    : Colors.white.withValues(alpha: 0.2),
-                size: 22,
-              ),
+            Icon(
+              isDone
+                  ? Icons.check_circle_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: isDone ? accentColor : Colors.white.withValues(alpha: 0.2),
+              size: 22,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -411,9 +447,6 @@ class _LiveSessionPageState extends State<LiveSessionPage>
                   color: isDone
                       ? Colors.white
                       : Colors.white.withValues(alpha: 0.4),
-                  decoration: isDone
-                      ? TextDecoration.none
-                      : TextDecoration.none,
                 ),
               ),
             ),
@@ -477,63 +510,6 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     );
   }
 
-  Widget _buildMiniPlayerOverlay(Color accentColor) {
-    return Positioned(
-      bottom: 140,
-      right: 20,
-      child: _buildGlassCard(
-        width: 160,
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // Mini Camera Feed
-            Container(
-              height: 100,
-              width: 136,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.black,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child:
-                    (_isInitialized && _controller != null && _isVideoEnabled)
-                    ? CameraPreview(_controller!)
-                    : const Center(
-                        child: Icon(
-                          Icons.videocam_off_rounded,
-                          color: Colors.white24,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Mini Agenda Summary
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.checklist_rounded,
-                  color: Color(0xFFCA8A04),
-                  size: 14,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '${_agendaManifestations.values.where((v) => v).length}/${_agendaManifestations.length}',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildControlBar(Color accentColor, Color primaryBgColor) {
     return Positioned(
       bottom: 40,
@@ -573,11 +549,16 @@ class _LiveSessionPageState extends State<LiveSessionPage>
                   onTap: _toggleVideo,
                 ),
                 _buildCenterButton(),
-                _buildControlButton(
-                  Icons.screen_share_rounded,
-                  isActive: _isSharingScreen,
-                  onTap: () =>
-                      setState(() => _isSharingScreen = !_isSharingScreen),
+                StreamBuilder<PiPStatus>(
+                  stream: _floating.pipStatusStream,
+                  builder: (context, snapshot) {
+                    final isPip = snapshot.data == PiPStatus.enabled || snapshot.data == PiPStatus.automatic;
+                    return _buildControlButton(
+                      Icons.screen_share_rounded,
+                      isActive: isPip,
+                      onTap: _togglePip,
+                    );
+                  },
                 ),
                 _buildEndCallButton(context),
               ],
@@ -588,21 +569,16 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     );
   }
 
-  Widget _buildGlassCard({
-    required double width,
-    required Widget child,
-    Color? color,
-    EdgeInsetsGeometry? padding,
-  }) {
+  Widget _buildGlassCard({required double width, required Widget child}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           width: width,
-          padding: padding ?? const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: color ?? Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.08),
@@ -620,7 +596,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     bool isActive = false,
     VoidCallback? onTap,
   }) {
-    final accentColor = const Color(0xFFCA8A04);
+    const accentColor = Color(0xFFCA8A04);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
