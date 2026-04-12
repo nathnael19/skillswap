@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SessionProgressHeader extends StatelessWidget {
+  final double progress;
   final int currentStep;
   final int totalSteps;
   final String label;
@@ -10,6 +11,7 @@ class SessionProgressHeader extends StatelessWidget {
 
   const SessionProgressHeader({
     super.key,
+    required this.progress,
     required this.currentStep,
     required this.totalSteps,
     required this.label,
@@ -19,6 +21,7 @@ class SessionProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -30,74 +33,96 @@ class SessionProgressHeader extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0B6A7A),
-                    letterSpacing: 1,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: accentColor,
+                    letterSpacing: 2.0,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF475467),
+                  style: GoogleFonts.dmSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ],
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  currentStep.toString(),
-                  style: GoogleFonts.outfit(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0B6A7A),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    currentStep.toString(),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: accentColor,
+                    ),
                   ),
-                ),
-                Text(
-                  ' / $totalSteps',
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF98A2B3),
+                  Text(
+                    ' / $totalSteps',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
+        // Premium Glassy Progress Bar
         Container(
-          height: 8,
+          height: 6,
           decoration: BoxDecoration(
-            color: const Color(0xFFEAECF5),
-            borderRadius: BorderRadius.circular(4),
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(100),
           ),
-          child: FractionallySizedBox(
-            widthFactor: currentStep / totalSteps,
-            alignment: Alignment.centerLeft,
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B6A7A),
-                borderRadius: BorderRadius.circular(4),
+          child: Stack(
+            children: [
+              FractionallySizedBox(
+                widthFactor: progress,
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [accentColor, Color(0xFFB47B03)],
+                    ),
+                    borderRadius: BorderRadius.circular(100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
         Text(
           '“$quote”',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.dmSans(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             fontStyle: FontStyle.italic,
-            color: const Color(0xFF0B6A7A),
+            color: Colors.white.withValues(alpha: 0.4),
+            height: 1.5,
           ),
         ),
       ],
