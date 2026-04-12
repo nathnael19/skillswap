@@ -12,8 +12,15 @@ import 'package:skillswap/init_dependencies.dart';
 
 class ScheduleSessionPage extends StatefulWidget {
   final String matchId;
+  final String peerName;
+  final String peerImageUrl;
 
-  const ScheduleSessionPage({super.key, required this.matchId});
+  const ScheduleSessionPage({
+    super.key, 
+    required this.matchId,
+    required this.peerName,
+    required this.peerImageUrl,
+  });
 
   @override
   State<ScheduleSessionPage> createState() => _ScheduleSessionPageState();
@@ -203,6 +210,8 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                       builder: (context) => LiveSessionPage(
                         agenda: manifestations,
                         sessionId: id,
+                        peerName: widget.peerName,
+                        peerImageUrl: widget.peerImageUrl,
                       ),
                     ),
                   );
