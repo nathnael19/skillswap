@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -58,109 +59,132 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryBgColor = Color(0xFF0C0A09);
+    const accentColor = Color(0xFFCA8A04);
+    
     return BlocProvider(
       create: (context) =>
           serviceLocator<ChatCubit>()..loadMessages(widget.matchId),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Color(0xFF101828)),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MasterProfilePage(userId: widget.userId),
+        backgroundColor: primaryBgColor,
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: AppBar(
+                backgroundColor: primaryBgColor.withValues(alpha: 0.8),
+                elevation: 0,
+                toolbarHeight: 80,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                  onPressed: () => Navigator.pop(context),
                 ),
-              );
-            },
-            child: Row(
-              children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: widget.userImageUrl.startsWith('assets')
-                          ? AssetImage(widget.userImageUrl)
-                          : NetworkImage(widget.userImageUrl) as ImageProvider,
-                    ),
-                    if (widget.isOnline)
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          height: 12,
-                          width: 12,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF12B76A), // Success Green
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
+                title: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MasterProfilePage(userId: widget.userId),
                       ),
-                  ],
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    );
+                  },
+                  child: Row(
                     children: [
-                      Text(
-                        widget.userName,
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF101828),
-                        ),
+                      Stack(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: widget.isOnline ? accentColor : Colors.white.withValues(alpha: 0.1),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 20,
+                              backgroundImage: widget.userImageUrl.startsWith('assets')
+                                  ? AssetImage(widget.userImageUrl)
+                                  : NetworkImage(widget.userImageUrl) as ImageProvider,
+                            ),
+                          ),
+                          if (widget.isOnline)
+                            Positioned(
+                              right: 2,
+                              bottom: 2,
+                              child: Container(
+                                height: 10,
+                                width: 10,
+                                decoration: BoxDecoration(
+                                  color: accentColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: primaryBgColor, width: 2),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      Text(
-                        '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ONLINE' : 'OFFLINE'}',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF667085),
-                          letterSpacing: 0.5,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.userName,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ACTIVE NOW' : 'OFFLINE'}',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: widget.isOnline ? accentColor : Colors.white.withValues(alpha: 0.3),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
+                actions: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.calendar_today_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ScheduleSessionPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          actions: [
-            Container(
-              margin: const EdgeInsets.only(right: 8),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF2F4F7),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 20,
-                  color: Color(0xFF1D2939),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ScheduleSessionPage(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.more_vert, color: Color(0xFF1D2939)),
-              onPressed: () {},
-            ),
-          ],
         ),
         body: BlocConsumer<ChatCubit, ChatState>(
           listener: (context, state) {
@@ -198,21 +222,75 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMessageList(ChatState state) {
     if (state is ChatLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFCA8A04)));
     }
 
     if (state is ChatError) {
       return Center(
-        child: Text(state.message, style: const TextStyle(color: Colors.red)),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off_rounded, color: Colors.white24, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                "MESSAGING OFFLINE",
+                style: GoogleFonts.dmSans(
+                  color: Colors.white30,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.5,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                state.message,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.dmSans(color: Colors.white24, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
     if (state is ChatMessagesLoaded) {
       if (state.messages.isEmpty) {
         return Center(
-          child: Text(
-            'No messages yet. Say hi to ${widget.userName}!',
-            style: GoogleFonts.inter(color: Colors.grey),
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.03),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFCA8A04), size: 40),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Start the Flow',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No messages yet. Say hi to ${widget.userName} and manifest your collaboration.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }
@@ -220,11 +298,12 @@ class _ChatPageState extends State<ChatPage> {
       return RefreshIndicator(
         onRefresh: () =>
             context.read<ChatCubit>().loadMessages(widget.matchId),
-        color: const Color(0xFF0B6A7A),
+        color: const Color(0xFFCA8A04),
+        backgroundColor: const Color(0xFF1C1917),
         child: ListView.builder(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.fromLTRB(16, 120, 16, 20),
           itemCount: state.messages.length,
           itemBuilder: (context, index) {
             final msg = state.messages[index];
@@ -233,7 +312,7 @@ class _ChatPageState extends State<ChatPage> {
             return MessageBubble(
               text: msg.content,
               isMe: isMe,
-              time: DateFormat('hh:mm a').format(msg.timestamp),
+              time: DateFormat('h:mm a').format(msg.timestamp),
               isSeen: true,
             );
           },
