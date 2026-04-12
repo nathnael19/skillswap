@@ -38,31 +38,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('SkillSwap'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.swap_calls, size: 100, color: Colors.deepPurple),
-            const SizedBox(height: 20),
-            Text(
-              'Welcome to SkillSwap',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 10),
-            const Text('Clean Architecture & Cubit initialized!'),
-          ],
-        ),
-      ),
-    );
-  }
-}
