@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 
 class ChatQuickActions extends StatelessWidget {
   final String matchId;
@@ -10,7 +9,7 @@ class ChatQuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: SingleChildScrollView(
@@ -43,18 +42,7 @@ class ChatQuickActions extends StatelessWidget {
             const SizedBox(width: 16),
             _buildActionButton(context, 'Available now', null),
             const SizedBox(width: 12),
-            _buildActionButton(
-              context,
-              'Schedule a 30m swap',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScheduleSessionPage(matchId: matchId),
-                  ),
-                );
-              },
-            ),
+            _buildActionButton(context, 'Schedule a 30m swap', null),
           ],
         ),
       ),
@@ -62,9 +50,12 @@ class ChatQuickActions extends StatelessWidget {
   }
 
   Widget _buildActionButton(
-      BuildContext context, String label, VoidCallback? onTap) {
+    BuildContext context,
+    String label,
+    VoidCallback? onTap,
+  ) {
     const accentColor = Color(0xFFCA8A04);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
