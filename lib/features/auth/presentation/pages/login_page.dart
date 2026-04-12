@@ -110,10 +110,11 @@ class _LoginPageState extends State<LoginPage> {
                                   color: Colors.white.withValues(alpha: 0.03),
                                   border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                                 ),
-                                child: const Icon(
-                                  Icons.auto_awesome_rounded,
-                                  size: 40,
-                                  color: accentColor,
+                                child: Image.asset(
+                                  'assets/logo.png',
+                                  width: 40,
+                                  height: 40,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ],
