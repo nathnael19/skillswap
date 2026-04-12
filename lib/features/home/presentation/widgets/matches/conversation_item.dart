@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ConversationItem extends StatelessWidget {
   final String userName;
@@ -67,12 +68,12 @@ class ConversationItem extends StatelessWidget {
                                 height: 52,
                                 fit: BoxFit.cover,
                               )
-                            : Image.network(
-                                userImageUrl,
+                            : CachedNetworkImage(
+                                imageUrl: userImageUrl,
                                 width: 52,
                                 height: 52,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
+                                errorWidget: (context, error, stackTrace) =>
                                     Image.asset('assets/home.png',
                                         width: 52, height: 52, fit: BoxFit.cover),
                               ),
