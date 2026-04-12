@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
 import 'package:skillswap/core/network/api_constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SwipeableCard extends StatelessWidget {
   final User user;
@@ -31,20 +32,17 @@ class SwipeableCard extends StatelessWidget {
           children: [
             // Background Image
             Positioned.fill(
-              child: Hero(
-                tag: 'user_image_${user.id}',
-                child: user.imageUrl.startsWith('http') ||
+              child: user.imageUrl.startsWith('http') ||
                         user.imageUrl.startsWith('/static')
-                    ? Image.network(
-                        user.imageUrl.startsWith('/')
+                    ? CachedNetworkImage(
+                        imageUrl: user.imageUrl.startsWith('/')
                             ? '${ApiConstants.mediaBaseUrl}${user.imageUrl}'
                             : user.imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
+                        errorWidget: (_, _, _) =>
                             Image.asset('assets/home.png', fit: BoxFit.cover),
                       )
                     : Image.asset('assets/home.png', fit: BoxFit.cover),
-              ),
             ),
 
             // Seamless bottom vignette for tinder-style legibility
