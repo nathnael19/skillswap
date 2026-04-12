@@ -15,93 +15,131 @@ class BalanceHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: Column(
-        children: [
-          Text(
-            'AVAILABLE BALANCE',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF667085),
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '$balance Credits',
-            style: GoogleFonts.outfit(
-              fontSize: 48,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF101828),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${totalRewardCredits - balance} credits to next reward',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1D2939),
-                ),
+    const accentColor = Color(0xFFCA8A04);
+    final progress = (balance / totalRewardCredits).clamp(0.0, 1.0);
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(40),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: Column(
+          children: [
+            Text(
+              'AVAILABLE TREASURY',
+              style: GoogleFonts.dmSans(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: accentColor,
+                letterSpacing: 2.0,
               ),
-              Text(
-                '$balance / $totalRewardCredits',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1D2939),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 12,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEAECF5),
-              borderRadius: BorderRadius.circular(6),
             ),
-            child: Stack(
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
-                FractionallySizedBox(
-                  widthFactor: balance / totalRewardCredits,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0B6A7A),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+                Text(
+                  balance.toString(),
+                  style: GoogleFonts.dmSans(
+                    fontSize: 64,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -2.0,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'CR',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: accentColor,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 40),
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionButton(
-                  icon: Icons.add_circle_outline,
-                  label: 'Earn More',
-                  isPrimary: true,
+            const SizedBox(height: 48),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Next Reward Manifestation',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.4),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildActionButton(
-                  icon: Icons.help_outline,
-                  label: 'Get Help',
-                  isPrimary: false,
+                Text(
+                  '$balance / $totalRewardCredits',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: accentColor,
+                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Custom Glow Progress Bar
+            Container(
+              height: 8,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(100),
               ),
-            ],
-          ),
-        ],
+              child: Stack(
+                children: [
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [accentColor, Color(0xFFB47B03)],
+                        ),
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 48),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    icon: Icons.add_circle_outline_rounded,
+                    label: 'EARN',
+                    isPrimary: true,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildActionButton(
+                    icon: Icons.auto_awesome_rounded,
+                    label: 'PERKS',
+                    isPrimary: false,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -111,27 +149,42 @@ class BalanceHeader extends StatelessWidget {
     required String label,
     required bool isPrimary,
   }) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        color: isPrimary ? const Color(0xFF0B6A7A) : const Color(0xFFEAECF5),
-        borderRadius: BorderRadius.circular(28),
+        gradient: isPrimary 
+          ? const LinearGradient(colors: [accentColor, Color(0xFFB47B03)])
+          : null,
+        color: isPrimary ? null : Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(22),
+        border: isPrimary ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        boxShadow: isPrimary ? [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.3),
+            blurRadius: 15,
+            spreadRadius: -2,
+            offset: const Offset(0, 5),
+          )
+        ] : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             icon,
-            color: isPrimary ? Colors.white : const Color(0xFF101828),
-            size: 20,
+            color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.4),
+            size: 18,
           ),
           const SizedBox(width: 10),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: isPrimary ? Colors.white : const Color(0xFF101828),
+            style: GoogleFonts.dmSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.4),
+              letterSpacing: 1.5,
             ),
           ),
         ],
