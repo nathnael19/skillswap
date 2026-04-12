@@ -9,6 +9,7 @@ import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/widgets/profile/expertise_portfolio.dart';
 import 'package:skillswap/features/home/presentation/widgets/profile/profile_header.dart';
 import 'package:skillswap/features/home/presentation/widgets/profile/recent_activity_section.dart';
+import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -30,7 +31,10 @@ class ProfileView extends StatelessWidget {
               }
 
               if (state is ProfileError) {
-                return _buildErrorView(context, state.message);
+                return AppErrorWidget(
+                  message: state.message,
+                  onRetry: () => context.read<ProfileCubit>().fetchUserProfile(),
+                );
               }
 
               if (state is ProfileLoaded) {
@@ -69,52 +73,6 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorView(BuildContext context, String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.cloud_off_rounded,
-                size: 48, color: Colors.white.withValues(alpha: 0.2)),
-            const SizedBox(height: 24),
-            Text(
-              "Nexus Disconnected",
-              style: GoogleFonts.dmSans(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              "We're having trouble syncing your expert profile. Check your connection.",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
-                color: Colors.white.withValues(alpha: 0.4),
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
-            TextButton.icon(
-              onPressed: () => context.read<ProfileCubit>().fetchUserProfile(),
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text("RETRY CONNECTION"),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFCA8A04),
-                textStyle: GoogleFonts.dmSans(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildGuestWall(BuildContext context) {
     return Padding(
