@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,11 +27,27 @@ class _SearchPageState extends State<SearchPage> {
   List<User> _users = [];
   bool _isLoading = false;
   String? _errorMessage;
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _fetchUsers();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      _fetchUsers();
+    });
   }
 
   Future<void> _fetchUsers() async {
@@ -40,8 +57,11 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     final category = _selectedCategory == 'All' ? null : _selectedCategory;
+    final search = _searchController.text.trim();
+
     final result = await serviceLocator<HomeRepository>().getDiscoveryUsers(
       category: category,
+      search: search.isEmpty ? null : search,
     );
 
     if (mounted) {
@@ -108,6 +128,8 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           child: TextField(
+                            controller: _searchController,
+                            onChanged: _onSearchChanged,
                             style: GoogleFonts.dmSans(color: Colors.white),
                             decoration: InputDecoration(
                               hintText: 'Search skills or experts',
@@ -119,6 +141,21 @@ class _SearchPageState extends State<SearchPage> {
                                 Icons.search_rounded,
                                 color: Colors.white.withValues(alpha: 0.5),
                               ),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        _searchController.clear();
+                                        _fetchUsers();
+                                      },
+                                      child: Icon(
+                                        Icons.close_rounded,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        size: 20,
+                                      ),
+                                    )
+                                  : null,
                               border: InputBorder.none,
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical: 14,
@@ -223,7 +260,9 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                       ),
                       Text(
-                        'Recommended Experts',
+                        _searchController.text.isEmpty
+                            ? 'Recommended Experts'
+                            : 'Search Results',
                         style: GoogleFonts.dmSans(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
