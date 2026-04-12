@@ -12,11 +12,14 @@ abstract class DiscoveryState extends Equatable {
 class DiscoveryInitial extends DiscoveryState {}
 class DiscoveryLoading extends DiscoveryState {}
 class DiscoveryLoaded extends DiscoveryState {
+  final List<User> allUsers;
   final List<User> users;
-  const DiscoveryLoaded(this.users);
+  const DiscoveryLoaded({required this.allUsers, required this.users});
+  
   @override
-  List<Object?> get props => [users];
+  List<Object?> get props => [allUsers, users];
 }
+
 class DiscoveryError extends DiscoveryState {
   final String message;
   const DiscoveryError(this.message);
@@ -29,21 +32,64 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   DiscoveryCubit(this._homeRepository) : super(DiscoveryInitial());
 
-  Future<void> fetchDiscoveryUsers({String? category}) async {
+  Future<void> fetchDiscoveryUsers({String? category, String? search}) async {
     emit(DiscoveryLoading());
-    final result = await _homeRepository.getDiscoveryUsers(category: category);
+    final result = await _homeRepository.getDiscoveryUsers(
+      category: category,
+      search: search,
+    );
     result.fold(
       (failure) => emit(DiscoveryError(failure.message)),
-      (users) => emit(DiscoveryLoaded(users)),
+      (users) => emit(DiscoveryLoaded(allUsers: users, users: users)),
     );
   }
 
+  void filterDiscoveryUsers({
+    required List<String> categories,
+    required String expertise,
+    required double minRating,
+  }) {
+    if (state is DiscoveryLoaded) {
+      final loadedState = state as DiscoveryLoaded;
+      
+      final filteredList = loadedState.allUsers.where((user) {
+        // 1. Category check (Multiple)
+        bool matchesCategory = categories.isEmpty || 
+            (user.teaching != null && categories.any((cat) => 
+                user.teaching!.category.toLowerCase() == cat.toLowerCase()));
+        
+        // 2. Expertise check
+        bool matchesExpertise = user.teaching != null && 
+            user.teaching!.level.toLowerCase() == expertise.toLowerCase();
+            
+        // 3. Rating check
+        bool matchesRating = user.rating >= minRating;
+
+        return matchesCategory && matchesExpertise && matchesRating;
+      }).toList();
+
+      emit(DiscoveryLoaded(
+        allUsers: loadedState.allUsers,
+        users: filteredList,
+      ));
+    }
+  }
+
+  void resetFilters() {
+    if (state is DiscoveryLoaded) {
+      final loadedState = state as DiscoveryLoaded;
+      emit(DiscoveryLoaded(
+        allUsers: loadedState.allUsers,
+        users: loadedState.allUsers,
+      ));
+    }
+  }
+
   Future<void> swipeUser({required String targetId, required String direction}) async {
-    // Optimistic UI could be implemented here, but for now we just call the repo
     final result = await _homeRepository.swipeUser(targetId: targetId, direction: direction);
     result.fold(
-      (failure) => null, // Handle error silently or via state
-      (isMatch) => null, // Handle match notification
+      (failure) => null,
+      (isMatch) => null,
     );
   }
 }
