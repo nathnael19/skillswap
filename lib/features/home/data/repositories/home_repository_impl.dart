@@ -21,13 +21,23 @@ class HomeRepositoryImpl implements HomeRepository {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     if (token == null) return;
 
+    if (_channel != null) {
+      await _channel!.sink.close();
+      _channel = null;
+    }
+
     final wsUrl = '${ApiConstants.wsBaseUrl}${ApiConstants.messages}/ws/$token';
     _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
-    yield* _channel!.stream.map((event) {
-      final data = jsonDecode(event);
-      return Message.fromMap(data);
-    });
+    try {
+      yield* _channel!.stream.map((event) {
+        final data = jsonDecode(event);
+        return Message.fromMap(data);
+      });
+    } finally {
+      _channel?.sink.close();
+      _channel = null;
+    }
   }
 
   @override
