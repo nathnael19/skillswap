@@ -2,13 +2,55 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/widgets/app_error_widget.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/widgets/wallet/balance_header.dart';
-import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/features/home/presentation/widgets/wallet/recent_transactions_section.dart';
+import 'package:skillswap/init_dependencies.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WalletPage extends StatelessWidget {
   const WalletPage({super.key});
+
+  Future<void> _openCheckout(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final repo = serviceLocator<HomeRepository>();
+    final result = await repo.createBillingCheckout();
+    await result.fold(
+      (failure) async {
+        messenger.showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      },
+      (data) => _launchStripeCheckout(context, messenger, data),
+    );
+  }
+
+  Future<void> _launchStripeCheckout(
+    BuildContext context,
+    ScaffoldMessengerState messenger,
+    Map<String, dynamic> data,
+  ) async {
+    final url = data['url'] as String?;
+    if (url == null || url.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No checkout URL returned.')),
+      );
+      return;
+    }
+    final uri = Uri.parse(url);
+    if (!await canLaunchUrl(uri)) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Cannot open checkout in this environment.')),
+      );
+      return;
+    }
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (context.mounted) {
+      await context.read<CreditsCubit>().fetchCredits();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +111,8 @@ class WalletPage extends StatelessWidget {
 
           if (state is CreditsError) {
             return AppErrorWidget(
-               message: state.message,
-               onRetry: () => context.read<CreditsCubit>().fetchCredits(),
+              message: state.message,
+              onRetry: () => context.read<CreditsCubit>().fetchCredits(),
             );
           }
 
@@ -85,17 +127,17 @@ class WalletPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 120), // Height for blurred AppBar
+                    const SizedBox(height: 120),
                     BalanceHeader(
                       balance: state.balance,
-                      nextRewardCredits: 10,
-                      totalRewardCredits: 50,
+                      progressCapCredits: 50,
+                      onBuyCredits: () => _openCheckout(context),
                     ),
                     const SizedBox(height: 24),
                     RecentTransactionsSection(
                       transactions: state.transactions,
                     ),
-                    const SizedBox(height: 100), // Height for bottom area
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
