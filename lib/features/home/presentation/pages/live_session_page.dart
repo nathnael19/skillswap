@@ -10,11 +10,15 @@ import 'package:skillswap/features/home/presentation/pages/review_session_page.d
 class LiveSessionPage extends StatefulWidget {
   final List<String> agenda;
   final String? sessionId;
+  final String peerName;
+  final String peerImageUrl;
 
   const LiveSessionPage({
     super.key,
     required this.agenda,
     this.sessionId,
+    required this.peerName,
+    required this.peerImageUrl,
   });
 
   @override
@@ -28,7 +32,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
   bool _isInitialized = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  int _secondsElapsed = 0;
+  final ValueNotifier<int> _secondsElapsed = ValueNotifier<int>(0);
   Timer? _timer;
 
   // Interaction State
@@ -101,9 +105,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
-        setState(() {
-          _secondsElapsed++;
-        });
+        _secondsElapsed.value++;
       }
     });
   }
@@ -155,6 +157,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
     _timer?.cancel();
     _controller?.dispose();
     _pulseController.dispose();
+    _secondsElapsed.dispose();
     super.dispose();
   }
 
@@ -239,13 +242,18 @@ class _LiveSessionPageState extends State<LiveSessionPage>
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  _formatDuration(_secondsElapsed),
-                  style: GoogleFonts.dmSans(
-                    fontSize: 10,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: ValueListenableBuilder<int>(
+                  valueListenable: _secondsElapsed,
+                  builder: (context, seconds, _) {
+                    return Text(
+                      _formatDuration(seconds),
+                      style: GoogleFonts.dmSans(
+                        fontSize: 10,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -369,13 +377,18 @@ class _LiveSessionPageState extends State<LiveSessionPage>
             ),
           ),
           const SizedBox(width: 10),
-          Text(
-            _formatDuration(_secondsElapsed),
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-            ),
+          ValueListenableBuilder<int>(
+            valueListenable: _secondsElapsed,
+            builder: (context, seconds, _) {
+              return Text(
+                _formatDuration(seconds),
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -470,10 +483,10 @@ class _LiveSessionPageState extends State<LiveSessionPage>
         height: 180,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          image: const DecorationImage(
-            image: NetworkImage(
-              'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=2574&ixlib=rb-4.0.3',
-            ),
+          image: DecorationImage(
+            image: widget.peerImageUrl.startsWith('assets')
+                ? AssetImage(widget.peerImageUrl) as ImageProvider
+                : NetworkImage(widget.peerImageUrl),
             fit: BoxFit.cover,
           ),
           border: Border.all(
@@ -499,7 +512,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'MARCUS',
+                  widget.peerName.toUpperCase(),
                   style: GoogleFonts.dmSans(
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
