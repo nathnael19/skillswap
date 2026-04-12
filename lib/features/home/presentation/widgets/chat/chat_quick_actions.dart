@@ -7,6 +7,8 @@ class ChatQuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: SingleChildScrollView(
@@ -14,18 +16,31 @@ class ChatQuickActions extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            Text(
-              'QUICK ACTIONS:',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF98A2B3),
-                letterSpacing: 0.5,
-              ),
+            Row(
+              children: [
+                Container(
+                  width: 3,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'QUICK ACTIONS',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: accentColor,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 16),
             _buildActionButton(context, 'Available now', null),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             _buildActionButton(
               context,
               'Schedule a 30m swap',
@@ -46,21 +61,23 @@ class ChatQuickActions extends StatelessWidget {
 
   Widget _buildActionButton(
       BuildContext context, String label, VoidCallback? onTap) {
+    const accentColor = Color(0xFFCA8A04);
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF2F4F7),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEAECF0)),
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.dmSans(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF0B6A7A),
+            color: accentColor,
           ),
         ),
       ),
