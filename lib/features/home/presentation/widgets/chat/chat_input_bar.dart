@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,66 +16,83 @@ class ChatInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF2F4F7))),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(
-              Icons.add_circle_outline,
-              color: Color(0xFF667085),
-              size: 30,
+    const accentColor = Color(0xFFCA8A04);
+    
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0C0A09).withValues(alpha: 0.8),
+            border: Border(
+              top: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
             ),
-            onPressed: onAddTap,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4F7),
-                borderRadius: BorderRadius.circular(28),
+          child: Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.add_circle_outline_rounded,
+                  color: Colors.white.withValues(alpha: 0.3),
+                  size: 28,
+                ),
+                onPressed: onAddTap,
               ),
-              child: Center(
-                child: TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    hintText: 'Type a message...',
-                    hintStyle: GoogleFonts.inter(
-                      color: const Color(0xFF98A2B3),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  height: 54,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.04),
+                    borderRadius: BorderRadius.circular(27),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                  child: Center(
+                    child: TextField(
+                      controller: controller,
+                      style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15),
+                      cursorColor: accentColor,
+                      decoration: InputDecoration(
+                        hintText: 'Manifest a message...',
+                        hintStyle: GoogleFonts.dmSans(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        border: InputBorder.none,
+                      ),
                     ),
-                    border: InputBorder.none,
                   ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          GestureDetector(
-            onTap: onSendTap,
-            child: Container(
-              height: 56,
-              width: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B6A7A),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: onSendTap,
+                child: Container(
+                  height: 54,
+                  width: 54,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
-                ],
+                  child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
+                ),
               ),
-              child: const Icon(Icons.send_rounded, color: Colors.white),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
