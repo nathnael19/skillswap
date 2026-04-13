@@ -49,9 +49,10 @@ dependencies:
   intl: ^0.20.2
   camera: ^0.11.0+2
   permission_handler: ^11.3.1
-  floating: ^5.0.1
+  floating: 
   url_launcher: ^6.3.1
   cached_network_image: ^3.3.1
+  flutter_webrtc: ^0.12.12+hotfix.1
 
 dev_dependencies:
   flutter_test:
