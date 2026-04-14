@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/init_dependencies.dart';
+import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
 import '../widgets/expert_card.dart';
 
 class SearchPage extends StatefulWidget {
@@ -306,7 +307,19 @@ class _SearchPageState extends State<SearchPage> {
                       padding: const EdgeInsets.only(bottom: 24),
                       itemCount: _users.length,
                       itemBuilder: (context, index) {
-                        return ExpertCard(user: _users[index]);
+                        final user = _users[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    MasterProfilePage(userId: user.id),
+                              ),
+                            );
+                          },
+                          child: ExpertCard(user: user),
+                        );
                       },
                     ),
             ),
