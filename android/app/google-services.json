@@ -2,7 +2,8 @@
   "project_info": {
     "project_number": "595666774474",
     "project_id": "skillswap-887cc",
-    "storage_bucket": "skillswap-887cc.firebasestorage.app"
+    "storage_bucket": "skillswap-887cc.firebasestorage.app",
+    "firebase_url": "https://skillswap-887cc-default-rtdb.firebaseio.com"
   },
   "client": [
     {
