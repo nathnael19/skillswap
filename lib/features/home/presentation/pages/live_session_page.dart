@@ -15,6 +15,7 @@ class LiveSessionPage extends StatefulWidget {
   final String peerId;
   final String? currentUserName;
   final String? currentUserImageUrl;
+  final bool isCaller;
 
   const LiveSessionPage({
     super.key,
@@ -26,6 +27,7 @@ class LiveSessionPage extends StatefulWidget {
     required this.peerId,
     this.currentUserName,
     this.currentUserImageUrl,
+    this.isCaller = false,
   });
 
   @override
@@ -121,11 +123,16 @@ class _LiveSessionPageState extends State<LiveSessionPage>
       }
     });
 
-    // Notify peer we are requesting a call
-    _sendSignalingMessage('call_request', {
-      'caller_name': widget.currentUserName ?? 'Peer',
-      'caller_image': widget.currentUserImageUrl ?? '',
-    });
+    if (widget.isCaller) {
+      // Notify peer we are requesting a call
+      _sendSignalingMessage('call_request', {
+        'caller_name': widget.currentUserName ?? 'Peer',
+        'caller_image': widget.currentUserImageUrl ?? '',
+      });
+    } else {
+      // Notify caller we have joined with our camera ready
+      _sendSignalingMessage('call_accepted', {});
+    }
   }
 
   void _sendSignalingMessage(String action, Map<String, dynamic> data) {
@@ -160,22 +167,21 @@ class _LiveSessionPageState extends State<LiveSessionPage>
       return;
     }
 
-    if (action == 'join' || action == 'call_accepted') {
-      // Lexicographical ordering to elect host reliably
-      final isHost = widget.currentUserId.compareTo(widget.peerId) < 0;
-      if (isHost) {
-        final offer = await _peerConnection!.createOffer();
-        await _peerConnection!.setLocalDescription(offer);
-        _sendSignalingMessage('offer', {'sdp': offer.sdp, 'type': offer.type});
-      }
-    } else if (action == 'offer') {
+    if (action == 'call_accepted' && widget.isCaller) {
+      // The caller creates the offer when the callee indicates they are ready
+      final offer = await _peerConnection!.createOffer();
+      await _peerConnection!.setLocalDescription(offer);
+      _sendSignalingMessage('offer', {'sdp': offer.sdp, 'type': offer.type});
+    } else if (action == 'offer' && !widget.isCaller) {
+      // The callee receives the offer and creates an answer
       await _peerConnection!.setRemoteDescription(
         RTCSessionDescription(data['sdp'], data['type']),
       );
       final answer = await _peerConnection!.createAnswer();
       await _peerConnection!.setLocalDescription(answer);
       _sendSignalingMessage('answer', {'sdp': answer.sdp, 'type': answer.type});
-    } else if (action == 'answer') {
+    } else if (action == 'answer' && widget.isCaller) {
+      // The caller receives the answer
       await _peerConnection!.setRemoteDescription(
         RTCSessionDescription(data['sdp'], data['type']),
       );
