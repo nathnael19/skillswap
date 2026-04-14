@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
+import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
 import 'package:skillswap/features/home/presentation/widgets/chat/chat_input_bar.dart';
@@ -11,6 +12,8 @@ import 'package:skillswap/features/home/presentation/widgets/chat/chat_quick_act
 import 'package:skillswap/features/home/presentation/widgets/chat/message_bubble.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:intl/intl.dart';
+
+import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 
 class ChatPage extends StatefulWidget {
   final String userName;
@@ -61,165 +64,391 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     const primaryBgColor = Color(0xFF0C0A09);
     const accentColor = Color(0xFFCA8A04);
-    
-    return BlocProvider(
-      create: (context) =>
-          serviceLocator<ChatCubit>()..loadMessages(widget.matchId),
-      child: Scaffold(
-        backgroundColor: primaryBgColor,
-        extendBodyBehindAppBar: true,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: AppBar(
-                backgroundColor: primaryBgColor.withValues(alpha: 0.8),
-                elevation: 0,
-                toolbarHeight: 80,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                title: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MasterProfilePage(userId: widget.userId),
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => serviceLocator<ChatCubit>()
+            ..loadMessages(widget.matchId, widget.userId),
+        ),
+        BlocProvider(
+          create: (context) =>
+              serviceLocator<ProfileCubit>()..fetchUserProfile(),
+        ),
+      ],
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, profileState) {
+          final currentUser = profileState is ProfileLoaded
+              ? profileState.user
+              : null;
+
+          return Scaffold(
+            backgroundColor: primaryBgColor,
+            extendBodyBehindAppBar: true,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(80),
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: AppBar(
+                    backgroundColor: primaryBgColor.withValues(alpha: 0.8),
+                    elevation: 0,
+                    toolbarHeight: 80,
+                    leading: IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white,
+                        size: 20,
                       ),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: widget.isOnline ? accentColor : Colors.white.withValues(alpha: 0.1),
-                                width: 1.5,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundImage: widget.userImageUrl.startsWith('assets')
-                                  ? AssetImage(widget.userImageUrl)
-                                  : NetworkImage(widget.userImageUrl) as ImageProvider,
-                            ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    title: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                MasterProfilePage(userId: widget.userId),
                           ),
-                          if (widget.isOnline)
-                            Positioned(
-                              right: 2,
-                              bottom: 2,
-                              child: Container(
-                                height: 10,
-                                width: 10,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(2),
                                 decoration: BoxDecoration(
-                                  color: accentColor,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: primaryBgColor, width: 2),
+                                  border: Border.all(
+                                    color: widget.isOnline
+                                        ? accentColor
+                                        : Colors.white.withValues(alpha: 0.1),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 20,
+                                  backgroundImage:
+                                      widget.userImageUrl.startsWith('assets')
+                                      ? AssetImage(widget.userImageUrl)
+                                      : NetworkImage(widget.userImageUrl)
+                                            as ImageProvider,
                                 ),
                               ),
+                              if (widget.isOnline)
+                                Positioned(
+                                  right: 2,
+                                  bottom: 2,
+                                  child: Container(
+                                    height: 10,
+                                    width: 10,
+                                    decoration: BoxDecoration(
+                                      color: accentColor,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: primaryBgColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.userName,
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ACTIVE NOW' : 'OFFLINE'}',
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: widget.isOnline
+                                        ? accentColor
+                                        : Colors.white.withValues(alpha: 0.3),
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
                         ],
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.userName,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: -0.3,
+                    ),
+                    actions: [
+                      Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.calendar_today_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ScheduleSessionPage(
+                                  matchId: widget.matchId,
+                                  peerName: widget.userName,
+                                  peerImageUrl: widget.userImageUrl,
+                                  currentUserId: widget.currentUserId,
+                                  peerId: widget.userId,
+                                  currentUserName: currentUser?.name,
+                                  currentUserImageUrl: currentUser?.imageUrl,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ACTIVE NOW' : 'OFFLINE'}',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: widget.isOnline ? accentColor : Colors.white.withValues(alpha: 0.3),
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ),
                     ],
                   ),
                 ),
-                actions: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+            ),
+            body: BlocConsumer<ChatCubit, ChatState>(
+              listener: (context, state) {
+                if (state is ChatMessagesLoaded) {
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => _scrollToBottom(),
+                  );
+                }
+                if (state is ChatSendError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.redAccent,
+                      behavior: SnackBarBehavior.floating,
                     ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.calendar_today_rounded,
-                        size: 18,
-                        color: Colors.white,
+                  );
+                }
+              },
+              builder: (context, state) {
+                return Stack(
+                  children: [
+                    Column(
+                      children: [
+                        Expanded(child: _buildMessageList(state)),
+                        ChatQuickActions(
+                          matchId: widget.matchId,
+                          peerName: widget.userName,
+                          peerImageUrl: widget.userImageUrl,
+                          currentUserId: widget.currentUserId,
+                          peerId: widget.userId,
+                          currentUserName: currentUser?.name,
+                          currentUserImageUrl: currentUser?.imageUrl,
+                        ),
+                        ChatInputBar(
+                          controller: _messageController,
+                          onSendTap: () {
+                            final content = _messageController.text;
+                            if (content.isNotEmpty) {
+                              context.read<ChatCubit>().sendMessage(
+                                widget.matchId,
+                                content,
+                              );
+                              _messageController.clear();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    if (state is ChatIncomingCall)
+                      _buildIncomingCallOverlay(
+                        context,
+                        state,
+                        currentUser?.name,
+                        currentUser?.imageUrl,
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ScheduleSessionPage(
-                                  matchId: widget.matchId,
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildIncomingCallOverlay(
+    BuildContext context,
+    ChatIncomingCall state,
+    String? currentUserName,
+    String? currentUserImageUrl,
+  ) {
+    const accentColor = Color(0xFFCA8A04);
+
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.8),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C1917),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: accentColor.withValues(alpha: 0.3),
+                            width: 4,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 46,
+                          backgroundImage:
+                              state.peerImageUrl.startsWith('assets')
+                              ? AssetImage(state.peerImageUrl)
+                              : NetworkImage(state.peerImageUrl)
+                                    as ImageProvider,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'SESSION REQUISITION',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: accentColor,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.peerName,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            context.read<ChatCubit>().rejectCall(
+                              targetId: state.peerId,
+                            );
+                          },
+                          child: Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'REJECT',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white54,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // First notify we accepted
+                            context.read<ChatCubit>().sendSignalingMessage({
+                              'type': 'webrtc_signaling',
+                              'target_uid': state.peerId,
+                              'action': 'call_accepted',
+                              'data': {},
+                            });
+                            // Then navigate
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LiveSessionPage(
+                                  agenda: const ['Spontaneous Synergy'],
                                   peerName: widget.userName,
                                   peerImageUrl: widget.userImageUrl,
+                                  currentUserId: widget.currentUserId,
+                                  peerId: widget.userId,
+                                  currentUserName: currentUserName,
+                                  currentUserImageUrl: currentUserImageUrl,
                                 ),
+                              ),
+                            );
+                            // Reset cubit state
+                            context.read<ChatCubit>().loadMessages(
+                                  widget.matchId,
+                                  widget.userId,
+                                );
+                          },
+                          child: Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [accentColor, Color(0xFFB47B03)],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'JOIN',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
-        ),
-        body: BlocConsumer<ChatCubit, ChatState>(
-          listener: (context, state) {
-            if (state is ChatMessagesLoaded) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => _scrollToBottom(),
-              );
-            }
-          },
-          builder: (context, state) {
-            return Column(
-              children: [
-                Expanded(child: _buildMessageList(state)),
-                ChatQuickActions(matchId: widget.matchId),
-                ChatInputBar(
-                  controller: _messageController,
-                  onSendTap: () {
-                    final content = _messageController.text;
-                    if (content.isNotEmpty) {
-                      context.read<ChatCubit>().sendMessage(
-                        widget.matchId,
-                        content,
-                      );
-                      _messageController.clear();
-                    }
-                  },
-                ),
-              ],
-            );
-          },
         ),
       ),
     );
@@ -227,7 +456,9 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMessageList(ChatState state) {
     if (state is ChatLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFFCA8A04)));
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFFCA8A04)),
+      );
     }
 
     if (state is ChatError) {
@@ -237,7 +468,11 @@ class _ChatPageState extends State<ChatPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off_rounded, color: Colors.white24, size: 48),
+              const Icon(
+                Icons.cloud_off_rounded,
+                color: Colors.white24,
+                size: 48,
+              ),
               const SizedBox(height: 16),
               Text(
                 "MESSAGING OFFLINE",
@@ -274,7 +509,11 @@ class _ChatPageState extends State<ChatPage> {
                     color: Colors.white.withValues(alpha: 0.03),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFCA8A04), size: 40),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: Color(0xFFCA8A04),
+                    size: 40,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -301,8 +540,10 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       return RefreshIndicator(
-        onRefresh: () =>
-            context.read<ChatCubit>().loadMessages(widget.matchId),
+        onRefresh: () => context.read<ChatCubit>().loadMessages(
+              widget.matchId,
+              widget.userId,
+            ),
         color: const Color(0xFFCA8A04),
         backgroundColor: const Color(0xFF1C1917),
         child: ListView.builder(
@@ -325,6 +566,10 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
 
+    // When there's an incoming call or a send error, the cubit emits a new state
+    // but we still want the messages to show behind the overlay. Since these states
+    // don't carry message data, we fall through to an empty list here — the overlay
+    // is rendered on top by the Stack in the builder above.
     return const SizedBox.shrink();
   }
 }
