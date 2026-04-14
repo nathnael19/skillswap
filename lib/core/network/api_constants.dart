@@ -21,6 +21,7 @@ class ApiConstants {
   
   // Chat
   static const String messages = '/messages'; // /messages/{match_id}
+  static const String initPaidChat = '/messages/init-paid';
   
   // Sessions
   static const String sessions = '/sessions';
