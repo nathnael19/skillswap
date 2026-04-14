@@ -30,27 +30,36 @@ class ChatCubit extends Cubit<ChatState> {
         _messages = messages;
         emit(ChatMessagesLoaded(List.from(_messages)));
         
+        // Mark as read after loading historical ones
+        markAsRead(matchId); 
+        
         // 2. Subscribe to real-time updates (Messages + Signaling)
         _messageSubscription?.cancel();
         _messageSubscription = _chatRepository.getMessagesStream(matchId).listen(
           (event) {
             if (event is Message) {
-              // Standard message handling
-              if (!_messages.any((m) => m.id == event.id)) {
+              // Standard message and status update handling
+              final index = _messages.indexWhere((m) => m.id == event.id);
+              if (index != -1) {
+                // Update existing message (e.g. read status changed)
+                _messages[index] = event;
+              } else {
+                // Add new message
                 _messages.add(event);
-                emit(ChatMessagesLoaded(List.from(_messages)));
+                // Mark as read immediately if we are viewing this chat
+                markAsRead(matchId);
               }
+              emit(ChatMessagesLoaded(List.from(_messages)));
             } else if (event is Map<String, dynamic> && event['type'] == 'webrtc_signaling') {
-              // Handle signaling events, specifically call_request
+              // Handle signaling events
               final action = event['action'];
               if (action == 'call_request') {
-                // Only show invitations from the person we are CURRENTLY chatting with
                 if (event['sender_id'] != _currentPeerId) return;
 
                 final data = event['data'] ?? {};
                 emit(ChatIncomingCall(
                   messages: List.from(_messages),
-                  peerId: event['sender_id'] ?? '', // sender_id is now added by backend relay
+                  peerId: event['sender_id'] ?? '',
                   peerName: data['caller_name'] ?? 'Peer',
                   peerImageUrl: data['caller_image'] ?? '',
                 ));
@@ -58,8 +67,6 @@ class ChatCubit extends Cubit<ChatState> {
             }
           },
           onError: (e) {
-            // Only show error if we never loaded messages.
-            // A WS blip should not wipe the chat history.
             if (state is! ChatMessagesLoaded) {
               emit(ChatError('Could not connect to chat: $e'));
             }
@@ -67,6 +74,10 @@ class ChatCubit extends Cubit<ChatState> {
         );
       },
     );
+  }
+
+  Future<void> markAsRead(String matchId) async {
+    await _chatRepository.markMessagesAsRead(matchId);
   }
 
   Future<void> sendMessage(String matchId, String content) async {
@@ -83,10 +94,7 @@ class ChatCubit extends Cubit<ChatState> {
         message: failure.message,
       )),
       (sentMessage) {
-        // We don't NEED to add it here because the WS broadcast might handle it,
-        // but adding it immediately makes the UI feel punchy.
-        // The listen() logic above prevents duplicates.
-        if (!_messages.contains(sentMessage)) {
+        if (!_messages.any((m) => m.id == sentMessage.id)) {
           _messages.add(sentMessage);
           emit(ChatMessagesLoaded(List.from(_messages)));
         }
@@ -101,7 +109,6 @@ class ChatCubit extends Cubit<ChatState> {
       'action': 'call_rejected',
       'data': {},
     });
-    // Restore state to normal messages
     emit(ChatMessagesLoaded(List.from(_messages)));
   }
 
