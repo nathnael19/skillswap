@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/services/presence_service.dart';
 
 class ProfileHeaderSection extends StatelessWidget {
   final User user;
@@ -95,6 +96,50 @@ class ProfileHeaderSection extends StatelessWidget {
                     color: kPrimary,
                   ),
                 ),
+              ),
+              const Spacer(),
+              StreamBuilder<bool>(
+                stream: PresenceService.instance.watchPresence(user.id),
+                builder: (context, snapshot) {
+                  final isOnline = snapshot.data ?? false;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isOnline
+                          ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                          : Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isOnline
+                            ? const Color(0xFF10B981).withValues(alpha: 0.2)
+                            : Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: isOnline ? const Color(0xFF10B981) : Colors.white38,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          isOnline ? 'ONLINE NOW' : 'OFFLINE',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: isOnline ? const Color(0xFF10B981) : Colors.white38,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ],
           ),
