@@ -6,6 +6,7 @@ class Message extends Equatable {
   final String senderId;
   final String content;
   final DateTime timestamp;
+  final bool isRead;
 
   const Message({
     required this.id,
@@ -13,6 +14,7 @@ class Message extends Equatable {
     required this.senderId,
     required this.content,
     required this.timestamp,
+    this.isRead = false,
   });
 
   factory Message.fromMap(Map<String, dynamic> map) {
@@ -21,6 +23,7 @@ class Message extends Equatable {
       matchId: map['match_id'] ?? '',
       senderId: map['sender_id'] ?? '',
       content: map['content'] ?? '',
+      isRead: map['is_read'] ?? false,
       timestamp: map['timestamp'] != null
           ? DateTime.parse(map['timestamp'])
           : DateTime.now(),
@@ -29,13 +32,33 @@ class Message extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'match_id': matchId,
       'sender_id': senderId,
       'content': content,
+      'is_read': isRead,
       'timestamp': timestamp.toIso8601String(),
     };
   }
 
+  Message copyWith({
+    String? id,
+    String? matchId,
+    String? senderId,
+    String? content,
+    DateTime? timestamp,
+    bool? isRead,
+  }) {
+    return Message(
+      id: id ?? this.id,
+      matchId: matchId ?? this.matchId,
+      senderId: senderId ?? this.senderId,
+      content: content ?? this.content,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, matchId, senderId, content, timestamp];
+  List<Object?> get props => [id, matchId, senderId, content, timestamp, isRead];
 }
