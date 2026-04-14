@@ -6,14 +6,19 @@ import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {
   final ChatRepository _chatRepository;
-  StreamSubscription<Message>? _messageSubscription;
+  StreamSubscription<dynamic>? _messageSubscription;
   List<Message> _messages = [];
+
+  String? _currentMatchId;
+  String? _currentPeerId;
 
   ChatCubit({required ChatRepository chatRepository})
       : _chatRepository = chatRepository,
         super(ChatInitial());
 
-  Future<void> loadMessages(String matchId) async {
+  Future<void> loadMessages(String matchId, String peerId) async {
+    _currentMatchId = matchId;
+    _currentPeerId = peerId;
     emit(ChatLoading());
     
     // 1. Fetch historical messages
@@ -25,18 +30,39 @@ class ChatCubit extends Cubit<ChatState> {
         _messages = messages;
         emit(ChatMessagesLoaded(List.from(_messages)));
         
-        // 2. Subscribe to real-time updates
+        // 2. Subscribe to real-time updates (Messages + Signaling)
         _messageSubscription?.cancel();
         _messageSubscription = _chatRepository.getMessagesStream(matchId).listen(
-          (newMessage) {
-            // Check if message is already in list (sent by me via REST)
-            if (!_messages.any((m) => m.id == newMessage.id)) {
-              _messages.add(newMessage);
-              emit(ChatMessagesLoaded(List.from(_messages)));
+          (event) {
+            if (event is Message) {
+              // Standard message handling
+              if (!_messages.any((m) => m.id == event.id)) {
+                _messages.add(event);
+                emit(ChatMessagesLoaded(List.from(_messages)));
+              }
+            } else if (event is Map<String, dynamic> && event['type'] == 'webrtc_signaling') {
+              // Handle signaling events, specifically call_request
+              final action = event['action'];
+              if (action == 'call_request') {
+                // Only show invitations from the person we are CURRENTLY chatting with
+                if (event['sender_id'] != _currentPeerId) return;
+
+                final data = event['data'] ?? {};
+                emit(ChatIncomingCall(
+                  messages: List.from(_messages),
+                  peerId: event['sender_id'] ?? '', // sender_id is now added by backend relay
+                  peerName: data['caller_name'] ?? 'Peer',
+                  peerImageUrl: data['caller_image'] ?? '',
+                ));
+              }
             }
           },
           onError: (e) {
-            emit(ChatError('WebSocket connection lost: $e'));
+            // Only show error if we never loaded messages.
+            // A WS blip should not wipe the chat history.
+            if (state is! ChatMessagesLoaded) {
+              emit(ChatError('Could not connect to chat: $e'));
+            }
           },
         );
       },
@@ -52,7 +78,10 @@ class ChatCubit extends Cubit<ChatState> {
     );
 
     result.fold(
-      (failure) => emit(ChatError(failure.message)),
+      (failure) => emit(ChatSendError(
+        messages: List.from(_messages),
+        message: failure.message,
+      )),
       (sentMessage) {
         // We don't NEED to add it here because the WS broadcast might handle it,
         // but adding it immediately makes the UI feel punchy.
@@ -63,6 +92,21 @@ class ChatCubit extends Cubit<ChatState> {
         }
       },
     );
+  }
+
+  Future<void> rejectCall({required String targetId}) async {
+    _chatRepository.sendSignalingMessage({
+      'type': 'webrtc_signaling',
+      'target_uid': targetId,
+      'action': 'call_rejected',
+      'data': {},
+    });
+    // Restore state to normal messages
+    emit(ChatMessagesLoaded(List.from(_messages)));
+  }
+
+  void sendSignalingMessage(Map<String, dynamic> payload) {
+    _chatRepository.sendSignalingMessage(payload);
   }
 
   @override
