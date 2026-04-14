@@ -73,6 +73,7 @@ class ChatQuickActions extends StatelessWidget {
                       peerId: peerId,
                       currentUserName: currentUserName,
                       currentUserImageUrl: currentUserImageUrl,
+                      isCaller: true,
                     ),
                   ),
                 );
