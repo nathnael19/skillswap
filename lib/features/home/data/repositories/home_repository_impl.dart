@@ -42,6 +42,29 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<Either<Failure, String>> initPaidChat(String targetId) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.initPaidChat,
+        body: {'target_id': targetId},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return right(data['match_id']);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to initialize paid chat',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<User>>> getDiscoveryUsers({
     String? category,
     String? search,
