@@ -87,7 +87,7 @@ class MasterProfilePage extends StatelessWidget {
                         const SizedBox(height: 32),
                         const FeaturedGallerySection(),
                         const SizedBox(height: 32),
-                        const ReviewsSection(),
+                        ReviewsSection(reviews: state.reviews),
                         const SizedBox(height: 140), // More padding for sticky footer
                       ],
                     ),
