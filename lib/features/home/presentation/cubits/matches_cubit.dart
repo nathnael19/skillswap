@@ -22,11 +22,12 @@ class MatchesCubit extends Cubit<MatchesState> {
 
       // Subscribe to real-time updates for all matches
       _messageSubscription?.cancel();
-      _messageSubscription = _homeRepository.getGlobalMessageStream().listen((
-        message,
-      ) {
-        _onNewMessageReceived(message);
-      }, onError: (e) {});
+      _messageSubscription = _homeRepository.getGlobalMessageStream().listen(
+        (Message message) {
+          _onNewMessageReceived(message);
+        },
+        onError: (e) {},
+      );
     });
   }
 
