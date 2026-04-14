@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
@@ -22,6 +23,8 @@ class ChatPage extends StatefulWidget {
   final String matchId;
   final String userId;
   final String currentUserId;
+  final String status;
+  final String? payerId;
   final bool isOnline;
 
   const ChatPage({
@@ -32,6 +35,8 @@ class ChatPage extends StatefulWidget {
     required this.matchId,
     required this.userId,
     required this.currentUserId,
+    this.status = 'mutual',
+    this.payerId,
     this.isOnline = true,
   });
 
@@ -42,6 +47,13 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late String _currentStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentStatus = widget.status;
+  }
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
@@ -68,8 +80,9 @@ class _ChatPageState extends State<ChatPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => serviceLocator<ChatCubit>()
-            ..loadMessages(widget.matchId, widget.userId),
+          create: (context) =>
+              serviceLocator<ChatCubit>()
+                ..loadMessages(widget.matchId, widget.userId),
         ),
         BlocProvider(
           create: (context) =>
@@ -249,6 +262,10 @@ class _ChatPageState extends State<ChatPage> {
                   children: [
                     Column(
                       children: [
+                        if (_currentStatus == 'pending' &&
+                            widget.payerId != null &&
+                            widget.currentUserId != widget.payerId)
+                          _buildAcceptanceBanner(context),
                         Expanded(child: _buildMessageList(state)),
                         ChatQuickActions(
                           matchId: widget.matchId,
@@ -417,9 +434,9 @@ class _ChatPageState extends State<ChatPage> {
                             );
                             // Reset cubit state
                             context.read<ChatCubit>().loadMessages(
-                                  widget.matchId,
-                                  widget.userId,
-                                );
+                              widget.matchId,
+                              widget.userId,
+                            );
                           },
                           child: Container(
                             height: 56,
@@ -541,9 +558,9 @@ class _ChatPageState extends State<ChatPage> {
 
       return RefreshIndicator(
         onRefresh: () => context.read<ChatCubit>().loadMessages(
-              widget.matchId,
-              widget.userId,
-            ),
+          widget.matchId,
+          widget.userId,
+        ),
         color: const Color(0xFFCA8A04),
         backgroundColor: const Color(0xFF1C1917),
         child: ListView.builder(
@@ -571,5 +588,122 @@ class _ChatPageState extends State<ChatPage> {
     // don't carry message data, we fall through to an empty list here — the overlay
     // is rendered on top by the Stack in the builder above.
     return const SizedBox.shrink();
+  }
+
+  Widget _buildAcceptanceBanner(BuildContext context) {
+    const accentColor = Color(0xFFCA8A04);
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 100, 16, 0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1917).withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: accentColor.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.star_rounded,
+                  color: accentColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Direct Connection",
+                      style: GoogleFonts.dmSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "${widget.userName} reached out via paid message.",
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: () async {
+              final result = await serviceLocator<HomeRepository>().acceptMatch(
+                widget.matchId,
+              );
+              result.fold(
+                (failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(failure.message),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                },
+                (_) {
+                  setState(() {
+                    _currentStatus = 'mutual';
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Connection Accepted! Match is now permanent.",
+                      ),
+                      backgroundColor: accentColor,
+                    ),
+                  );
+                },
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [accentColor, Color(0xFFB47B03)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(
+                child: Text(
+                  "Accept Connection",
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
