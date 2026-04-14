@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,7 +10,10 @@ class PresenceService with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-  final FirebaseDatabase _db = FirebaseDatabase.instance;
+  final FirebaseDatabase _db = FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL: 'https://skillswap-887cc-default-rtdb.firebaseio.com',
+  );
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
   bool _isOnline = false;
