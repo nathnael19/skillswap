@@ -1,27 +1,44 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:flutter/foundation.dart';
 import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 import 'package:skillswap/features/home/domain/models/message_model.dart';
 import 'package:skillswap/features/home/domain/repositories/chat_repository.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ApiClient _apiClient;
-  WebSocketChannel? _channel;
+  final FirebaseDatabase _db;
 
-  // Global stream for all incoming WebSocket events
+  // Global stream for all incoming RTDB events (Messages & Signaling)
   final StreamController<dynamic> _globalStreamController = StreamController<dynamic>.broadcast();
-  bool _isConnecting = false;
+  
+  StreamSubscription? _signalingSubscription;
+  final Map<String, StreamSubscription> _matchSubscriptions = {};
   String? _currentUserUid;
 
-  ChatRepositoryImpl(this._apiClient) {
-    // Start connection as soon as created, or on first request
-    _ensureConnected();
+  ChatRepositoryImpl(this._apiClient, this._db) {
+    _initSignalingListener();
+  }
+
+  void _initSignalingListener() {
+    _currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    if (_currentUserUid == null) return;
+
+    _signalingSubscription?.cancel();
+    // Listen for signaling events addressed to me
+    _signalingSubscription = _db.ref('signaling/$_currentUserUid').onChildAdded.listen((event) {
+      final data = event.snapshot.value;
+      if (data is Map) {
+        final Map<String, dynamic> signalingData = Map<String, dynamic>.from(data);
+        _globalStreamController.add(signalingData);
+        // Remove signal after processing to keep RTDB clean (one-time signals)
+        event.snapshot.ref.remove();
+      }
+    });
   }
 
   @override
@@ -40,7 +57,22 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<dynamic> getMessagesStream(String matchId) {
-    _ensureConnected();
+    // Re-init signaling listener if it wasn't set up at construction time
+    // (e.g. if the user wasn't logged in when the repo was first instantiated)
+    if (_signalingSubscription == null) {
+      _initSignalingListener();
+    }
+
+    // Check if we are already listening to this match
+    if (!_matchSubscriptions.containsKey(matchId)) {
+      _matchSubscriptions[matchId] = _db.ref('messages/$matchId').onChildAdded.listen((event) {
+        final data = event.snapshot.value;
+        if (data is Map) {
+          final msg = Message.fromMap(Map<String, dynamic>.from(data));
+          _globalStreamController.add(msg);
+        }
+      });
+    }
     
     // Return a stream that filters for this specific match or WebRTC signaling
     return _globalStreamController.stream.where((event) {
@@ -48,72 +80,10 @@ class ChatRepositoryImpl implements ChatRepository {
         return event.matchId == matchId;
       }
       if (event is Map<String, dynamic> && event['type'] == 'webrtc_signaling') {
-        // We keep signaling events here; ChatCubit will filter for the peerId
         return true; 
       }
       return false;
     });
-  }
-
-  Future<void> _ensureConnected() async {
-    if (_isConnecting) return;
-    
-    // If channel is fine, just return
-    if (_channel != null && _currentUserUid == FirebaseAuth.instance.currentUser?.uid) {
-      return;
-    }
-
-    _isConnecting = true;
-    _currentUserUid = FirebaseAuth.instance.currentUser?.uid;
-
-    try {
-      final token = await FirebaseAuth.instance.currentUser?.getIdToken(true);
-      if (token == null) {
-        _isConnecting = false;
-        return;
-      }
-
-      final wsUrl = '${ApiConstants.wsBaseUrl}${ApiConstants.messages}/ws/$token';
-      debugPrint('[WS-REPO] Connecting to $wsUrl');
-
-      _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
-
-      _channel!.stream.listen(
-        (event) {
-          try {
-            final data = jsonDecode(event as String);
-            if (data['type'] == 'webrtc_signaling') {
-              _globalStreamController.add(data);
-            } else {
-              final msg = Message.fromMap(data);
-              _globalStreamController.add(msg);
-            }
-          } catch (e) {
-            debugPrint('[WS-REPO] Parse error: $e');
-          }
-        },
-        onError: (e) {
-          debugPrint('[WS-REPO] Error: $e — reconnecting in 3s');
-          _isConnecting = false;
-          _channel = null;
-          Future.delayed(const Duration(seconds: 3), _ensureConnected);
-        },
-        onDone: () {
-          debugPrint('[WS-REPO] Closed — reconnecting in 3s');
-          _isConnecting = false;
-          _channel = null;
-          Future.delayed(const Duration(seconds: 3), _ensureConnected);
-        },
-        cancelOnError: false,
-      );
-
-      _isConnecting = false;
-    } catch (e) {
-      debugPrint('[WS-REPO] Failed: $e — retrying in 5s');
-      _isConnecting = false;
-      _channel = null;
-      Future.delayed(const Duration(seconds: 5), _ensureConnected);
-    }
   }
 
   @override
@@ -122,6 +92,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required String content,
   }) async {
     try {
+      // We still call the backend to ensure Firestore archiving and metadata updates
       final response = await _apiClient.post(
         ApiConstants.messages,
         body: {
@@ -140,18 +111,22 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   void sendSignalingMessage(Map<String, dynamic> payload) {
-    if (_channel == null) {
-      debugPrint('[WS-REPO] Cannot send — connecting...');
-      _ensureConnected().then((_) {
-        _channel?.sink.add(jsonEncode(payload));
-      });
-      return;
-    }
-    _channel!.sink.add(jsonEncode(payload));
+    final targetUid = payload['target_uid'];
+    if (targetUid == null) return;
+
+    // Stamp sender info
+    final senderUid = FirebaseAuth.instance.currentUser?.uid;
+    payload['sender_id'] = senderUid;
+
+    // Push to target's signaling queue in RTDB
+    _db.ref('signaling/$targetUid').push().set(payload);
   }
 
   void dispose() {
-    _channel?.sink.close();
+    _signalingSubscription?.cancel();
+    for (var sub in _matchSubscriptions.values) {
+      sub.cancel();
+    }
     _globalStreamController.close();
   }
 }
