@@ -5,10 +5,66 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
+import 'package:skillswap/features/home/presentation/pages/chat_page.dart';
+import 'package:skillswap/features/home/presentation/widgets/shared/premium_dialogs.dart';
+import 'package:skillswap/init_dependencies.dart';
 
 class ProfileStickyFooter extends StatelessWidget {
   final User user;
   const ProfileStickyFooter({super.key, required this.user});
+
+  void _navigateToChat(BuildContext context, String currentUserId, String matchId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatPage(
+          userName: user.name,
+          userImageUrl: user.imageUrl,
+          userTitle: user.profession,
+          matchId: matchId,
+          userId: user.id,
+          currentUserId: currentUserId,
+        ),
+      ),
+    );
+  }
+
+  void _showPaidMessageDialog(BuildContext context, String currentUserId) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => PremiumActionDialog(
+        title: "Instant Connection",
+        description:
+            "Connect with ${user.name} immediately for 1 Coin. This will open a permanent chat channel.",
+        actionLabel: "Message Now",
+        costLabel: "1 Coin",
+        onConfirm: () async {
+          final result = await serviceLocator<HomeRepository>().initPaidChat(user.id);
+          
+          if (!context.mounted) return;
+
+          result.fold(
+            (failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(failure.message),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
+            },
+            (matchId) {
+              // Refresh credits after spending
+              context.read<CreditsCubit>().fetchCredits();
+              
+              _navigateToChat(context, currentUserId, matchId);
+            },
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +74,7 @@ class ProfileStickyFooter extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
         final bool isGuest = authState is! AuthSuccess;
+        final String? currentUserId = authState is AuthSuccess ? authState.uid : null;
 
         void handleAction(VoidCallback onAuth) {
           if (isGuest) {
@@ -53,7 +110,7 @@ class ProfileStickyFooter extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => handleAction(() {
-                      // Original Request Swap logic
+                      // Request Swap logic would go here
                     }),
                     child: Container(
                       height: 60,
@@ -89,7 +146,11 @@ class ProfileStickyFooter extends StatelessWidget {
                 const SizedBox(width: 16),
                 GestureDetector(
                   onTap: () => handleAction(() {
-                    // Original Chat logic
+                    if (user.matchId != null) {
+                      _navigateToChat(context, currentUserId!, user.matchId!);
+                    } else {
+                      _showPaidMessageDialog(context, currentUserId!);
+                    }
                   }),
                   child: Container(
                     width: 60,
