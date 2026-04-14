@@ -429,14 +429,8 @@ class _ChatPageState extends State<ChatPage> {
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            // First notify we accepted
-                            context.read<ChatCubit>().sendSignalingMessage({
-                              'type': 'webrtc_signaling',
-                              'target_uid': state.peerId,
-                              'action': 'call_accepted',
-                              'data': {},
-                            });
-                            // Then navigate
+                            // Navigate immediately. The LiveSessionPage will send 
+                            // 'call_accepted' once the camera and WebRTC are initialized.
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -448,6 +442,7 @@ class _ChatPageState extends State<ChatPage> {
                                   peerId: widget.userId,
                                   currentUserName: currentUserName,
                                   currentUserImageUrl: currentUserImageUrl,
+                                  isCaller: false,
                                 ),
                               ),
                             );
@@ -595,7 +590,7 @@ class _ChatPageState extends State<ChatPage> {
               text: msg.content,
               isMe: isMe,
               time: DateFormat('h:mm a').format(msg.timestamp),
-              isSeen: true,
+              isRead: msg.isRead,
             );
           },
         ),
