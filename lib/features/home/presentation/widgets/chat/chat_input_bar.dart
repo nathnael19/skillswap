@@ -1,18 +1,59 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:async';
 
-class ChatInputBar extends StatelessWidget {
+class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback? onAddTap;
   final VoidCallback? onSendTap;
+  final void Function(bool isTyping)? onTypingChanged;
 
   const ChatInputBar({
     super.key,
     required this.controller,
     this.onAddTap,
     this.onSendTap,
+    this.onTypingChanged,
   });
+
+  @override
+  State<ChatInputBar> createState() => _ChatInputBarState();
+}
+
+class _ChatInputBarState extends State<ChatInputBar> {
+  Timer? _typingTimer;
+  bool _isTyping = false;
+
+  void _onTextChanged(String text) {
+    if (text.isNotEmpty && !_isTyping) {
+      _isTyping = true;
+      widget.onTypingChanged?.call(true);
+    }
+    
+    _typingTimer?.cancel();
+    
+    if (text.isEmpty) {
+      if (_isTyping) {
+        _isTyping = false;
+        widget.onTypingChanged?.call(false);
+      }
+      return;
+    }
+    
+    _typingTimer = Timer(const Duration(seconds: 2), () {
+      if (_isTyping) {
+        _isTyping = false;
+        widget.onTypingChanged?.call(false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _typingTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +78,7 @@ class ChatInputBar extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.3),
                   size: 28,
                 ),
-                onPressed: onAddTap,
+                onPressed: widget.onAddTap,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -51,7 +92,8 @@ class ChatInputBar extends StatelessWidget {
                   ),
                   child: Center(
                     child: TextField(
-                      controller: controller,
+                      controller: widget.controller,
+                      onChanged: _onTextChanged,
                       style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15),
                       cursorColor: accentColor,
                       decoration: InputDecoration(
@@ -68,7 +110,14 @@ class ChatInputBar extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: onSendTap,
+                onTap: () {
+                  if (_isTyping) {
+                    _isTyping = false;
+                    _typingTimer?.cancel();
+                    widget.onTypingChanged?.call(false);
+                  }
+                  widget.onSendTap?.call();
+                },
                 child: Container(
                   height: 54,
                   width: 54,
