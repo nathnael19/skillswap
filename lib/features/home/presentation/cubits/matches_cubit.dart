@@ -4,12 +4,14 @@ import 'package:skillswap/features/home/domain/models/message_model.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_state.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/core/services/presence_service.dart';
 
 export 'matches_state.dart';
 
 class MatchesCubit extends Cubit<MatchesState> {
   final HomeRepository _homeRepository;
   StreamSubscription<Message>? _messageSubscription;
+  final Map<String, StreamSubscription<bool>> _presenceSubscriptions = {};
 
   MatchesCubit(this._homeRepository) : super(MatchesInitial());
 
@@ -20,6 +22,8 @@ class MatchesCubit extends Cubit<MatchesState> {
     result.fold((failure) => emit(MatchesError(failure.message)), (matches) {
       emit(MatchesLoaded(List.from(matches)));
 
+      _watchPresences(matches);
+
       // Subscribe to real-time updates for all matches
       _messageSubscription?.cancel();
       _messageSubscription = _homeRepository.getGlobalMessageStream().listen(
@@ -29,6 +33,25 @@ class MatchesCubit extends Cubit<MatchesState> {
         onError: (e) {},
       );
     });
+  }
+
+  void _watchPresences(List<Conversation> matches) {
+    for (var sub in _presenceSubscriptions.values) {
+      sub.cancel();
+    }
+    _presenceSubscriptions.clear();
+
+    for (var match in matches) {
+      final uid = match.user.id;
+      _presenceSubscriptions[uid] = PresenceService.instance.watchPresence(uid).listen((isOnline) {
+        if (state is MatchesLoaded) {
+          final currentState = state as MatchesLoaded;
+          final currentStatuses = Map<String, bool>.from(currentState.onlineStatuses);
+          currentStatuses[uid] = isOnline;
+          emit(MatchesLoaded(currentState.matches, onlineStatuses: currentStatuses));
+        }
+      });
+    }
   }
 
   void _onNewMessageReceived(Message message) {
@@ -57,13 +80,17 @@ class MatchesCubit extends Cubit<MatchesState> {
         currentMatches.removeAt(index);
         currentMatches.insert(0, updatedConversation);
 
-        emit(MatchesLoaded(currentMatches));
+        final currentState = state as MatchesLoaded;
+        emit(MatchesLoaded(currentMatches, onlineStatuses: currentState.onlineStatuses));
       }
     }
   }
 
   @override
   Future<void> close() {
+    for (var sub in _presenceSubscriptions.values) {
+      sub.cancel();
+    }
     _messageSubscription?.cancel();
     return super.close();
   }
