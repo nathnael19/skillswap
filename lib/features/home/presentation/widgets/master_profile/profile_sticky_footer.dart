@@ -8,57 +8,79 @@ class ProfileStickyFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const kPrimary = Color(0xFFCA8A04);
+    const kBackground = Color(0xFF1C1917);
+
     return Positioned(
       bottom: 0,
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 34),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: kBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, -5)),
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 30,
+              offset: const Offset(0, -10),
+            ),
           ],
+          border: Border(
+            top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          ),
         ),
         child: Row(
           children: [
             Expanded(
-              child: Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0B6A7A),
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                        color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: kPrimary.withValues(alpha: 0.2),
                         blurRadius: 15,
-                        offset: const Offset(0, 8)),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    'Request Swap',
-                    style: GoogleFonts.outfit(
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Request Swap',
+                      style: GoogleFonts.dmSans(
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white),
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 16),
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4F7),
-                borderRadius: BorderRadius.circular(16),
+            GestureDetector(
+              onTap: () {},
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                ),
+                child: const Icon(Icons.chat_bubble_rounded,
+                    color: kPrimary, size: 22),
               ),
-              child: const Icon(Icons.chat_bubble_outline,
-                  color: Color(0xFF0B6A7A)),
             ),
           ],
         ),
