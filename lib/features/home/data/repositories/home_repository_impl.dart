@@ -6,6 +6,7 @@ import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 import 'package:skillswap/features/home/domain/models/message_model.dart';
+import 'package:skillswap/features/home/domain/models/review_model.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -78,11 +79,13 @@ class HomeRepositoryImpl implements HomeRepository {
         final List<dynamic> data = jsonDecode(response.body);
         return right(data.map((map) => Conversation.fromMap(map)).toList());
       }
-      return left(ServerFailure.fromResponse(
-        response.statusCode,
-        response.body,
-        fallbackMessage: 'Failed to fetch matches',
-      ));
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch matches',
+        ),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -96,11 +99,13 @@ class HomeRepositoryImpl implements HomeRepository {
         final List data = jsonDecode(response.body);
         return right(data.map((m) => User.fromMap(m)).toList());
       }
-      return left(ServerFailure.fromResponse(
-        response.statusCode,
-        response.body,
-        fallbackMessage: 'Failed to fetch likes',
-      ));
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch likes',
+        ),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -153,11 +158,13 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         return right(jsonDecode(response.body));
       }
-      return left(ServerFailure.fromResponse(
-        response.statusCode,
-        response.body,
-        fallbackMessage: 'Failed to fetch credits',
-      ));
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch credits',
+        ),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -252,11 +259,13 @@ class HomeRepositoryImpl implements HomeRepository {
         final data = jsonDecode(response.body);
         return right(data['match_created'] ?? false);
       }
-      return left(ServerFailure.fromResponse(
-        response.statusCode,
-        response.body,
-        fallbackMessage: 'Failed to swipe user',
-      ));
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to swipe user',
+        ),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
@@ -288,11 +297,35 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         return right(User.fromMap(jsonDecode(response.body)));
       }
-      return left(ServerFailure.fromResponse(
-        response.statusCode,
-        response.body,
-        fallbackMessage: 'Failed to fetch user',
-      ));
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch user',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Review>>> getRatings(String userId) async {
+    try {
+      final response = await _apiClient.get(
+        '${ApiConstants.userRatings}/$userId',
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return right(data.map((map) => Review.fromMap(map)).toList());
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to fetch ratings',
+        ),
+      );
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
