@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:skillswap/features/home/domain/repositories/chat_repository.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/features/home/presentation/pages/review_session_page.dart';
 
 class LiveSessionPage extends StatefulWidget {
   final List<String> agenda;
@@ -539,8 +541,64 @@ class _LiveSessionPageState extends State<LiveSessionPage>
 
   Widget _buildEndCallButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
+      onTap: () async {
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: const Color(0xFF0C0A09),
+            title: Text(
+              'End Session?',
+              style: GoogleFonts.dmSans(color: Colors.white),
+            ),
+            content: Text(
+              'This will complete the session and settle credits.',
+              style: GoogleFonts.dmSans(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.dmSans(color: Colors.white54),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(
+                  'End Session',
+                  style: GoogleFonts.dmSans(color: const Color(0xFFEF4444)),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (confirm != true) return;
+
+        if (!mounted) return;
+
+        // Disable actions
+        setState(() {
+          _isInitialized = false;
+        });
+
+        if (widget.sessionId != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReviewSessionPage(
+                sessionId: widget.sessionId,
+                peerId: widget.peerId,
+                peerName: widget.peerName,
+                peerImageUrl: widget.peerImageUrl,
+              ),
+            ),
+          );
+        } else {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        }
       },
       child: Container(
         width: 52,
