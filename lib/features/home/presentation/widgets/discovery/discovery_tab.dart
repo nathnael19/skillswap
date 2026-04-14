@@ -8,6 +8,11 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
+import 'package:skillswap/features/home/presentation/pages/chat_page.dart';
+import 'package:skillswap/features/home/presentation/widgets/shared/premium_dialogs.dart';
+import 'package:skillswap/init_dependencies.dart';
 
 class DiscoveryTab extends StatefulWidget {
   const DiscoveryTab({super.key});
@@ -263,6 +268,67 @@ class _DiscoveryTabState extends State<DiscoveryTab>
         });
       }
     }
+  }
+
+  void _navigateToChat(
+    BuildContext context,
+    String currentUserId,
+    String matchId,
+    dynamic user,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatPage(
+          userName: user.name,
+          userImageUrl: user.imageUrl,
+          userTitle: user.profession,
+          matchId: matchId,
+          userId: user.id,
+          currentUserId: currentUserId,
+        ),
+      ),
+    );
+  }
+
+  void _showPaidMessageDialog(
+    BuildContext context,
+    String currentUserId,
+    dynamic user,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => PremiumActionDialog(
+        title: "Instant Connection",
+        description:
+            "Connect with ${user.name} immediately for 1 Coin. This will open a permanent chat channel.",
+        actionLabel: "Message Now",
+        costLabel: "1 Coin",
+        onConfirm: () async {
+          final result =
+              await serviceLocator<HomeRepository>().initPaidChat(user.id);
+
+          if (!context.mounted) return;
+
+          result.fold(
+            (failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(failure.message),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
+            },
+            (matchId) {
+              // Refresh credits after spending
+              context.read<CreditsCubit>().fetchCredits();
+
+              _navigateToChat(context, currentUserId, matchId, user);
+            },
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -536,13 +602,27 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                       onDislike: () =>
                                           _runSwipeAnimation(false),
                                       onChat: () {
-                                        final authState = context
-                                            .read<AuthCubit>()
-                                            .state;
-                                        if (authState is! AuthSuccess) {
-                                          Navigator.of(
-                                            context,
-                                          ).push(OnboardingPage.route());
+                                        final authState =
+                                            context.read<AuthCubit>().state;
+                                        if (authState is AuthSuccess) {
+                                          if (currentUser.matchId != null) {
+                                            _navigateToChat(
+                                              context,
+                                              authState.uid,
+                                              currentUser.matchId!,
+                                              currentUser,
+                                            );
+                                          } else {
+                                            _showPaidMessageDialog(
+                                              context,
+                                              authState.uid,
+                                              currentUser,
+                                            );
+                                          }
+                                        } else {
+                                          Navigator.of(context).push(
+                                            OnboardingPage.route(),
+                                          );
                                         }
                                       },
                                       enabled: !isInteractionDisabled,
