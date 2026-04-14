@@ -92,7 +92,7 @@ class MatchesView extends StatelessWidget {
                                               currentUserId: authState.uid,
                                               status: conv.status,
                                               payerId: conv.payerId,
-                                              isOnline: true,
+                                              isOnline: state.onlineStatuses[user.id] ?? false,
                                             ),
                                           ),
                                         );
@@ -122,7 +122,7 @@ class MatchesView extends StatelessWidget {
                                     lastMessage: conv.lastMessage ?? "Start your skill exchange...",
                                     timestamp: _formatTimestamp(conv.lastMessageTime),
                                     skillTag: user.teaching?.name ?? 'Expert',
-                                    isOnline: true,
+                                    isOnline: state.onlineStatuses[user.id] ?? false,
                                     hasUnread: conv.hasUnread,
                                     isPaidPending: conv.status == 'pending',
                                     onTap: () {
@@ -138,7 +138,7 @@ class MatchesView extends StatelessWidget {
                                             currentUserId: authState.uid,
                                             status: conv.status,
                                             payerId: conv.payerId,
-                                            isOnline: true,
+                                            isOnline: state.onlineStatuses[user.id] ?? false,
                                           ),
                                         ),
                                       );
