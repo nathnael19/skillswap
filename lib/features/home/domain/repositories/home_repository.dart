@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/domain/models/review_model.dart';
 
 abstract interface class HomeRepository {
   Future<Either<Failure, List<User>>> getDiscoveryUsers({String? category, String? search});
+  Future<Either<Failure, String>> initPaidChat(String targetId);
   Future<Either<Failure, List<Conversation>>> getMatches();
   Stream<Message> getGlobalMessageStream();
   Future<Either<Failure, List<User>>> getLikesReceived();
