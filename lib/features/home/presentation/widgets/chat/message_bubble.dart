@@ -5,14 +5,14 @@ class MessageBubble extends StatelessWidget {
   final String text;
   final bool isMe;
   final String time;
-  final bool isSeen;
+  final bool isRead;
 
   const MessageBubble({
     super.key,
     required this.text,
     required this.isMe,
     required this.time,
-    this.isSeen = false,
+    this.isRead = false,
   });
 
   @override
@@ -90,11 +90,11 @@ class MessageBubble extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Icon(
-                    Icons.done_all_rounded,
+                    isRead ? Icons.done_all_rounded : Icons.done_rounded,
                     size: 14,
-                    color: isSeen
-                        ? accentColor
-                        : Colors.white.withValues(alpha: 0.2),
+                    color: isRead
+                        ? Colors.white // Two rights -> white on gold bubble
+                        : Colors.white.withValues(alpha: 0.4), // One right -> dimmed
                   ),
                 ] else
                   Text(
