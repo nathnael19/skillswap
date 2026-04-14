@@ -274,8 +274,10 @@ class _DiscoveryTabState extends State<DiscoveryTab>
     BuildContext context,
     String currentUserId,
     String matchId,
-    dynamic user,
-  ) {
+    dynamic user, {
+    String status = 'mutual',
+    String? payerId,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -286,6 +288,8 @@ class _DiscoveryTabState extends State<DiscoveryTab>
           matchId: matchId,
           userId: user.id,
           currentUserId: currentUserId,
+          status: status,
+          payerId: payerId,
         ),
       ),
     );
@@ -323,7 +327,14 @@ class _DiscoveryTabState extends State<DiscoveryTab>
               // Refresh credits after spending
               context.read<CreditsCubit>().fetchCredits();
 
-              _navigateToChat(context, currentUserId, matchId, user);
+              _navigateToChat(
+                context,
+                currentUserId,
+                matchId,
+                user,
+                status: 'pending',
+                payerId: currentUserId,
+              );
             },
           );
         },
@@ -611,6 +622,8 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                                               authState.uid,
                                               currentUser.matchId!,
                                               currentUser,
+                                              status: currentUser.matchStatus ?? 'mutual',
+                                              payerId: currentUser.matchPayerId,
                                             );
                                           } else {
                                             _showPaidMessageDialog(
