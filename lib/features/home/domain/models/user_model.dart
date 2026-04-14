@@ -84,6 +84,8 @@ class User extends Equatable {
   final String profession;
   final List<PortfolioItem> portfolio;
   final String? matchId;
+  final String? matchStatus;
+  final String? matchPayerId;
 
   const User({
     required this.id,
@@ -99,6 +101,8 @@ class User extends Equatable {
     this.profession = '',
     this.portfolio = const [],
     this.matchId,
+    this.matchStatus,
+    this.matchPayerId,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -134,6 +138,8 @@ class User extends Equatable {
       profession: map['profession'] ?? 'Skill Swapper',
       portfolio: portfolio,
       matchId: map['match_id'],
+      matchStatus: map['match_status'],
+      matchPayerId: map['match_payer_id'],
     );
   }
 
@@ -166,6 +172,8 @@ class User extends Equatable {
     profession,
     portfolio,
     matchId,
+    matchStatus,
+    matchPayerId,
   ];
 }
 
@@ -175,6 +183,8 @@ class Conversation extends Equatable {
   final String? lastMessageTime;
   final bool hasUnread;
   final String? matchId;
+  final String status;
+  final String? payerId;
 
   const Conversation({
     required this.user,
@@ -182,6 +192,8 @@ class Conversation extends Equatable {
     this.lastMessageTime,
     this.hasUnread = false,
     this.matchId,
+    this.status = 'mutual',
+    this.payerId,
   });
 
   factory Conversation.fromMap(Map<String, dynamic> map) {
@@ -196,9 +208,11 @@ class Conversation extends Equatable {
       lastMessageTime: lastMsgData != null ? lastMsgData['timestamp'] : null,
       hasUnread: map['has_unread'] ?? false,
       matchId: map['match_id'],
+      status: map['status'] ?? 'mutual',
+      payerId: map['payer_id'],
     );
   }
 
   @override
-  List<Object?> get props => [user, lastMessage, lastMessageTime, hasUnread, matchId];
+  List<Object?> get props => [user, lastMessage, lastMessageTime, hasUnread, matchId, status, payerId];
 }
