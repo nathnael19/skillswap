@@ -20,24 +20,25 @@ import '../widgets/filter_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() => MaterialPageRoute(
-        builder: (context) => MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (_) => serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
-            ),
-            BlocProvider(
-              create: (_) => serviceLocator<MatchesCubit>()..fetchMatches(),
-            ),
-            BlocProvider(
-              create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
-            ),
-            BlocProvider(
-              create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
-            ),
-          ],
-          child: const HomePage(),
+    builder: (context) => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
         ),
-      );
+        BlocProvider(
+          create: (_) => serviceLocator<MatchesCubit>()..fetchMatches(),
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
+        ),
+      ],
+      child: const HomePage(),
+    ),
+  );
   const HomePage({super.key});
 
   @override
@@ -83,138 +84,142 @@ class _HomePageState extends State<HomePage> {
     const primaryBgColor = Color(0xFF0C0A09);
 
     return Builder(
-        builder: (context) {
-          String title = "SkillSwap";
-          Widget bodyContent = const DiscoveryTab();
-          List<Widget>? actions;
-          Widget? leading;
+      builder: (context) {
+        String title = "SkillSwap";
+        Widget bodyContent = const DiscoveryTab();
+        List<Widget>? actions;
+        Widget? leading;
 
-          switch (_selectedIndex) {
-            case 0:
-              title = "SkillSwap";
-              bodyContent = const DiscoveryTab();
-              leading = _buildActionButton(
-                icon: Icons.search_rounded,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SearchPage()),
-                  );
-                },
-              );
-              actions = [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: _buildActionButton(
-                    icon: Icons.tune_rounded,
-                    onTap: () => _showFilterBottomSheet(context),
-                  ),
+        switch (_selectedIndex) {
+          case 0:
+            title = "SkillSwap";
+            bodyContent = const DiscoveryTab();
+            leading = _buildActionButton(
+              icon: Icons.search_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchPage()),
+                );
+              },
+            );
+            actions = [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: _buildActionButton(
+                  icon: Icons.tune_rounded,
+                  onTap: () => _showFilterBottomSheet(context),
                 ),
-              ];
-              break;
-            case 1:
-              title = "Matches";
-              bodyContent = const MatchesView();
-              leading = _buildActionButton(
-                icon: Icons.search_rounded,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SearchPage()),
-                  );
-                },
-              );
-              actions = [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: _buildActionButton(
-                    icon: Icons.tune_rounded,
-                    onTap: () => _showFilterBottomSheet(context),
-                  ),
+              ),
+            ];
+            break;
+          case 1:
+            title = "Matches";
+            bodyContent = const MatchesView();
+            leading = _buildActionButton(
+              icon: Icons.search_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchPage()),
+                );
+              },
+            );
+            actions = [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: _buildActionButton(
+                  icon: Icons.tune_rounded,
+                  onTap: () => _showFilterBottomSheet(context),
                 ),
-              ];
-              break;
-            case 2:
-              title = "Curation";
-              bodyContent = const LikesView();
-              break;
-            case 3:
-              title = "Account";
-              bodyContent = const ProfileView();
-              actions = [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: _buildActionButton(
-                    icon: Icons.account_balance_wallet_outlined,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const WalletPage()),
-                      );
-                    },
-                  ),
+              ),
+            ];
+            break;
+          case 2:
+            title = "Curation";
+            bodyContent = const LikesView();
+            break;
+          case 3:
+            title = "Account";
+            bodyContent = const ProfileView();
+            actions = [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: _buildActionButton(
+                  icon: Icons.account_balance_wallet_outlined,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WalletPage(),
+                      ),
+                    );
+                  },
                 ),
-              ];
-              break;
-          }
+              ),
+            ];
+            break;
+        }
 
-          return BlocListener<AuthCubit, AuthState>(
-            listener: (context, state) {
-              if (state is AuthSuccess) {
-                context.read<DiscoveryCubit>().fetchDiscoveryUsers();
-                context.read<MatchesCubit>().fetchMatches();
-                context.read<ProfileCubit>().fetchUserProfile();
-                context.read<LikesCubit>().fetchLikesReceived();
-                context.read<CreditsCubit>().fetchCredits();
-              }
-            },
-            child: Scaffold(
-              extendBody: true,
-              backgroundColor: primaryBgColor,
-              appBar: _selectedIndex == 2
-                  ? null
-                  : PreferredSize(
-                      preferredSize: const Size.fromHeight(70),
-                      child: ClipRect(
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                          child: AppBar(
-                            backgroundColor: primaryBgColor.withValues(alpha: 0.8),
-                            elevation: 0,
-                            leadingWidth: 70,
-                            leading: leading,
-                            title: Text(
-                              title.toUpperCase(),
-                              style: GoogleFonts.dmSans(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                                color: Colors.white,
-                                letterSpacing: 2.0,
-                              ),
+        return BlocListener<AuthCubit, AuthState>(
+          listener: (context, state) {
+            if (state is AuthSuccess) {
+              context.read<DiscoveryCubit>().fetchDiscoveryUsers();
+              context.read<MatchesCubit>().fetchMatches();
+              context.read<ProfileCubit>().fetchUserProfile();
+              context.read<LikesCubit>().fetchLikesReceived();
+              context.read<CreditsCubit>().fetchCredits();
+            }
+          },
+          child: Scaffold(
+            extendBody: true,
+            backgroundColor: primaryBgColor,
+            appBar: _selectedIndex == 2
+                ? null
+                : PreferredSize(
+                    preferredSize: const Size.fromHeight(70),
+                    child: ClipRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                        child: AppBar(
+                          backgroundColor: primaryBgColor.withValues(
+                            alpha: 0.8,
+                          ),
+                          elevation: 0,
+                          leadingWidth: 70,
+                          leading: leading,
+                          title: Text(
+                            title.toUpperCase(),
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                              color: Colors.white,
+                              letterSpacing: 2.0,
                             ),
-                            centerTitle: true,
-                            actions: actions,
-                            shape: Border(
-                              bottom: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.05),
-                                width: 1,
-                              ),
+                          ),
+                          centerTitle: true,
+                          actions: actions,
+                          shape: Border(
+                            bottom: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.05),
+                              width: 1,
                             ),
                           ),
                         ),
                       ),
                     ),
-              body: bodyContent,
-              bottomNavigationBar: _buildMidnightNavigationBar(),
-            ),
-          );
-        },
+                  ),
+            body: bodyContent,
+            bottomNavigationBar: _buildMidnightNavigationBar(),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildMidnightNavigationBar() {
     return Container(
-      height: 90,
+      height: 80,
       margin: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
       decoration: BoxDecoration(
         color: const Color(0xFF0C0A09).withValues(alpha: 0.8),
@@ -269,8 +274,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -289,11 +292,7 @@ class _HomePageState extends State<HomePage> {
               width: 1,
             ),
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 20,
-          ),
+          child: Icon(icon, color: Colors.white, size: 20),
         ),
       ),
     );
@@ -316,7 +315,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
-    
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -327,12 +326,16 @@ class _NavItem extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isSelected ? accentColor.withValues(alpha: 0.1) : Colors.transparent,
+              color: isSelected
+                  ? accentColor.withValues(alpha: 0.1)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               icon,
-              color: isSelected ? accentColor : Colors.white.withValues(alpha: 0.3),
+              color: isSelected
+                  ? accentColor
+                  : Colors.white.withValues(alpha: 0.3),
               size: 26,
             ),
           ),
@@ -342,7 +345,9 @@ class _NavItem extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 9,
               fontWeight: FontWeight.w800,
-              color: isSelected ? accentColor : Colors.white.withValues(alpha: 0.3),
+              color: isSelected
+                  ? accentColor
+                  : Colors.white.withValues(alpha: 0.3),
               letterSpacing: 1.0,
             ),
           ),
