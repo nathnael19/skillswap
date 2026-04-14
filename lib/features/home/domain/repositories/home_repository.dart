@@ -16,6 +16,13 @@ abstract interface class HomeRepository {
   Future<Either<Failure, Map<String, dynamic>>> createSession({
     required String matchId,
     required DateTime scheduledTime,
+    String? payerId,
+  });
+  Future<Either<Failure, Unit>> submitReview({
+    required String sessionId,
+    required String targetId,
+    required double rating,
+    required String comment,
   });
   Future<Either<Failure, Unit>> updateSessionStatus({
     required String sessionId,
