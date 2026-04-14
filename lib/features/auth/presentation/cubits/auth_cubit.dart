@@ -4,6 +4,8 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/core/services/presence_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 
 class AuthCubit extends Cubit<AuthState> {
   final UserSignUp _userSignUp;
@@ -27,7 +29,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     res.fold(
       (l) => emit(AuthInitial()),
-      (r) => emit(AuthSuccess(r)),
+      (r) {
+        PresenceService.instance.goOnline(r);
+        emit(AuthSuccess(r));
+      },
     );
   }
 
@@ -55,7 +60,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     res.fold(
       (l) => emit(AuthFailure(l.message)),
-      (r) => emit(AuthSuccess(r)),
+      (r) {
+        PresenceService.instance.goOnline(r);
+        emit(AuthSuccess(r));
+      },
     );
   }
 
@@ -73,11 +81,19 @@ class AuthCubit extends Cubit<AuthState> {
 
     res.fold(
       (l) => emit(AuthFailure(l.message)),
-      (r) => emit(AuthSuccess(r)),
+      (r) {
+        PresenceService.instance.goOnline(r);
+        emit(AuthSuccess(r));
+      },
     );
   }
 
   void signOut() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      PresenceService.instance.goOffline(uid);
+    }
+    
     final res = await _userSignOut();
 
     res.fold(
