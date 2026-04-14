@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/features/home/presentation/pages/edit_portfolio_page.dart';
 
 
 class ExpertisePortfolio extends StatelessWidget {
@@ -14,6 +15,73 @@ class ExpertisePortfolio extends StatelessWidget {
       children: [
         _buildSectionTitle('EXPERTISE PORTFOLIO', 'Growth Journey'),
         const SizedBox(height: 20),
+        // Added Portfolio Projects Section
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: const Color(0xFFCA8A04).withValues(alpha: 0.2),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Portfolio Projects',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context, EditPortfolioPage.route(context, user));
+                    },
+                    icon: const Icon(Icons.edit_note_rounded,
+                        color: Color(0xFFCA8A04)),
+                    tooltip: 'Manage Projects',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${user.portfolio.length} projects showcased on your profile',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (user.portfolio.isEmpty)
+                Text(
+                  'No projects added yet. Showcase your work to attract more swaps!',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: const Color(0xFFCA8A04).withValues(alpha: 0.7),
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: user.portfolio
+                      .take(3)
+                      .map((p) => _buildProjectChip(p.title))
+                      .toList(),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -187,6 +255,25 @@ class ExpertisePortfolio extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildProjectChip(String title) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Text(
+        title,
+        style: GoogleFonts.dmSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Colors.white.withValues(alpha: 0.7),
+        ),
+      ),
     );
   }
 
