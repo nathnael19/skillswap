@@ -35,6 +35,41 @@ class Skill extends Equatable {
   List<Object?> get props => [name, category, type, level];
 }
 
+class PortfolioItem extends Equatable {
+  final String title;
+  final String description;
+  final String? imageUrl;
+  final String? githubUrl;
+
+  const PortfolioItem({
+    required this.title,
+    required this.description,
+    this.imageUrl,
+    this.githubUrl,
+  });
+
+  factory PortfolioItem.fromMap(Map<String, dynamic> map) {
+    return PortfolioItem(
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      imageUrl: map['image_url'],
+      githubUrl: map['github_url'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'description': description,
+      'image_url': imageUrl,
+      'github_url': githubUrl,
+    };
+  }
+
+  @override
+  List<Object?> get props => [title, description, imageUrl, githubUrl];
+}
+
 class User extends Equatable {
   final String id;
   final String name;
@@ -47,6 +82,7 @@ class User extends Equatable {
   final String bio;
   final String location;
   final String profession;
+  final List<PortfolioItem> portfolio;
   final String? matchId;
 
   const User({
@@ -61,12 +97,17 @@ class User extends Equatable {
     this.bio = '',
     this.location = '',
     this.profession = '',
+    this.portfolio = const [],
     this.matchId,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
     final List<dynamic> skillsData = map['skills'] ?? [];
     final List<Skill> skills = skillsData.map((s) => Skill.fromMap(s)).toList();
+
+    final List<dynamic> portfolioData = map['portfolio'] ?? [];
+    final List<PortfolioItem> portfolio =
+        portfolioData.map((p) => PortfolioItem.fromMap(p)).toList();
     
     Skill? teachingSkill;
     Skill? learningSkill;
@@ -91,6 +132,7 @@ class User extends Equatable {
       bio: map['bio'] ?? '',
       location: map['location'] ?? '',
       profession: map['profession'] ?? 'Skill Swapper',
+      portfolio: portfolio,
       matchId: map['match_id'],
     );
   }
@@ -105,6 +147,7 @@ class User extends Equatable {
       'location': location,
       'profession': profession,
       'skills': allSkills.map((s) => s.toMap()).toList(),
+      'portfolio': portfolio.map((p) => p.toMap()).toList(),
     };
   }
 
@@ -121,6 +164,7 @@ class User extends Equatable {
     bio,
     location,
     profession,
+    portfolio,
     matchId,
   ];
 }
