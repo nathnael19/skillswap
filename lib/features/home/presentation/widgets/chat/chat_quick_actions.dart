@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
+import 'package:skillswap/init_dependencies.dart';
+import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 
-class ChatQuickActions extends StatelessWidget {
+class ChatQuickActions extends StatefulWidget {
   final String matchId;
   final String peerName;
   final String peerImageUrl;
@@ -22,6 +24,57 @@ class ChatQuickActions extends StatelessWidget {
     this.currentUserName,
     this.currentUserImageUrl,
   });
+
+  @override
+  State<ChatQuickActions> createState() => _ChatQuickActionsState();
+}
+
+class _ChatQuickActionsState extends State<ChatQuickActions> {
+  bool _isCreatingSession = false;
+
+  Future<void> _createInstantSession() async {
+    setState(() => _isCreatingSession = true);
+    final repo = serviceLocator<HomeRepository>();
+    
+    // We pass peerId as payerId because the Caller (Expert) initiates the call, but the other person (Learner) pays.
+    final result = await repo.createSession(
+      matchId: widget.matchId,
+      scheduledTime: DateTime.now(),
+      payerId: widget.peerId, 
+    );
+    
+    if (!mounted) return;
+    setState(() => _isCreatingSession = false);
+    
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      },
+      (data) {
+        final id = data['id'] as String?;
+        if (id == null) return;
+        
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LiveSessionPage(
+              agenda: const ['Instant Synergy Check'],
+              sessionId: id,
+              peerName: widget.peerName,
+              peerImageUrl: widget.peerImageUrl,
+              currentUserId: widget.currentUserId,
+              peerId: widget.peerId,
+              currentUserName: widget.currentUserName,
+              currentUserImageUrl: widget.currentUserImageUrl,
+              isCaller: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,25 +112,8 @@ class ChatQuickActions extends StatelessWidget {
             const SizedBox(width: 16),
             _buildActionButton(
               context, 
-              'Call now', 
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LiveSessionPage(
-                      agenda: const ['Instant Synergy Check'],
-                      sessionId: 'instant_${DateTime.now().millisecondsSinceEpoch}',
-                      peerName: peerName,
-                      peerImageUrl: peerImageUrl,
-                      currentUserId: currentUserId,
-                      peerId: peerId,
-                      currentUserName: currentUserName,
-                      currentUserImageUrl: currentUserImageUrl,
-                      isCaller: true,
-                    ),
-                  ),
-                );
-              },
+              _isCreatingSession ? 'Starting...' : 'Call now', 
+              _isCreatingSession ? null : _createInstantSession,
             ),
             const SizedBox(width: 12),
             _buildActionButton(
@@ -88,11 +124,11 @@ class ChatQuickActions extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ScheduleSessionPage(
-                      matchId: matchId,
-                      peerName: peerName,
-                      peerImageUrl: peerImageUrl,
-                      currentUserId: currentUserId,
-                      peerId: peerId,
+                      matchId: widget.matchId,
+                      peerName: widget.peerName,
+                      peerImageUrl: widget.peerImageUrl,
+                      currentUserId: widget.currentUserId,
+                      peerId: widget.peerId,
                     ),
                   ),
                 );
