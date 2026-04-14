@@ -6,28 +6,41 @@ class ProfileBadgesSection extends StatelessWidget {
   final User user;
   const ProfileBadgesSection({super.key, required this.user});
 
+  static const Color kPrimary = Color(0xFFCA8A04);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+        spacing: 12,
+        runSpacing: 12,
         children: [
-          // Identity Check (Mocked for now, but logic ready)
-          _buildBadge(Icons.verified_user_outlined, 'Identity Verified',
-              const Color(0xFFF0F9FF), const Color(0xFF026AA2)),
-          
-          // Real Teaching Skill
+          // Identity Check
+          _buildBadge(
+            Icons.verified_user_rounded,
+            'Identity Verified',
+            kPrimary.withValues(alpha: 0.1),
+            kPrimary,
+          ),
+
+          // Teaching Skill
           if (user.teaching != null)
-            _buildBadge(Icons.school_outlined, user.teaching!.name,
-                const Color(0xFFFEF6EE), const Color(0xFFB93815)),
-          
-          // Real Learning Skill
+            _buildBadge(
+              Icons.school_rounded,
+              'Teaches ${user.teaching!.name}',
+              kPrimary.withValues(alpha: 0.1),
+              kPrimary,
+            ),
+
+          // Learning Skill
           if (user.learning != null)
-            _buildBadge(Icons.auto_awesome_outlined, user.learning!.name,
-                const Color(0xFFF9FAFB), const Color(0xFF475467)),
+            _buildBadge(
+              Icons.auto_awesome_rounded,
+              'Learning ${user.learning!.name}',
+              Colors.white.withValues(alpha: 0.05),
+              Colors.white.withValues(alpha: 0.7),
+            ),
         ],
       ),
     );
@@ -36,22 +49,22 @@ class ProfileBadgesSection extends StatelessWidget {
   Widget _buildBadge(
       IconData icon, String label, Color bgColor, Color textColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: textColor.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: textColor),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+            style: GoogleFonts.dmSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
               color: textColor,
             ),
           ),
