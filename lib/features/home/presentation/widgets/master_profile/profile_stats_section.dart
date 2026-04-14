@@ -6,14 +6,17 @@ class ProfileStatsSection extends StatelessWidget {
   final User user;
   const ProfileStatsSection({super.key, required this.user});
 
+  static const Color kPrimary = Color(0xFFCA8A04);
+  static const Color kSecondary = Colors.white;
+  static const Color kTextMuted = Color(0xFF9CA3AF);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         children: [
-          _buildStatCard('RATING', user.rating.toStringAsFixed(2), '/ 5'),
+          _buildStatCard('RATING', user.rating.toStringAsFixed(1), '/ 5'),
           const SizedBox(width: 12),
           _buildStatCard('SWAPS', '24', ''), // Placeholder for real swap count
           const SizedBox(width: 12),
@@ -26,41 +29,43 @@ class ProfileStatsSection extends StatelessWidget {
   Widget _buildStatCard(String label, String value, String suffix) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F8FF),
-          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFF1C1917),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 9,
+              style: GoogleFonts.dmSans(
+                fontSize: 10,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF667085),
-                letterSpacing: 0.5,
+                color: kPrimary.withValues(alpha: 0.8),
+                letterSpacing: 0.8,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
                     text: value,
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF0B6A7A),
+                      color: Colors.white,
                     ),
                   ),
                   if (suffix.isNotEmpty)
                     TextSpan(
                       text: suffix,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: const Color(0xFF98A2B3),
+                      style: GoogleFonts.dmSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: kTextMuted.withValues(alpha: 0.4),
                       ),
                     ),
                 ],
