@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/features/home/domain/models/message_model.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/features/home/domain/models/review_model.dart';
 
 abstract interface class HomeRepository {
   Future<Either<Failure, List<User>>> getDiscoveryUsers({String? category, String? search});
@@ -26,5 +27,6 @@ abstract interface class HomeRepository {
   Future<Either<Failure, List<User>>> getSentDislikes();
   Future<Either<Failure, User>> getMe();
   Future<Either<Failure, User>> getUserById(String userId);
+  Future<Either<Failure, List<Review>>> getRatings(String userId);
   Future<Either<Failure, User>> updateUserProfile(User user);
 }
