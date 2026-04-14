@@ -234,14 +234,20 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<Either<Failure, Map<String, dynamic>>> createSession({
     required String matchId,
     required DateTime scheduledTime,
+    String? payerId,
   }) async {
     try {
+      final body = {
+        'match_id': matchId,
+        'scheduled_time': scheduledTime.toUtc().toIso8601String(),
+      };
+      if (payerId != null) {
+        body['payer_id'] = payerId;
+      }
+      
       final response = await _apiClient.post(
         ApiConstants.sessions,
-        body: {
-          'match_id': matchId,
-          'scheduled_time': scheduledTime.toUtc().toIso8601String(),
-        },
+        body: body,
       );
       if (response.statusCode == 200) {
         return right(jsonDecode(response.body) as Map<String, dynamic>);
@@ -362,6 +368,38 @@ class HomeRepositoryImpl implements HomeRepository {
           response.statusCode,
           response.body,
           fallbackMessage: 'Failed to fetch ratings',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> submitReview({
+    required String sessionId,
+    required String targetId,
+    required double rating,
+    required String comment,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.ratings,
+        body: {
+          'session_id': sessionId,
+          'target_id': targetId,
+          'rating': rating,
+          'comment': comment,
+        },
+      );
+      if (response.statusCode == 200) {
+        return right(unit);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to submit review',
         ),
       );
     } catch (e) {
