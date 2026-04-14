@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:firebase_database/firebase_database.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/core/network/api_client.dart';
@@ -9,36 +9,29 @@ import 'package:skillswap/features/home/domain/models/message_model.dart';
 import 'package:skillswap/features/home/domain/models/review_model.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   final ApiClient _apiClient;
-  WebSocketChannel? _channel;
+  final FirebaseDatabase _db;
 
-  HomeRepositoryImpl(this._apiClient);
+  HomeRepositoryImpl(this._apiClient, this._db);
 
   @override
-  Stream<Message> getGlobalMessageStream() async* {
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    if (token == null) return;
+  Stream<Message> getGlobalMessageStream() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return const Stream.empty();
 
-    if (_channel != null) {
-      await _channel!.sink.close();
-      _channel = null;
-    }
-
-    final wsUrl = '${ApiConstants.wsBaseUrl}${ApiConstants.messages}/ws/$token';
-    _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
-
-    try {
-      yield* _channel!.stream.map((event) {
-        final data = jsonDecode(event);
-        return Message.fromMap(data);
-      });
-    } finally {
-      _channel?.sink.close();
-      _channel = null;
-    }
+    return _db.ref('global_updates/$uid').onValue
+        .where((event) => event.snapshot.value != null)
+        .map((event) {
+          final data = event.snapshot.value;
+          if (data is Map) {
+            return Message.fromMap(Map<String, dynamic>.from(data));
+          }
+          return null;
+        })
+        .where((msg) => msg != null)
+        .cast<Message>();
   }
 
   @override
