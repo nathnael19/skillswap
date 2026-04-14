@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
+import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 
 class ChatQuickActions extends StatelessWidget {
   final String matchId;
+  final String peerName;
+  final String peerImageUrl;
+  final String currentUserId;
+  final String peerId;
+  final String? currentUserName;
+  final String? currentUserImageUrl;
 
-  const ChatQuickActions({super.key, required this.matchId});
+  const ChatQuickActions({
+    super.key, 
+    required this.matchId,
+    required this.peerName,
+    required this.peerImageUrl,
+    required this.currentUserId,
+    required this.peerId,
+    this.currentUserName,
+    this.currentUserImageUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +57,46 @@ class ChatQuickActions extends StatelessWidget {
               ],
             ),
             const SizedBox(width: 16),
-            _buildActionButton(context, 'Available now', null),
+            _buildActionButton(
+              context, 
+              'Call now', 
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LiveSessionPage(
+                      agenda: const ['Instant Synergy Check'],
+                      sessionId: 'instant_${DateTime.now().millisecondsSinceEpoch}',
+                      peerName: peerName,
+                      peerImageUrl: peerImageUrl,
+                      currentUserId: currentUserId,
+                      peerId: peerId,
+                      currentUserName: currentUserName,
+                      currentUserImageUrl: currentUserImageUrl,
+                    ),
+                  ),
+                );
+              },
+            ),
             const SizedBox(width: 12),
-            _buildActionButton(context, 'Schedule a 30m swap', null),
+            _buildActionButton(
+              context, 
+              'Schedule a 30m swap', 
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ScheduleSessionPage(
+                      matchId: matchId,
+                      peerName: peerName,
+                      peerImageUrl: peerImageUrl,
+                      currentUserId: currentUserId,
+                      peerId: peerId,
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
