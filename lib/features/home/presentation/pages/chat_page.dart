@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
+import 'package:skillswap/features/home/presentation/cubits/presence_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
@@ -88,6 +89,10 @@ class _ChatPageState extends State<ChatPage> {
           create: (context) =>
               serviceLocator<ProfileCubit>()..fetchUserProfile(),
         ),
+        BlocProvider(
+          create: (context) =>
+              PresenceCubit()..watchPeer(widget.userId, widget.matchId),
+        ),
       ],
       child: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, profileState) {
@@ -115,91 +120,100 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    title: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                MasterProfilePage(userId: widget.userId),
+                    title: BlocBuilder<PresenceCubit, PresenceState>(
+                      builder: (context, presenceState) {
+                        final isOnline = presenceState.isOnline;
+                        final isTyping = presenceState.isTyping;
+                        
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    MasterProfilePage(userId: widget.userId),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Stack(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isOnline
+                                            ? accentColor
+                                            : Colors.white.withValues(alpha: 0.1),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage:
+                                          widget.userImageUrl.startsWith('assets')
+                                          ? AssetImage(widget.userImageUrl)
+                                          : NetworkImage(widget.userImageUrl)
+                                                as ImageProvider,
+                                    ),
+                                  ),
+                                  if (isOnline)
+                                    Positioned(
+                                      right: 2,
+                                      bottom: 2,
+                                      child: Container(
+                                        height: 10,
+                                        width: 10,
+                                        decoration: BoxDecoration(
+                                          color: accentColor,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: primaryBgColor,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      widget.userName,
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: -0.3,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      isTyping 
+                                        ? 'TYPING...' 
+                                        : '${widget.userTitle.toUpperCase()} • ${isOnline ? 'ACTIVE NOW' : 'OFFLINE'}',
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        color: isTyping || isOnline
+                                            ? accentColor
+                                            : Colors.white.withValues(alpha: 0.3),
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
-                      child: Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: widget.isOnline
-                                        ? accentColor
-                                        : Colors.white.withValues(alpha: 0.1),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage:
-                                      widget.userImageUrl.startsWith('assets')
-                                      ? AssetImage(widget.userImageUrl)
-                                      : NetworkImage(widget.userImageUrl)
-                                            as ImageProvider,
-                                ),
-                              ),
-                              if (widget.isOnline)
-                                Positioned(
-                                  right: 2,
-                                  bottom: 2,
-                                  child: Container(
-                                    height: 10,
-                                    width: 10,
-                                    decoration: BoxDecoration(
-                                      color: accentColor,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: primaryBgColor,
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  widget.userName,
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${widget.userTitle.toUpperCase()} • ${widget.isOnline ? 'ACTIVE NOW' : 'OFFLINE'}',
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: widget.isOnline
-                                        ? accentColor
-                                        : Colors.white.withValues(alpha: 0.3),
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                     actions: [
                       Container(
@@ -278,6 +292,11 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                         ChatInputBar(
                           controller: _messageController,
+                          onTypingChanged: (isTyping) {
+                            if (context.mounted) {
+                              context.read<PresenceCubit>().setTyping(widget.matchId, isTyping);
+                            }
+                          },
                           onSendTap: () {
                             final content = _messageController.text;
                             if (content.isNotEmpty) {
