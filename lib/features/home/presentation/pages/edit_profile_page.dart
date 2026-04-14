@@ -17,13 +17,12 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   // Premium Color Palette
-  static const Color kPrimary = Color(0xFF7C3AED);
-  static const Color kSecondary = Color(0xFF4C1D95);
-  static const Color kAccent = Color(0xFF22C55E);
-  static const Color kBackground = Color(0xFFFAF5FF);
-  static const Color kCardBg = Colors.white;
-  static const Color kText = Color(0xFF1E1B4B); // Slate 900
-  static const Color kTextMuted = Color(0xFF4B5563); // Gray 600
+  static const Color kBackground = Color(0xFF0C0A09);
+  static const Color kAccent = Color(0xFFCA8A04);
+  static const Color kSurface = Color(0xFF1C1917);
+  static const Color kBorder = Color(0xFF292524);
+  static const Color kText = Colors.white;
+  static const Color kTextMuted = Color(0xFFA8A29E);
 
   late final TextEditingController _nameController;
   late final TextEditingController _locationController;
@@ -67,22 +66,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1C1917),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Add ${type == 'teach' ? 'Teaching' : 'Learning'} Skill',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+          'ADD ${type == 'teach' ? 'TEACHING' : 'LEARNING'} SKILL',
+          style: GoogleFonts.dmSans(
+            fontWeight: FontWeight.w900,
+            fontSize: 14,
+            color: kAccent,
+            letterSpacing: 1.5,
+          ),
         ),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
             hintText: 'Skill name (e.g. Flutter)',
+            hintStyle: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.2)),
             filled: true,
-            fillColor: kBackground,
+            fillColor: Colors.white.withValues(alpha: 0.03),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: kAccent),
             ),
           ),
           autofocus: true,
@@ -106,16 +119,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimary,
+              backgroundColor: kAccent,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
             child: Text(
-              'Add',
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+              'ADD',
+              style: GoogleFonts.dmSans(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
             ),
           ),
         ],
@@ -173,23 +186,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
           return Scaffold(
             backgroundColor: kBackground,
             appBar: AppBar(
-              backgroundColor: kBackground,
+              backgroundColor: Colors.transparent,
               elevation: 0,
               scrolledUnderElevation: 0,
               leading: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: kSecondary,
-                  size: 22,
+                  color: kText,
+                  size: 20,
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
-                'Edit Profile',
+                'EDIT PROFILE',
                 style: GoogleFonts.dmSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: kSecondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: kAccent,
+                  letterSpacing: 2.0,
                 ),
               ),
               centerTitle: true,
@@ -203,7 +217,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: kPrimary,
+                          color: kAccent,
                         ),
                       ),
                     ),
@@ -214,15 +228,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: TextButton(
                       onPressed: _onSave,
                       style: TextButton.styleFrom(
-                        foregroundColor: kPrimary,
+                        foregroundColor: kAccent,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       child: Text(
-                        'Save',
+                        'SAVE',
                         style: GoogleFonts.dmSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: kPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: kAccent,
+                          letterSpacing: 1.0,
                         ),
                       ),
                     ),
@@ -238,11 +253,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _buildAvatarEditor(),
                   const SizedBox(height: 16),
                   Text(
-                    'Update photo',
+                    'UPDATE PHOTO',
                     style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: kPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: kAccent,
+                      letterSpacing: 2.0,
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -274,8 +290,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _buildExpertiseSection(
                     'Teaching',
                     _userSkills.where((s) => s.type == 'teach').toList(),
-                    kPrimary.withValues(alpha: 0.1),
-                    kPrimary,
+                    kAccent.withValues(alpha: 0.1),
+                    kAccent,
                     onAdd: () => _showAddSkillDialog('teach'),
                     onRemove: _removeSkill,
                   ),
@@ -307,7 +323,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: kPrimary.withValues(alpha: 0.1), width: 1),
+        border: Border.all(color: kAccent.withValues(alpha: 0.2), width: 1),
       ),
       child: Stack(
         children: [
@@ -329,9 +345,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               height: 34,
               width: 34,
               decoration: BoxDecoration(
-                color: kPrimary,
+                color: kAccent,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2.5),
+                border: Border.all(color: kBackground, width: 2.5),
               ),
               child: const Icon(
                 Icons.camera_alt_rounded,
@@ -357,20 +373,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            label,
+            label.toUpperCase(),
             style: GoogleFonts.dmSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: kSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: kAccent,
+              letterSpacing: 1.5,
             ),
           ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kSecondary.withValues(alpha: 0.08)),
+            color: Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
           child: Row(
             crossAxisAlignment: maxLines > 1
@@ -382,7 +399,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   padding: const EdgeInsets.only(top: 2),
                   child: Icon(
                     icon,
-                    color: kSecondary.withValues(alpha: 0.4),
+                    color: kAccent.withValues(alpha: 0.4),
                     size: 20,
                   ),
                 ),
@@ -392,7 +409,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: TextField(
                   controller: controller,
                   maxLines: maxLines,
-                  cursorColor: kPrimary,
+                  cursorColor: kAccent,
                   style: GoogleFonts.dmSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -427,11 +444,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              title,
+              title.toUpperCase(),
               style: GoogleFonts.dmSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: kSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: kAccent,
+                letterSpacing: 1.5,
               ),
             ),
             InkWell(
@@ -488,8 +506,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Container(
       padding: const EdgeInsets.only(left: 14, right: 8, top: 8, bottom: 8),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
+        color: kAccent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: kAccent.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -498,11 +517,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
             skill.name,
             style: GoogleFonts.dmSans(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: textColor,
+              fontWeight: FontWeight.w700,
+              color: kAccent,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: () => onRemove(skill),
             child: Icon(
@@ -521,20 +540,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ACCOUNT',
+          'ACCOUNT SETTINGS',
           style: GoogleFonts.dmSans(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: kSecondary.withValues(alpha: 0.4),
-            letterSpacing: 1.2,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: kAccent,
+            letterSpacing: 1.5,
           ),
         ),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: kSecondary.withValues(alpha: 0.05)),
+            color: Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
           child: Column(
             children: [
@@ -542,7 +561,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Divider(
-                  color: kSecondary.withValues(alpha: 0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                   height: 1,
                 ),
               ),
@@ -553,7 +572,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Divider(
-                  color: kSecondary.withValues(alpha: 0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                   height: 1,
                 ),
               ),
@@ -575,10 +594,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: kSecondary.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: kSecondary, size: 20),
+              child: Icon(icon, color: kAccent, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -593,7 +612,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: kSecondary.withValues(alpha: 0.3),
+              color: Colors.white.withValues(alpha: 0.2),
               size: 20,
             ),
           ],
@@ -612,8 +631,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
-                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.logout_rounded,
@@ -642,14 +661,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1C1917),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'Sign Out',
           style: GoogleFonts.dmSans(
-            fontWeight: FontWeight.w800,
-            color: kSecondary,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFFEF4444),
+            letterSpacing: 1.0,
           ),
         ),
         content: Text(
