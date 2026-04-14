@@ -14,12 +14,20 @@ class ScheduleSessionPage extends StatefulWidget {
   final String matchId;
   final String peerName;
   final String peerImageUrl;
+  final String currentUserId;
+  final String peerId;
+  final String? currentUserName;
+  final String? currentUserImageUrl;
 
   const ScheduleSessionPage({
     super.key, 
     required this.matchId,
     required this.peerName,
     required this.peerImageUrl,
+    required this.currentUserId,
+    required this.peerId,
+    this.currentUserName,
+    this.currentUserImageUrl,
   });
 
   @override
@@ -212,6 +220,10 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                         sessionId: id,
                         peerName: widget.peerName,
                         peerImageUrl: widget.peerImageUrl,
+                        currentUserId: widget.currentUserId,
+                        peerId: widget.peerId,
+                        currentUserName: widget.currentUserName,
+                        currentUserImageUrl: widget.currentUserImageUrl,
                       ),
                     ),
                   );
