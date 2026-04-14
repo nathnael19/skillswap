@@ -27,3 +27,30 @@ class ChatError extends ChatState {
   @override
   List<Object?> get props => [message];
 }
+
+class ChatIncomingCall extends ChatMessagesLoaded {
+  final String peerName;
+  final String peerImageUrl;
+  final String peerId;
+
+  const ChatIncomingCall({
+    required List<Message> messages,
+    required this.peerName,
+    required this.peerImageUrl,
+    required this.peerId,
+  }) : super(messages);
+
+  @override
+  List<Object?> get props => [messages, peerName, peerImageUrl, peerId];
+}
+
+class ChatSendError extends ChatMessagesLoaded {
+  final String message;
+  const ChatSendError({
+    required List<Message> messages,
+    required this.message,
+  }) : super(messages);
+
+  @override
+  List<Object?> get props => [messages, message];
+}
