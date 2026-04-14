@@ -8,8 +8,17 @@ import 'package:skillswap/init_dependencies.dart';
 
 class ReviewSessionPage extends StatefulWidget {
   final String? sessionId;
+  final String peerId;
+  final String peerName;
+  final String peerImageUrl;
 
-  const ReviewSessionPage({super.key, this.sessionId});
+  const ReviewSessionPage({
+    super.key, 
+    this.sessionId,
+    required this.peerId,
+    required this.peerName,
+    required this.peerImageUrl,
+  });
 
   @override
   State<ReviewSessionPage> createState() => _ReviewSessionPageState();
@@ -100,7 +109,21 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
           );
         }
       },
-      (_) => _exitAfterComplete(context),
+      (_) async {
+        final reviewComment = _reviewController.text.trim();
+        final endorsementsText = _selectedEndorsements.isNotEmpty 
+            ? '\n[Endorsements: ${_selectedEndorsements.join(', ')}]'
+            : '';
+
+        await repo.submitReview(
+          sessionId: widget.sessionId!,
+          targetId: widget.peerId,
+          rating: _rating.toDouble(),
+          comment: reviewComment + endorsementsText,
+        );
+        
+        if (mounted) _exitAfterComplete(context);
+      },
     );
   }
 
@@ -169,8 +192,8 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
               height: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                image: const DecorationImage(
-                  image: AssetImage('assets/home.png'),
+                image: DecorationImage(
+                  image: NetworkImage(widget.peerImageUrl),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -197,10 +220,10 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Review your session\nwith Sarah',
+          'Review your session\nwith ${widget.peerName}',
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
-            fontSize: 28,
+            fontSize: 28, // Scaled down to prevent overflow
             fontWeight: FontWeight.w800,
             color: const Color(0xFF101828),
           ),
