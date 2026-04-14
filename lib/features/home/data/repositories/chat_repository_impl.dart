@@ -17,7 +17,7 @@ class ChatRepositoryImpl implements ChatRepository {
   final StreamController<dynamic> _globalStreamController = StreamController<dynamic>.broadcast();
   
   StreamSubscription? _signalingSubscription;
-  final Map<String, StreamSubscription> _matchSubscriptions = {};
+  final Map<String, List<StreamSubscription>> _matchSubscriptions = {};
   String? _currentUserUid;
 
   ChatRepositoryImpl(this._apiClient, this._db) {
@@ -58,20 +58,32 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Stream<dynamic> getMessagesStream(String matchId) {
     // Re-init signaling listener if it wasn't set up at construction time
-    // (e.g. if the user wasn't logged in when the repo was first instantiated)
     if (_signalingSubscription == null) {
       _initSignalingListener();
     }
 
     // Check if we are already listening to this match
     if (!_matchSubscriptions.containsKey(matchId)) {
-      _matchSubscriptions[matchId] = _db.ref('messages/$matchId').onChildAdded.listen((event) {
+      final nodeRef = _db.ref('messages/$matchId');
+      
+      final addedSub = nodeRef.onChildAdded.listen((event) {
         final data = event.snapshot.value;
         if (data is Map) {
           final msg = Message.fromMap(Map<String, dynamic>.from(data));
           _globalStreamController.add(msg);
         }
       });
+
+      final changedSub = nodeRef.onChildChanged.listen((event) {
+        final data = event.snapshot.value;
+        if (data is Map) {
+          final msg = Message.fromMap(Map<String, dynamic>.from(data));
+          // Emit updated message (e.g. isRead changed)
+          _globalStreamController.add(msg);
+        }
+      });
+
+      _matchSubscriptions[matchId] = [addedSub, changedSub];
     }
     
     // Return a stream that filters for this specific match or WebRTC signaling
@@ -92,7 +104,6 @@ class ChatRepositoryImpl implements ChatRepository {
     required String content,
   }) async {
     try {
-      // We still call the backend to ensure Firestore archiving and metadata updates
       final response = await _apiClient.post(
         ApiConstants.messages,
         body: {
@@ -110,22 +121,35 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> markMessagesAsRead(String matchId) async {
+    try {
+      final response = await _apiClient.post('${ApiConstants.messages}/read/$matchId');
+      if (response.statusCode == 200) {
+        return right(unit);
+      }
+      return left(ServerFailure('Failed to mark as read: ${response.body}'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   void sendSignalingMessage(Map<String, dynamic> payload) {
     final targetUid = payload['target_uid'];
     if (targetUid == null) return;
 
-    // Stamp sender info
     final senderUid = FirebaseAuth.instance.currentUser?.uid;
     payload['sender_id'] = senderUid;
 
-    // Push to target's signaling queue in RTDB
     _db.ref('signaling/$targetUid').push().set(payload);
   }
 
   void dispose() {
     _signalingSubscription?.cancel();
-    for (var sub in _matchSubscriptions.values) {
-      sub.cancel();
+    for (var subs in _matchSubscriptions.values) {
+      for (var s in subs) {
+        s.cancel();
+      }
     }
     _globalStreamController.close();
   }
