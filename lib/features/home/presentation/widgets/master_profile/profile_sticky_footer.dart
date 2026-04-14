@@ -15,7 +15,13 @@ class ProfileStickyFooter extends StatelessWidget {
   final User user;
   const ProfileStickyFooter({super.key, required this.user});
 
-  void _navigateToChat(BuildContext context, String currentUserId, String matchId) {
+  void _navigateToChat(
+    BuildContext context,
+    String currentUserId,
+    String matchId, {
+    String status = 'mutual',
+    String? payerId,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -26,6 +32,8 @@ class ProfileStickyFooter extends StatelessWidget {
           matchId: matchId,
           userId: user.id,
           currentUserId: currentUserId,
+          status: status,
+          payerId: payerId,
         ),
       ),
     );
@@ -41,8 +49,9 @@ class ProfileStickyFooter extends StatelessWidget {
         actionLabel: "Message Now",
         costLabel: "1 Coin",
         onConfirm: () async {
-          final result = await serviceLocator<HomeRepository>().initPaidChat(user.id);
-          
+          final result =
+              await serviceLocator<HomeRepository>().initPaidChat(user.id);
+
           if (!context.mounted) return;
 
           result.fold(
@@ -57,8 +66,14 @@ class ProfileStickyFooter extends StatelessWidget {
             (matchId) {
               // Refresh credits after spending
               context.read<CreditsCubit>().fetchCredits();
-              
-              _navigateToChat(context, currentUserId, matchId);
+
+              _navigateToChat(
+                context,
+                currentUserId,
+                matchId,
+                status: 'pending',
+                payerId: currentUserId,
+              );
             },
           );
         },
@@ -147,7 +162,13 @@ class ProfileStickyFooter extends StatelessWidget {
                 GestureDetector(
                   onTap: () => handleAction(() {
                     if (user.matchId != null) {
-                      _navigateToChat(context, currentUserId!, user.matchId!);
+                      _navigateToChat(
+                        context,
+                        currentUserId!,
+                        user.matchId!,
+                        status: user.matchStatus ?? 'mutual',
+                        payerId: user.matchPayerId,
+                      );
                     } else {
                       _showPaidMessageDialog(context, currentUserId!);
                     }
