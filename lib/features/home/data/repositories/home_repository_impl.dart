@@ -65,6 +65,28 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> acceptMatch(String matchId) async {
+    try {
+      final response = await _apiClient.post(
+        '${ApiConstants.acceptMatch}/$matchId/accept',
+        body: {},
+      );
+      if (response.statusCode == 200) {
+        return right(unit);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to accept connection',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<User>>> getDiscoveryUsers({
     String? category,
     String? search,
