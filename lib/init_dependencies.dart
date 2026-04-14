@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -95,7 +96,13 @@ void _initAuth() {
 void _initHome() {
   // Repository
   serviceLocator.registerLazySingleton<HomeRepository>(
-    () => HomeRepositoryImpl(serviceLocator<ApiClient>()),
+    () => HomeRepositoryImpl(
+      serviceLocator<ApiClient>(),
+      FirebaseDatabase.instanceFor(
+        app: Firebase.app(),
+        databaseURL: 'https://skillswap-887cc-default-rtdb.firebaseio.com',
+      ),
+    ),
   );
 
   // Cubits
@@ -122,7 +129,13 @@ void _initHome() {
 void _initChat() {
   // Repository
   serviceLocator.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(serviceLocator<ApiClient>()),
+    () => ChatRepositoryImpl(
+      serviceLocator<ApiClient>(),
+      FirebaseDatabase.instanceFor(
+        app: Firebase.app(),
+        databaseURL: 'https://skillswap-887cc-default-rtdb.firebaseio.com',
+      ),
+    ),
   );
 
   // Cubits
