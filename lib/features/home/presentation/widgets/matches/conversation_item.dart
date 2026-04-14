@@ -11,6 +11,7 @@ class ConversationItem extends StatelessWidget {
   final String skillTag;
   final bool isOnline;
   final bool hasUnread;
+  final bool isPaidPending;
   final VoidCallback onTap;
 
   const ConversationItem({
@@ -22,6 +23,7 @@ class ConversationItem extends StatelessWidget {
     required this.skillTag,
     this.isOnline = false,
     this.hasUnread = false,
+    this.isPaidPending = false,
     required this.onTap,
   });
 
@@ -148,25 +150,52 @@ class ConversationItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(
-                            color: accentColor.withValues(alpha: 0.15),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: 0.15),
+                              ),
+                            ),
+                            child: Text(
+                              skillTag.toUpperCase(),
+                              style: GoogleFonts.dmSans(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                color: accentColor,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          skillTag.toUpperCase(),
-                          style: GoogleFonts.dmSans(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: accentColor,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
+                          if (isPaidPending) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.blueAccent.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: Colors.blueAccent.withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: Text(
+                                "DIRECT MESSAGE",
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.blueAccent,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),
