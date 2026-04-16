@@ -2,125 +2,141 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import '../../domain/models/user_model.dart';
 import '../pages/master_profile_page.dart';
-import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:skillswap/core/common/widgets/guest_wall.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 
 class LikesView extends StatelessWidget {
   const LikesView({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     const accentColor = Color(0xFFCA8A04);
 
-    return DefaultTabController(
-      length: 3,
-      child: BlocBuilder<LikesCubit, LikesState>(
-        builder: (context, state) {
-          if (state is LikesLoading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: accentColor,
-                strokeWidth: 2,
-              ),
-            );
-          }
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, authState) {
+        if (authState is! AuthSuccess) {
+          return const GuestWall();
+        }
 
-          if (state is LikesError) {
-            return AppErrorWidget(
-              message: state.message,
-              onRetry: () => context.read<LikesCubit>().fetchLikes(),
-            );
-          }
-
-          if (state is LikesLoaded) {
-            return SafeArea(
-              bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                    child: _buildHeader(),
+        return DefaultTabController(
+          length: 3,
+          child: BlocBuilder<LikesCubit, LikesState>(
+            builder: (context, state) {
+              if (state is LikesLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: accentColor,
+                    strokeWidth: 2,
                   ),
-                  // Premium Glassy TabBar
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-                    ),
-                    child: TabBar(
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicator: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(100),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                );
+              }
+
+              if (state is LikesError) {
+                return AppErrorWidget(
+                  message: state.message,
+                  onRetry: () => context.read<LikesCubit>().fetchLikes(),
+                );
+              }
+
+              if (state is LikesLoaded) {
+                return SafeArea(
+                  bottom: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                        child: _buildHeader(),
                       ),
-                      dividerColor: Colors.transparent,
-                      labelColor: accentColor,
-                      unselectedLabelColor: Colors.white.withValues(alpha: 0.3),
-                      labelStyle: GoogleFonts.dmSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
+                      // Premium Glassy TabBar
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.03),
+                          borderRadius: BorderRadius.circular(100),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.06),
+                          ),
+                        ),
+                        child: TabBar(
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.08),
+                            ),
+                          ),
+                          dividerColor: Colors.transparent,
+                          labelColor: accentColor,
+                          unselectedLabelColor: Colors.white.withValues(
+                            alpha: 0.3,
+                          ),
+                          labelStyle: GoogleFonts.dmSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                          ),
+                          labelPadding: EdgeInsets.zero,
+                          tabs: const [
+                            Tab(text: 'Interests'),
+                            Tab(text: 'Likes'),
+                            Tab(text: 'History'),
+                          ],
+                        ),
                       ),
-                      labelPadding: EdgeInsets.zero,
-                      tabs: const [
-                        Tab(text: 'INTERESTS'),
-                        Tab(text: 'MY LIKES'),
-                        Tab(text: 'HISTORY'),
-                      ],
-                    ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            _buildLikesList(
+                              context,
+                              state.receivedLikes,
+                              'No interests yet',
+                              'When people show interest in your skills, they\'ll appear here.',
+                              isReceived: true,
+                            ),
+                            _buildLikesList(
+                              context,
+                              state.sentLikes,
+                              'No likes sent yet',
+                              'Start exploring and liking expert profiles to connect.',
+                              isSent: true,
+                            ),
+                            _buildLikesList(
+                              context,
+                              state.passedUsers,
+                              'No history',
+                              'Your passed profiles and past activity will show up here.',
+                              isPassed: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildLikesList(
-                          context,
-                          state.receivedLikes,
-                          'The Stage is Set',
-                          'Wait for masters to express interest in your craft and manifest your synergy.',
-                          isReceived: true,
-                        ),
-                        _buildLikesList(
-                          context,
-                          state.sentLikes,
-                          'Path of Discovery',
-                          'Reach out to experts to manifest your journey and build your circle.',
-                          isSent: true,
-                        ),
-                        _buildLikesList(
-                          context,
-                          state.passedUsers,
-                          'Inner Circle Only',
-                          'Your filtration history remains encrypted and private.',
-                          isPassed: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+                );
+              }
 
-          return const SizedBox.shrink();
-        },
-      ),
+              return const SizedBox.shrink();
+            },
+          ),
+        );
+      },
     );
   }
 
   Widget _buildHeader() {
     const accentColor = Color(0xFFCA8A04);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -136,7 +152,7 @@ class LikesView extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              'CURATED FEED',
+              'Your Feed',
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -148,7 +164,7 @@ class LikesView extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Manifest Curation',
+          'Discover Experts',
           style: GoogleFonts.dmSans(
             fontSize: 34,
             fontWeight: FontWeight.w700,
@@ -170,7 +186,7 @@ class LikesView extends StatelessWidget {
     bool isPassed = false,
   }) {
     const accentColor = Color(0xFFCA8A04);
-    
+
     if (users.isEmpty) {
       return RefreshIndicator(
         onRefresh: () async {
@@ -193,7 +209,9 @@ class LikesView extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.02),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.05),
+                      ),
                     ),
                     child: Icon(
                       Icons.auto_awesome_rounded,
@@ -253,7 +271,6 @@ class LikesView extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class LikeCard extends StatelessWidget {
@@ -273,7 +290,7 @@ class LikeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const accentColor = Color(0xFFCA8A04);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
@@ -351,7 +368,7 @@ class LikeCard extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          user.teaching?.name.toUpperCase() ?? 'EXPERT',
+                          user.teaching?.name ?? 'Expert',
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -403,7 +420,8 @@ class LikeCard extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MasterProfilePage(userId: user.id),
+                              builder: (context) =>
+                                  MasterProfilePage(userId: user.id),
                             ),
                           );
                         },
@@ -412,7 +430,9 @@ class LikeCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.08),
+                            ),
                           ),
                           child: Center(
                             child: Text(
@@ -464,7 +484,7 @@ class LikeCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              isPassed ? 'Express Interest' : 'Interconnect',
+                              isPassed ? 'Connect' : 'Connect',
                               style: GoogleFonts.dmSans(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -483,7 +503,9 @@ class LikeCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.transparent,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
                             ),
                             child: Center(
                               child: Text(
@@ -538,7 +560,7 @@ class LikeCard extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                'CANCEL',
+                'Cancel',
                 style: GoogleFonts.dmSans(
                   color: Colors.white.withValues(alpha: 0.2),
                   fontWeight: FontWeight.w800,
@@ -554,14 +576,19 @@ class LikeCard extends StatelessWidget {
                 context.read<MatchesCubit>().fetchMatches();
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Text(
-                  'CONFIRM',
+                  'Confirm',
                   style: GoogleFonts.dmSans(
                     color: const Color(0xFFEF4444),
                     fontWeight: FontWeight.w800,
