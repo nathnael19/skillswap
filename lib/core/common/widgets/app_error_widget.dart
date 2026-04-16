@@ -38,7 +38,7 @@ class AppErrorWidget extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              isAuthError ? "LOGIN REQUIRED" : "SOMETHING WENT WRONG",
+              isAuthError ? "Sign in required" : "Something went wrong",
               style: GoogleFonts.dmSans(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,

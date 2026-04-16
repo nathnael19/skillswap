@@ -90,7 +90,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
                                 const SizedBox(width: 16),
                               ],
                               Text(
-                                widget.label.toUpperCase(),
+                                widget.label,
                                 style: GoogleFonts.dmSans(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w900,
