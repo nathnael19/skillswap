@@ -25,7 +25,7 @@ class MeetingHubSection extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             Text(
-              '3. NEXUS HUB',
+              '3. Meeting Hub',
               style: GoogleFonts.dmSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
@@ -63,7 +63,7 @@ class MeetingHubSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'THE CREATIVE COLLECTIVE',
+                      'The Creative Collective',
                       style: GoogleFonts.dmSans(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -73,7 +73,7 @@ class MeetingHubSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '2.4 MILES AWAY • VIRTUAL SYNC ENABLED',
+                      '2.4 miles away • Virtual session enabled',
                       style: GoogleFonts.dmSans(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,

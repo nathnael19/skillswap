@@ -13,7 +13,7 @@ class ExpertisePortfolio extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('EXPERTISE PORTFOLIO', 'Growth Journey'),
+        _buildSectionTitle('PORTFOLIO', 'Growth Journey'),
         const SizedBox(height: 20),
         // Added Portfolio Projects Section
         Container(
@@ -235,7 +235,7 @@ class ExpertisePortfolio extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  'ME',
+                                  'You',
                                   style: GoogleFonts.dmSans(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w900,
