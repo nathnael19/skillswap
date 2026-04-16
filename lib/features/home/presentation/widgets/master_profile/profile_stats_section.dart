@@ -16,11 +16,11 @@ class ProfileStatsSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         children: [
-          _buildStatCard('RATING', user.rating.toStringAsFixed(1), '/ 5'),
+          _buildStatCard('Rating', user.rating.toStringAsFixed(1), '/ 5'),
           const SizedBox(width: 12),
-          _buildStatCard('SWAPS', '24', ''), // Placeholder for real swap count
+          _buildStatCard('Swaps', '24', ''), // Placeholder for real swap count
           const SizedBox(width: 12),
-          _buildStatCard('RESPONSE', 'Fast', ''), // Placeholder for response time
+          _buildStatCard('Response', 'Fast', ''), // Placeholder for response time
         ],
       ),
     );

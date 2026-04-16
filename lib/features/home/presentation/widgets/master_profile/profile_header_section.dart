@@ -73,7 +73,7 @@ class ProfileHeaderSection extends StatelessWidget {
           Row(
             children: [
               Text(
-                user.profession.toUpperCase(),
+                user.profession,
                 style: GoogleFonts.dmSans(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -89,7 +89,7 @@ class ProfileHeaderSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'MASTER',
+                  'Expert',
                   style: GoogleFonts.dmSans(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -128,7 +128,7 @@ class ProfileHeaderSection extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          isOnline ? 'ONLINE NOW' : 'OFFLINE',
+                          isOnline ? 'Online now' : 'Offline',
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
