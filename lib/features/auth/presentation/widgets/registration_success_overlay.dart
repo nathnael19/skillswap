@@ -118,7 +118,7 @@ class _RegistrationSuccessOverlayState extends State<RegistrationSuccessOverlay>
                         child: Column(
                           children: [
                             Text(
-                              'Welcome to the Nexus',
+                              'Welcome to SkillSwap',
                               style: GoogleFonts.lora(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w600,

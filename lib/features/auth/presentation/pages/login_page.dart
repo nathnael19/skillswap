@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,7 +47,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else if (state is AuthSuccess) {
-            Navigator.of(context).pushAndRemoveUntil(HomePage.route(), (route) => false);
+            Navigator.of(
+              context,
+            ).pushAndRemoveUntil(HomePage.route(), (route) => false);
           }
         },
         builder: (context, state) {
@@ -108,7 +109,9 @@ class _LoginPageState extends State<LoginPage> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Colors.white.withValues(alpha: 0.03),
-                                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.08),
+                                  ),
                                 ),
                                 child: Image.asset(
                                   'assets/logo.png',
@@ -121,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 32),
                           Text(
-                            'SKILLSWAP NEXUS',
+                            'SKILLSWAP',
                             style: GoogleFonts.dmSans(
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
@@ -134,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Manifest Entrance',
+                              'Welcome Back',
                               style: GoogleFonts.dmSans(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w700,
@@ -147,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Please synchronize your credentials to continue.',
+                              'Sign in to your account to continue.',
                               style: GoogleFonts.dmSans(
                                 fontSize: 16,
                                 color: Colors.white.withValues(alpha: 0.4),
@@ -158,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
 
                           // Email Field
                           AuthTextField(
-                            label: 'EMAIL ADDRESS',
+                            label: 'Email Address',
                             controller: emailController,
                             hint: 'master@skillswap.com',
                             icon: Icons.mail_outline_rounded,
@@ -167,18 +170,18 @@ class _LoginPageState extends State<LoginPage> {
 
                           // Password Field
                           AuthTextField(
-                            label: 'SECURE KEY',
+                            label: 'Password',
                             controller: passwordController,
-                            hint: '........',
+                            hint: 'Enter your password',
                             icon: Icons.lock_outline_rounded,
                             isPassword: true,
                           ),
-                          
+
                           const SizedBox(height: 16),
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text(
-                              'FORGOT KEY?',
+                              'Forgot Password?',
                               style: GoogleFonts.dmSans(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
@@ -187,19 +190,19 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 48),
 
                           // Sign In Button
                           AppButton(
-                            label: 'Manifest Synergy',
+                            label: 'Sign In',
                             isLoading: isLoading,
                             onTap: () {
                               if (formKey.currentState!.validate()) {
                                 context.read<AuthCubit>().signIn(
-                                      email: emailController.text.trim(),
-                                      password: passwordController.text.trim(),
-                                    );
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim(),
+                                );
                               }
                             },
                           ),
@@ -208,11 +211,18 @@ class _LoginPageState extends State<LoginPage> {
                           // Divider
                           Row(
                             children: [
-                              Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.05))),
+                              Expanded(
+                                child: Container(
+                                  height: 1,
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                ),
+                              ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20.0,
+                                ),
                                 child: Text(
-                                  'EXTERNAL SOURCE',
+                                  'Or sign in with',
                                   style: GoogleFonts.dmSans(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w900,
@@ -221,7 +231,12 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
-                              Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.05))),
+                              Expanded(
+                                child: Container(
+                                  height: 1,
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 40),
@@ -231,7 +246,7 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Expanded(
                                 child: AuthSocialButton(
-                                  label: 'GOOGLE',
+                                  label: 'Google',
                                   icon: Icons.g_mobiledata_rounded,
                                   onTap: () {},
                                 ),
@@ -239,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: AuthSocialButton(
-                                  label: 'APPLE',
+                                  label: 'Apple',
                                   icon: Icons.apple_rounded,
                                   onTap: () {},
                                 ),
@@ -253,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "New to the Nexus? ",
+                                "New to SkillSwap? ",
                                 style: GoogleFonts.dmSans(
                                   fontSize: 14,
                                   color: Colors.white.withValues(alpha: 0.3),
@@ -261,10 +276,12 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).push(OnboardingPage.route());
+                                  Navigator.of(
+                                    context,
+                                  ).push(OnboardingPage.route());
                                 },
                                 child: Text(
-                                  "Enroll Now",
+                                  "Sign Up",
                                   style: GoogleFonts.dmSans(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
@@ -275,6 +292,19 @@ class _LoginPageState extends State<LoginPage> {
                             ],
                           ),
                           const SizedBox(height: 40),
+                          Padding(
+                            padding: const EdgeInsets.all(32.0),
+                            child: Text(
+                              '© 2026 SkillSwap',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 8,
+                                letterSpacing: 1.5,
+                                color: Colors.white.withValues(alpha: 0.1),
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -284,19 +314,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         },
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Text(
-          '© 2026 THE NEXUS • SKILLSWAP ECOSYSTEM',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.dmSans(
-            fontSize: 8,
-            letterSpacing: 1.5,
-            color: Colors.white.withValues(alpha: 0.1),
-            fontWeight: FontWeight.w800,
-          ),
-        ),
       ),
     );
   }
