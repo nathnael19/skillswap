@@ -136,11 +136,11 @@ class _HomePageState extends State<HomePage> {
             ];
             break;
           case 2:
-            title = "Curation";
+            title = "Likes";
             bodyContent = const LikesView();
             break;
           case 3:
-            title = "Account";
+            title = "Profile";
             bodyContent = const ProfileView();
             actions = [
               Padding(
@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
           child: Scaffold(
             extendBody: true,
             backgroundColor: primaryBgColor,
-            appBar: _selectedIndex == 2
+            appBar: (_selectedIndex == 1 || _selectedIndex == 2 || _selectedIndex == 3)
                 ? null
                 : PreferredSize(
                     preferredSize: const Size.fromHeight(70),
@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                           leadingWidth: 70,
                           leading: leading,
                           title: Text(
-                            title.toUpperCase(),
+                            title,
                             style: GoogleFonts.dmSans(
                               fontWeight: FontWeight.w900,
                               fontSize: 16,
@@ -245,25 +245,25 @@ class _HomePageState extends State<HomePage> {
             children: [
               _NavItem(
                 icon: Icons.auto_awesome_rounded,
-                label: 'DISCOVER',
+                label: 'Discover',
                 isSelected: _selectedIndex == 0,
                 onTap: () => setState(() => _selectedIndex = 0),
               ),
               _NavItem(
                 icon: Icons.handshake_rounded,
-                label: 'MATCHES',
+                label: 'Matches',
                 isSelected: _selectedIndex == 1,
                 onTap: () => setState(() => _selectedIndex = 1),
               ),
               _NavItem(
                 icon: Icons.favorite_rounded,
-                label: 'LIKES',
+                label: 'Likes',
                 isSelected: _selectedIndex == 2,
                 onTap: () => setState(() => _selectedIndex = 2),
               ),
               _NavItem(
                 icon: Icons.person_rounded,
-                label: 'PROFILE',
+                label: 'Profile',
                 isSelected: _selectedIndex == 3,
                 onTap: () => setState(() => _selectedIndex = 3),
               ),

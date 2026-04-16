@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skillswap/features/home/presentation/pages/withdraw_page.dart';
 
 class BalanceHeader extends StatelessWidget {
   final double balance;
@@ -35,7 +36,7 @@ class BalanceHeader extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'AVAILABLE TREASURY',
+              'Available Balance',
               style: GoogleFonts.dmSans(
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
@@ -128,7 +129,7 @@ class BalanceHeader extends StatelessWidget {
                 Expanded(
                   child: _buildActionButton(
                     icon: Icons.add_circle_outline_rounded,
-                    label: 'BUY',
+                    label: 'Top Up',
                     isPrimary: true,
                     onTap: onBuyCredits,
                   ),
@@ -136,10 +137,17 @@ class BalanceHeader extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildActionButton(
-                    icon: Icons.auto_awesome_rounded,
-                    label: 'PERKS',
+                    icon: Icons.payments_rounded,
+                    label: 'Withdraw',
                     isPrimary: false,
-                    onTap: null,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WithdrawPage(currentBalance: balance),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
