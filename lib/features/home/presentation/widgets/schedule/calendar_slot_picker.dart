@@ -43,7 +43,7 @@ class CalendarSlotPicker extends StatelessWidget {
               ),
               const SizedBox(width: 20),
               Text(
-                '1. TEMPORAL SLOT',
+                '1. Choose a Time',
                 style: GoogleFonts.dmSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -83,7 +83,7 @@ class CalendarSlotPicker extends StatelessWidget {
           children: [
             const Icon(Icons.chevron_left_rounded, color: Colors.white24),
             Text(
-              'OCTOBER 2026',
+              'October 2026',
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,

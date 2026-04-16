@@ -69,7 +69,7 @@ class ProfileHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'VERIFIED EXPERT',
+                      'Verified Expert',
                       style: GoogleFonts.dmSans(
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
@@ -95,7 +95,7 @@ class ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '${user.profession.toUpperCase()} • ${user.location.toUpperCase()}',
+          '${user.profession} • ${user.location}',
           style: GoogleFonts.dmSans(
             fontSize: 12,
             fontWeight: FontWeight.w800,
