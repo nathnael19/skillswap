@@ -36,7 +36,7 @@ class MasterProfilePage extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'MASTER PROFILE',
+            'PROFILE',
             style: GoogleFonts.dmSans(
               fontSize: 13,
               fontWeight: FontWeight.w800,

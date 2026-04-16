@@ -70,7 +70,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'ADD ${type == 'teach' ? 'TEACHING' : 'LEARNING'} SKILL',
+          'Add ${type == 'teach' ? 'Skill to Teach' : 'Skill to Learn'}',
           style: GoogleFonts.dmSans(
             fontWeight: FontWeight.w900,
             fontSize: 14,
@@ -127,7 +127,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
             child: Text(
-              'ADD',
+              'Add',
               style: GoogleFonts.dmSans(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
             ),
           ),
@@ -198,7 +198,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
-                'EDIT PROFILE',
+                'Edit Profile',
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
@@ -232,7 +232,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       child: Text(
-                        'SAVE',
+                        'Save',
                         style: GoogleFonts.dmSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -253,7 +253,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _buildAvatarEditor(),
                   const SizedBox(height: 16),
                   Text(
-                    'UPDATE PHOTO',
+                    'Change Photo',
                     style: GoogleFonts.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -373,7 +373,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            label.toUpperCase(),
+            label,
             style: GoogleFonts.dmSans(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -444,7 +444,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              title.toUpperCase(),
+              title,
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -540,7 +540,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ACCOUNT SETTINGS',
+          'Account Settings',
           style: GoogleFonts.dmSans(
             fontSize: 11,
             fontWeight: FontWeight.w900,
