@@ -48,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'THE CURATOR',
+          'SkillSwap',
           style: GoogleFonts.lora(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -103,7 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         children: [
                           const SizedBox(height: 20),
                           Text(
-                            'Create Account',
+                            'Create an Account',
                             style: GoogleFonts.inter(
                               fontSize: 32,
                               fontWeight: FontWeight.w500,
@@ -112,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Step into a space of curated expertise.',
+                            'Join a community where skills meet opportunities.',
                             style: GoogleFonts.lora(
                               fontSize: 14,
                               color: Colors.black54,
@@ -121,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           const SizedBox(height: 40),
 
                             AuthTextField(
-                              label: 'FULL NAME',
+                              label: 'Full Name',
                               controller: nameController,
                               hint: 'Julian Vane',
                               icon: Icons.person_outline,
@@ -129,7 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             const SizedBox(height: 24),
 
                             AuthTextField(
-                              label: 'EMAIL ADDRESS',
+                              label: 'Email Address',
                               controller: emailController,
                               hint: 'julian@nexus.exchange',
                               icon: Icons.mail_outline,
@@ -163,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       confirmPasswordController.text) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Passwords do not match'),
+                                        content: Text("Passwords don't match"),
                                       ),
                                     );
                                     return;
@@ -183,7 +183,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Already part of the community? ",
+                                "Already have an account? ",
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   color: Colors.black54,
@@ -196,7 +196,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ).pushReplacement(LoginPage.route());
                                 },
                                 child: Text(
-                                  "Log In",
+                                  "Log in",
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
@@ -221,7 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Text(
-          '© 2024 THE CURATOR NEXUS EXCHANGE • ALL RIGHTS RESERVED',
+          '© 2026 SkillSwap',
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
             fontSize: 8,
