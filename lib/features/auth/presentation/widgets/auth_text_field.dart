@@ -114,7 +114,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please manifest this core detail';
+                return 'This field is required';
               }
               return null;
             },

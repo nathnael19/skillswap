@@ -13,6 +13,12 @@ abstract interface class HomeRepository {
   Future<Either<Failure, List<User>>> getLikesReceived();
   Future<Either<Failure, Map<String, dynamic>>> getCredits();
   Future<Either<Failure, Map<String, dynamic>>> createBillingCheckout();
+  Future<Either<Failure, Map<String, dynamic>>> requestWithdrawal({
+    required int amountMinor,
+    required String method,
+    required String accountNumber,
+    required String accountName,
+  });
   Future<Either<Failure, Map<String, dynamic>>> createSession({
     required String matchId,
     required DateTime scheduledTime,

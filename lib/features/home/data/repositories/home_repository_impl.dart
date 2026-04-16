@@ -231,6 +231,38 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> requestWithdrawal({
+    required int amountMinor,
+    required String method,
+    required String accountNumber,
+    required String accountName,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.withdraw,
+        body: {
+          'amount_minor': amountMinor,
+          'method': method,
+          'account_number': accountNumber,
+          'account_name': accountName,
+        },
+      );
+      if (response.statusCode == 200) {
+        return right(jsonDecode(response.body) as Map<String, dynamic>);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to request withdrawal',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> createSession({
     required String matchId,
     required DateTime scheduledTime,
