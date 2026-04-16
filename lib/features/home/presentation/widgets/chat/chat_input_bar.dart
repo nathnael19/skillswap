@@ -97,7 +97,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15),
                       cursorColor: accentColor,
                       decoration: InputDecoration(
-                        hintText: 'Manifest a message...',
+                        hintText: 'Type a message...',
                         hintStyle: GoogleFonts.dmSans(
                           color: Colors.white.withValues(alpha: 0.25),
                           fontWeight: FontWeight.w500,

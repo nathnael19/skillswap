@@ -20,7 +20,7 @@ class ReviewsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            label: 'COMMUNITY ECHOES',
+            label: 'REVIEWS',
             title: '${reviews.length} Partner Reviews',
             titleColor: Colors.white,
             labelColor: kPrimary,
