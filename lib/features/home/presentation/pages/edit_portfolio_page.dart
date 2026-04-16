@@ -77,7 +77,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
           side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         title: Text(
-          'NEW PROJECT',
+          'New Project',
           style: GoogleFonts.dmSans(
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -193,7 +193,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
-              'MANAGE PORTFOLIO',
+              'Manage Portfolio',
               style: GoogleFonts.dmSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -217,7 +217,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
                 TextButton(
                   onPressed: _onSave,
                   child: Text(
-                    'DONE',
+                    'Save',
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -257,7 +257,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
           Icon(Icons.auto_awesome_motion_rounded, size: 64, color: Colors.white.withValues(alpha: 0.1)),
           const SizedBox(height: 16),
           Text(
-            'Your Portfolio is Empty',
+            'No projects yet',
             style: GoogleFonts.dmSans(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -332,7 +332,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
           onPressed: _showAddProjectDialog,
           icon: const Icon(Icons.add_rounded),
           label: Text(
-            'ADD NEW PROJECT',
+            'Add Project',
             style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, letterSpacing: 1.0),
           ),
           style: ElevatedButton.styleFrom(

@@ -196,8 +196,8 @@ class _ChatPageState extends State<ChatPage> {
                                     const SizedBox(height: 2),
                                     Text(
                                       isTyping 
-                                        ? 'TYPING...' 
-                                        : '${widget.userTitle.toUpperCase()} • ${isOnline ? 'ACTIVE NOW' : 'OFFLINE'}',
+                                        ? 'typing...' 
+                                        : '${widget.userTitle} • ${isOnline ? 'Active now' : 'Offline'}',
                                       style: GoogleFonts.dmSans(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w800,
@@ -378,7 +378,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'SESSION REQUISITION',
+                    'Session Request',
                     style: GoogleFonts.dmSans(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
@@ -413,7 +413,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             child: Center(
                               child: Text(
-                                'REJECT',
+                                'Decline',
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w900,
@@ -462,7 +462,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             child: Center(
                               child: Text(
-                                'JOIN',
+                                'Accept',
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w900,
@@ -506,7 +506,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                "MESSAGING OFFLINE",
+                "Chat Offline",
                 style: GoogleFonts.dmSans(
                   color: Colors.white30,
                   fontWeight: FontWeight.w800,
@@ -557,7 +557,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'No messages yet. Say hi to ${widget.userName} and manifest your collaboration.',
+                  'No messages yet. Send a message to start the conversation!',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(
                     color: Colors.white.withValues(alpha: 0.3),
@@ -687,7 +687,7 @@ class _ChatPageState extends State<ChatPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                        "Connection Accepted! Match is now permanent.",
+                        "Connection accepted!",
                       ),
                       backgroundColor: accentColor,
                     ),
