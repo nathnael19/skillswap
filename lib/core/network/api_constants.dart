@@ -33,6 +33,7 @@ class ApiConstants {
   
   // Credits
   static const String credits = '/credits';
+  static const String withdraw = '/credits/withdraw';
 
   // Billing
   static const String billingCheckout = '/billing/checkout';

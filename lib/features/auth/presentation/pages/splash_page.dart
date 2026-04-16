@@ -53,7 +53,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        // Minimum display time for the portal experience
+        // Minimum display time for the splash screen
         Timer(const Duration(seconds: 2), () {
           if (!mounted) return;
           Navigator.of(context).pushAndRemoveUntil(
@@ -158,7 +158,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                         const SizedBox(height: 16),
                         // Slogan
                         Text(
-                          'COMMUNAL MASTERY',
+                          'LEARN • TEACH • GROW',
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -169,7 +169,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                         const Spacer(flex: 3),
                         // Manifesto Footer
                         Text(
-                          'MANIFESTED JOURNEYS',
+                          'YOUR JOURNEY STARTS HERE',
                           style: GoogleFonts.dmSans(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
