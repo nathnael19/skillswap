@@ -36,7 +36,7 @@ class TeachingPointsSection extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             Text(
-              '2. MANIFEST TOPICS',
+              '2. Add Topics',
               style: GoogleFonts.dmSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
@@ -79,7 +79,7 @@ class TeachingPointsSection extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Manifest a new teaching point...',
+                    hintText: 'What do you want to learn or teach?',
                     hintStyle: GoogleFonts.dmSans(
                       color: Colors.white.withValues(alpha: 0.2),
                       fontSize: 14,
@@ -127,7 +127,7 @@ class TeachingPointsSection extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            label.toUpperCase(),
+            label,
             style: GoogleFonts.dmSans(
               fontSize: 10,
               fontWeight: FontWeight.w900,
@@ -171,7 +171,7 @@ class TeachingPointsSection extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.1), size: 32),
           const SizedBox(height: 16),
           Text(
-            'EMPTY NEXUS',
+            'No topics yet',
             style: GoogleFonts.dmSans(
               fontSize: 11,
               fontWeight: FontWeight.w900,
@@ -181,7 +181,7 @@ class TeachingPointsSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Suggest topics to sharpen the synergy between both masters.',
+            'Add some topics to help focus your session.',
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
               fontSize: 12,

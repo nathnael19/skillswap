@@ -241,8 +241,9 @@ class _DiscoveryTabState extends State<DiscoveryTab>
   void _nextCard(bool isLiked) {
     final authState = context.read<AuthCubit>().state;
     if (authState is! AuthSuccess) {
-      Navigator.of(context).push(OnboardingPage.route());
+      // Allow visual swiping for guests to explore
       setState(() {
+        _currentIndex++;
         _swipeOffset = Offset.zero;
         _swipeAngle = 0;
         _isAnimatingOffScreen = false;
@@ -412,7 +413,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                             ),
                             const SizedBox(height: 32),
                             Text(
-                              "All Caught Up",
+                              "You're all caught up!",
                               style: GoogleFonts.dmSans(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w700,
@@ -422,7 +423,7 @@ class _DiscoveryTabState extends State<DiscoveryTab>
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              "You've explored all the talent for now. Come back soon for fresh connections.",
+                              "You've seen everyone for now. Check back later for new people to connect with.",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.dmSans(
                                 fontSize: 16,

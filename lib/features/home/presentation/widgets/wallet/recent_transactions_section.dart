@@ -31,7 +31,7 @@ class RecentTransactionsSection extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'MANIFESTED LEDGER',
+                'Transaction History',
                 style: GoogleFonts.dmSans(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -71,7 +71,7 @@ class RecentTransactionsSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'NO RECENT HISTORY',
+            'No history yet',
             style: GoogleFonts.dmSans(
               fontSize: 11,
               fontWeight: FontWeight.w800,
