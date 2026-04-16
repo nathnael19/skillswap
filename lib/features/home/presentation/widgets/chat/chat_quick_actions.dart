@@ -60,7 +60,7 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
           context,
           MaterialPageRoute(
             builder: (context) => LiveSessionPage(
-              agenda: const ['Instant Synergy Check'],
+              agenda: const ['Quick Call'],
               sessionId: id,
               peerName: widget.peerName,
               peerImageUrl: widget.peerImageUrl,
@@ -99,7 +99,7 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'QUICK ACTIONS',
+                  'Quick Actions',
                   style: GoogleFonts.dmSans(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -118,7 +118,7 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
             const SizedBox(width: 12),
             _buildActionButton(
               context, 
-              'Schedule a 30m swap', 
+              'Schedule a Swap', 
               () {
                 Navigator.push(
                   context,
