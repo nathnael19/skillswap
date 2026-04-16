@@ -137,7 +137,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'ENROLLMENT JOURNEY',
+                    'Profile Setup',
                     style: GoogleFonts.dmSans(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
@@ -207,25 +207,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 onPageChanged: (index) => setState(() => _currentStep = index),
                 children: [
                   _buildStep(
-                    title: 'Digital Identity',
-                    subtitle: 'Manifest your profile within the SkillSwap ecosystem.',
+                    title: 'About You',
+                    subtitle: "Let's set up your profile so others can find you.",
                     content: [
                       AuthTextField(
-                        label: 'FULL NAME',
+                        label: 'Full Name',
                         controller: nameController,
                         hint: 'Julian Vane',
                         icon: Icons.person_outline_rounded,
                       ),
                       const SizedBox(height: 24),
                       AuthTextField(
-                        label: 'PROFESSION',
+                        label: 'Profession',
                         controller: professionController,
                         hint: 'UX Designer / Full-stack Dev',
                         icon: Icons.work_outline_rounded,
                       ),
                       const SizedBox(height: 24),
                       AuthTextField(
-                        label: 'LOCATION',
+                        label: 'Location',
                         controller: locationController,
                         hint: 'San Francisco, CA',
                         icon: Icons.location_on_outlined,
@@ -236,24 +236,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         _nextStep();
                       }
                     },
-                    footer: _buildAuthSwitch('Already in the Nexus?', 'Log In', () {
+                    footer: _buildAuthSwitch('Already have an account?', 'Log in', () {
                       Navigator.of(context).push(LoginPage.route());
                     }),
                   ),
                   _buildStep(
-                    title: 'Your Mastery',
-                    subtitle: 'What wisdom will you share with the community?',
+                    title: 'Your Expertise',
+                    subtitle: 'What skills are you excited to teach?',
                     content: [
                       AuthTextField(
-                        label: 'PERSONAL MANIFESTO',
+                        label: 'Bio',
                         controller: bioController,
-                        hint: 'Briefly describe your journey...',
+                        hint: 'Tell us a bit about your journey...',
                         icon: Icons.notes_rounded,
                         maxLines: 4,
                       ),
                       const SizedBox(height: 40),
                       Text(
-                        'SKILLS YOU TEACH',
+                        'SKILLS TO TEACH',
                         style: GoogleFonts.dmSans(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -269,11 +269,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     onContinue: _nextStep,
                   ),
                   _buildStep(
-                    title: 'Growth Vectors',
-                    subtitle: 'What would you like to manifest next?',
+                    title: 'What you want to learn',
+                    subtitle: 'What new skills are you looking to pick up?',
                     content: [
                       Text(
-                        'SKILLS YOU WANT TO LEARN',
+                        'SKILLS TO LEARN',
                         style: GoogleFonts.dmSans(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -289,20 +289,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     onContinue: _nextStep,
                   ),
                   _buildStep(
-                    title: 'Account Manifest',
-                    subtitle: 'Finalize your enrollment in the SkillSwap Nexus.',
+                    title: 'Create Account',
+                    subtitle: 'Almost done! Set your email and password to finish.',
                     content: [
                       AuthTextField(
-                        label: 'EMAIL ADDRESS',
+                        label: 'Email Address',
                         controller: emailController,
                         hint: 'master@skillswap.com',
                         icon: Icons.mail_outline_rounded,
                       ),
                       const SizedBox(height: 24),
                       AuthTextField(
-                        label: 'SECURE KEY',
+                        label: 'Password',
                         controller: passwordController,
-                        hint: '........',
+                        hint: 'Enter your password',
                         icon: Icons.lock_outline_rounded,
                         isPassword: true,
                       ),
@@ -313,7 +313,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       }
                     },
                     isLoading: isLoading,
-                    ctaLabel: 'Complete Enrollment',
+                    ctaLabel: 'Finish Setup',
                   ),
                 ],
               ),
@@ -456,7 +456,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    e.value['name']!.toUpperCase(),
+                    e.value['name']!,
                     style: GoogleFonts.dmSans(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
