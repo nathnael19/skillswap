@@ -309,7 +309,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'WAITING FOR PEER...',
+              'Waiting for expert...',
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -394,7 +394,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'LIVE SYNERGY',
+                    'Live Session',
                     style: GoogleFonts.dmSans(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,

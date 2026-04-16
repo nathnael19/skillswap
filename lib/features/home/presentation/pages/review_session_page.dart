@@ -210,7 +210,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         ),
         const SizedBox(height: 20),
         Text(
-          'SKILL EXCHANGE COMPLETE',
+          'Skill Exchange Complete',
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w800,
@@ -277,7 +277,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ENDORSE SKILLS',
+          'Skill Endorsements',
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w800,
@@ -328,7 +328,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'WHAT DID YOU LEARN?',
+          'What did you learn?',
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w800,
