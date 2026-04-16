@@ -62,7 +62,7 @@ class PremiumActionDialog extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                title.toUpperCase(),
+                title,
                 style: GoogleFonts.dmSans(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,

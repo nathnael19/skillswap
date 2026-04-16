@@ -10,20 +10,20 @@ class RecentActivitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('MY RECENT ACTIVITY', 'Interaction History'),
+        _buildSectionTitle('RECENT ACTIVITY', 'Interaction History'),
         const SizedBox(height: 20),
         _buildActivityItem(
           icon: Icons.menu_book_rounded,
           title: 'Research Workshop',
           subtitle: 'Completed session with Alex R.',
-          time: 'TODAY',
+          time: 'Today',
         ),
         const SizedBox(height: 12),
         _buildActivityItem(
           icon: Icons.reviews_rounded,
           title: 'New Review Received',
           subtitle: 'Elena gave you 5 stars for "Accessibility".',
-          time: '3D AGO',
+          time: '3d ago',
         ),
       ],
     );
