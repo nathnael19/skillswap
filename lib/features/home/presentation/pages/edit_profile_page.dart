@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
+import 'package:skillswap/features/home/presentation/pages/identity_verification_page.dart';
 
 class EditProfilePage extends StatefulWidget {
   final User user;
@@ -568,6 +569,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _buildSettingsTile(
                 Icons.verified_user_outlined,
                 'Identity Verification',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const IdentityVerificationPage(),
+                    ),
+                  );
+                },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -584,9 +593,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildSettingsTile(IconData icon, String title) {
+  Widget _buildSettingsTile(IconData icon, String title, {VoidCallback? onTap}) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
