@@ -163,7 +163,7 @@ class ConversationItem extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              skillTag.toUpperCase(),
+                              skillTag,
                               style: GoogleFonts.dmSans(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
@@ -185,7 +185,7 @@ class ConversationItem extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                "DIRECT MESSAGE",
+                                "Direct Message",
                                 style: GoogleFonts.dmSans(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w900,

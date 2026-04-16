@@ -120,7 +120,7 @@ class SwipeableCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'ONLINE',
+                          'Online',
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -197,13 +197,13 @@ class SwipeableCard extends StatelessWidget {
                       Row(
                         children: [
                           _buildSkillBadge(
-                            label: 'CAN TEACH',
+                            label: 'Can Teach',
                             skill: user.teaching?.name ?? 'Expertise',
                             isPrimary: true,
                           ),
                           const SizedBox(width: 12),
                           _buildSkillBadge(
-                            label: 'LEARNING',
+                            label: 'Wants to Learn',
                             skill: user.learning?.name ?? 'Skills',
                             isPrimary: false,
                           ),
