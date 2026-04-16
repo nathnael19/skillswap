@@ -108,7 +108,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 ),
               ),
               title: Text(
-                'NEXUS APPOINTMENT',
+                'Schedule Swap',
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
@@ -138,9 +138,9 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
               progress: totalProgress,
               currentStep: 2,
               totalSteps: 3,
-              label: 'APPOINTMENT LOGISTICS',
-              title: 'Nexus Synchronization',
-              quote: 'Manifesting the perfect synergy.',
+              label: 'Session Details',
+              title: 'Schedule Your Session',
+              quote: 'Pick a time that works for both of you.',
             ),
             const SizedBox(height: 48),
             CalendarSlotPicker(
@@ -165,7 +165,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: Text(
-                  'BY MANIFESTING, BOTH MASTERS AGREE TO THE NEXUS CODE OF CONDUCT AND ETHICAL SYNERGY',
+                  'By scheduling, both users agree to the SkillSwap Code of Conduct.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(
                     fontSize: 9,
@@ -263,7 +263,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
               const SizedBox(width: 16),
               Text(
-                _creatingSession ? 'SYNCHRONIZING…' : 'MANIFEST SYNERGY',
+                _creatingSession ? 'Scheduling...' : 'Schedule Session',
                 style: GoogleFonts.dmSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,

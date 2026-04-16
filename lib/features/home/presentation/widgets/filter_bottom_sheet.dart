@@ -83,15 +83,15 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionHeader('CURATION', 'Skill Categories'),
+                  _buildSectionHeader('FILTERS', 'Skill Categories'),
                   const SizedBox(height: 20),
                   _buildCategoryChips(),
                   const SizedBox(height: 40),
-                  _buildSectionHeader('MASTERY', 'Expertise Level'),
+                  _buildSectionHeader('EXPERTISE', 'Expertise Level'),
                   const SizedBox(height: 20),
                   _buildExpertiseSegmented(),
                   const SizedBox(height: 40),
-                  _buildSectionHeader('TRUST SCORE', 'Minimum Level'),
+                  _buildSectionHeader('RATING', 'Minimum Level'),
                   const SizedBox(height: 20),
                   _buildRatingSelector(),
                   const SizedBox(height: 48),
@@ -118,7 +118,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           Expanded(
             child: Center(
               child: Text(
-                'FILTERS',
+                'Filters',
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
@@ -137,7 +137,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               });
             },
             child: Text(
-              'RESET',
+              'Reset',
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -372,7 +372,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           ),
         ),
         child: Text(
-          'MANIFEST RESULTS',
+          'Show Results',
           style: GoogleFonts.dmSans(
             fontSize: 15,
             fontWeight: FontWeight.w800,
