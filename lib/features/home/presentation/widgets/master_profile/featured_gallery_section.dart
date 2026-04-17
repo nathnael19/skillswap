@@ -42,7 +42,8 @@ class FeaturedGallerySection extends StatelessWidget {
                 final item = portfolio[index];
                 return Padding(
                   padding: EdgeInsets.only(
-                      right: index == portfolio.length - 1 ? 0 : 16),
+                    right: index == portfolio.length - 1 ? 0 : 16,
+                  ),
                   child: _buildGalleryCard(context, item),
                 );
               },
@@ -76,7 +77,7 @@ class FeaturedGallerySection extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: item.imageUrl!,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) =>
+                      errorWidget: (_, _, _) =>
                           Image.asset('assets/home.png', fit: BoxFit.cover),
                     )
                   : Image.asset('assets/home.png', fit: BoxFit.cover),
@@ -91,7 +92,7 @@ class FeaturedGallerySection extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8)
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                     stops: const [0.5, 1.0],
                   ),
@@ -133,7 +134,8 @@ class FeaturedGallerySection extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (item.githubUrl != null && item.githubUrl!.isNotEmpty) ...[
+                    if (item.githubUrl != null &&
+                        item.githubUrl!.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       GestureDetector(
                         onTap: () async {
@@ -144,18 +146,24 @@ class FeaturedGallerySection extends StatelessWidget {
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1)),
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.code_rounded,
-                                  color: Color(0xFFCA8A04), size: 14),
+                              const Icon(
+                                Icons.code_rounded,
+                                color: Color(0xFFCA8A04),
+                                size: 14,
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 'View Source',
