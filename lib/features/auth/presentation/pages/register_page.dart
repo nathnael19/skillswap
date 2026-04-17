@@ -7,7 +7,7 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
-import 'package:skillswap/features/home/presentation/pages/home_page.dart';
+import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
 
 class RegisterPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
