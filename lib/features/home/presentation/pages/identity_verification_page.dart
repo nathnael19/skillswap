@@ -12,10 +12,7 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
   // Premium Color Palette
   static const Color kBackground = Color(0xFF0C0A09);
   static const Color kAccent = Color(0xFFCA8A04);
-  static const Color kSurface = Color(0xFF1C1917);
-  static const Color kBorder = Color(0xFF292524);
   static const Color kText = Colors.white;
-  static const Color kTextMuted = Color(0xFFA8A29E);
 
   bool _isFrontIdUploaded = false;
   bool _isBackIdUploaded = false;
