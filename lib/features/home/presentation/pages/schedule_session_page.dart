@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
-import 'package:skillswap/features/home/presentation/pages/live_session_page.dart';
-import 'package:skillswap/features/home/presentation/widgets/schedule/calendar_slot_picker.dart';
-import 'package:skillswap/features/home/presentation/widgets/schedule/meeting_hub_section.dart';
-import 'package:skillswap/features/home/presentation/widgets/schedule/session_progress_header.dart';
-import 'package:skillswap/features/home/presentation/widgets/schedule/teaching_points_section.dart';
+import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
+import 'package:skillswap/features/home/presentation/shared/schedule/calendar_slot_picker.dart';
+import 'package:skillswap/features/home/presentation/shared/schedule/meeting_hub_section.dart';
+import 'package:skillswap/features/home/presentation/shared/schedule/session_progress_header.dart';
+import 'package:skillswap/features/home/presentation/shared/schedule/teaching_points_section.dart';
 import 'package:skillswap/init_dependencies.dart';
 
 class ScheduleSessionPage extends StatefulWidget {
