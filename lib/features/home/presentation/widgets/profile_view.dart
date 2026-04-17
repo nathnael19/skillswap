@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
-import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
-import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
+import 'package:skillswap/features/home/presentation/pages/profile/components/expertise_portfolio.dart';
+import 'package:skillswap/features/home/presentation/pages/profile/components/profile_header.dart';
+import 'package:skillswap/features/home/presentation/pages/profile/components/recent_activity_section.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
-import 'package:skillswap/features/home/presentation/widgets/profile/expertise_portfolio.dart';
-import 'package:skillswap/features/home/presentation/widgets/profile/profile_header.dart';
-import 'package:skillswap/features/home/presentation/widgets/profile/recent_activity_section.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
 
