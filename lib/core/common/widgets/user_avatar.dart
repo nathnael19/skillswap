@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A circular avatar with an optional online status dot.
-/// Used in MatchesView, ChatPage, and anywhere user presence is shown.
+/// Used in MatchesPage, ChatPage, and anywhere user presence is shown.
 class UserAvatar extends StatelessWidget {
   final String imageUrl;
   final double radius;
