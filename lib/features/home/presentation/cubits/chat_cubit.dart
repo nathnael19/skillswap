@@ -9,7 +9,7 @@ class ChatCubit extends Cubit<ChatState> {
   StreamSubscription<dynamic>? _messageSubscription;
   List<Message> _messages = [];
 
-  String? _currentMatchId;
+
   String? _currentPeerId;
 
   ChatCubit({required ChatRepository chatRepository})
@@ -17,7 +17,6 @@ class ChatCubit extends Cubit<ChatState> {
         super(ChatInitial());
 
   Future<void> loadMessages(String matchId, String peerId) async {
-    _currentMatchId = matchId;
     _currentPeerId = peerId;
     emit(ChatLoading());
     
