@@ -2,13 +2,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/core/common/widgets/app_button.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
-import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
-import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
-import 'package:skillswap/features/home/presentation/pages/home_page.dart';
+import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
+
+import '../widgets/onboarding/about_you_step.dart';
+import '../widgets/onboarding/expertise_step.dart';
+import '../widgets/onboarding/learning_step.dart';
+import '../widgets/onboarding/account_creation_step.dart';
 
 class OnboardingPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -33,7 +35,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   // Skills State
   final List<Map<String, String>> _skills = [];
-  final TextEditingController _skillInputController = TextEditingController();
 
   @override
   void dispose() {
@@ -44,7 +45,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     bioController.dispose();
     emailController.dispose();
     passwordController.dispose();
-    _skillInputController.dispose();
     super.dispose();
   }
 
@@ -68,17 +68,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  void _addSkill(String type) {
-    if (_skillInputController.text.isNotEmpty) {
-      setState(() {
-        _skills.add({
-          'name': _skillInputController.text,
-          'type': type,
-          'category': 'General',
-        });
-        _skillInputController.clear();
+  void _addSkill(String type, String skillName) {
+    setState(() {
+      _skills.add({
+        'name': skillName,
+        'type': type,
+        'category': 'General',
       });
-    }
+    });
   }
 
   void _removeSkill(int index) {
@@ -206,170 +203,44 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: (index) => setState(() => _currentStep = index),
                 children: [
-                  _buildStep(
-                    title: 'About You',
-                    subtitle: "Let's set up your profile so others can find you.",
-                    content: [
-                      AuthTextField(
-                        label: 'Full Name',
-                        controller: nameController,
-                        hint: 'Julian Vane',
-                        icon: Icons.person_outline_rounded,
-                      ),
-                      const SizedBox(height: 24),
-                      AuthTextField(
-                        label: 'Profession',
-                        controller: professionController,
-                        hint: 'UX Designer / Full-stack Dev',
-                        icon: Icons.work_outline_rounded,
-                      ),
-                      const SizedBox(height: 24),
-                      AuthTextField(
-                        label: 'Location',
-                        controller: locationController,
-                        hint: 'San Francisco, CA',
-                        icon: Icons.location_on_outlined,
-                      ),
-                    ],
+                  AboutYouStep(
+                    nameController: nameController,
+                    professionController: professionController,
+                    locationController: locationController,
                     onContinue: () {
                       if (nameController.text.isNotEmpty && professionController.text.isNotEmpty) {
                         _nextStep();
                       }
                     },
-                    footer: _buildAuthSwitch('Already have an account?', 'Log in', () {
-                      Navigator.of(context).push(LoginPage.route());
-                    }),
                   ),
-                  _buildStep(
-                    title: 'Your Expertise',
-                    subtitle: 'What skills are you excited to teach?',
-                    content: [
-                      AuthTextField(
-                        label: 'Bio',
-                        controller: bioController,
-                        hint: 'Tell us a bit about your journey...',
-                        icon: Icons.notes_rounded,
-                        maxLines: 4,
-                      ),
-                      const SizedBox(height: 40),
-                      Text(
-                        'SKILLS TO TEACH',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white.withValues(alpha: 0.3),
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildSkillInput('teach'),
-                      const SizedBox(height: 24),
-                      _buildSkillWrap('teach'),
-                    ],
+                  ExpertiseStep(
+                    bioController: bioController,
+                    skills: _skills,
+                    onAddSkill: (skill) => _addSkill('teach', skill),
+                    onRemoveSkill: _removeSkill,
                     onContinue: _nextStep,
                   ),
-                  _buildStep(
-                    title: 'What you want to learn',
-                    subtitle: 'What new skills are you looking to pick up?',
-                    content: [
-                      Text(
-                        'SKILLS TO LEARN',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white.withValues(alpha: 0.3),
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildSkillInput('learn'),
-                      const SizedBox(height: 24),
-                      _buildSkillWrap('learn'),
-                    ],
+                  LearningStep(
+                    skills: _skills,
+                    onAddSkill: (skill) => _addSkill('learn', skill),
+                    onRemoveSkill: _removeSkill,
                     onContinue: _nextStep,
                   ),
-                  _buildStep(
-                    title: 'Create Account',
-                    subtitle: 'Almost done! Set your email and password to finish.',
-                    content: [
-                      AuthTextField(
-                        label: 'Email Address',
-                        controller: emailController,
-                        hint: 'master@skillswap.com',
-                        icon: Icons.mail_outline_rounded,
-                      ),
-                      const SizedBox(height: 24),
-                      AuthTextField(
-                        label: 'Password',
-                        controller: passwordController,
-                        hint: 'Enter your password',
-                        icon: Icons.lock_outline_rounded,
-                        isPassword: true,
-                      ),
-                    ],
+                  AccountCreationStep(
+                    emailController: emailController,
+                    passwordController: passwordController,
+                    isLoading: isLoading,
                     onContinue: () {
                       if (emailController.text.isNotEmpty && passwordController.text.length >= 6) {
                         _register();
                       }
                     },
-                    isLoading: isLoading,
-                    ctaLabel: 'Finish Setup',
                   ),
                 ],
               ),
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildStep({
-    required String title,
-    required String subtitle,
-    required List<Widget> content,
-    required VoidCallback onContinue,
-    Widget? footer,
-    bool isLoading = false,
-    String ctaLabel = 'Continue',
-  }) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 140, 24, 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.dmSans(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: -1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            subtitle,
-            style: GoogleFonts.dmSans(
-              fontSize: 16,
-              color: Colors.white.withValues(alpha: 0.4),
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 48),
-          ...content,
-          const SizedBox(height: 56),
-          AppButton(
-            label: ctaLabel,
-            isLoading: isLoading,
-            onTap: onContinue,
-          ),
-          if (footer != null) ...[
-            const SizedBox(height: 32),
-            footer,
-          ],
-        ],
       ),
     );
   }
@@ -393,122 +264,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
         );
       }),
-    );
-  }
-
-  Widget _buildSkillInput(String type) {
-    const accentColor = Color(0xFFCA8A04);
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _skillInputController,
-              style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'e.g. Flutter, Advanced Design...',
-                hintStyle: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.15)),
-                border: InputBorder.none,
-              ),
-              onSubmitted: (_) => _addSkill(type),
-            ),
-          ),
-          GestureDetector(
-            onTap: () => _addSkill(type),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: accentColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSkillWrap(String type) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: _skills
-          .asMap()
-          .entries
-          .where((e) => e.value['type'] == type)
-          .map(
-            (e) => Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    e.value['name']!,
-                    style: GoogleFonts.dmSans(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white.withValues(alpha: 0.6),
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => _removeSkill(e.key),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white24, size: 12),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _buildAuthSwitch(String question, String action, VoidCallback onTap) {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "$question ",
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.3),
-            ),
-          ),
-          GestureDetector(
-            onTap: onTap,
-            child: Text(
-              action,
-              style: GoogleFonts.dmSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
