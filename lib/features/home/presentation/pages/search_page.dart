@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/init_dependencies.dart';
-import 'package:skillswap/features/home/presentation/pages/master_profile_page.dart';
-import '../widgets/expert_card.dart';
+import 'package:skillswap/features/home/presentation/pages/master_profile/master_profile_page.dart';
+import '../shared/expert_card.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
