@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
-import 'package:skillswap/features/home/presentation/pages/home_page.dart';
+import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
