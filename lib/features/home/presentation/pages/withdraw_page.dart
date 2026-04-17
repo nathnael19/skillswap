@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
