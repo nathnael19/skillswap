@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 enum AppButtonVariant { primary, secondary, ghost }
 
@@ -27,7 +27,8 @@ class AppButton extends StatefulWidget {
   State<AppButton> createState() => _AppButtonState();
 }
 
-class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMixin {
+class _AppButtonState extends State<AppButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -38,9 +39,10 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -51,8 +53,8 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    const secondaryColor = Color(0xFFB47B03);
+    const accentColor = AppColors.primary;
+    const secondaryColor = AppColors.primaryDark;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -71,13 +73,13 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
               borderRadius: BorderRadius.circular(widget.borderRadius),
               child: Stack(
                 children: [
-                   Center(
+                  Center(
                     child: widget.isLoading
                         ? const SizedBox(
                             height: 24,
                             width: 24,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               strokeWidth: 2,
                             ),
                           )
@@ -86,17 +88,18 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (widget.leadingIcon != null) ...[
-                                Icon(widget.leadingIcon, color: Colors.white, size: 22),
+                                Icon(
+                                  widget.leadingIcon,
+                                  color: AppColors.textPrimary,
+                                  size: 22,
+                                ),
                                 const SizedBox(width: 16),
                               ],
                               Text(
                                 widget.label,
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  letterSpacing: 2.0,
-                                ),
+                                style: widget.variant == AppButtonVariant.primary
+                                    ? AppTextStyles.buttonPrimary
+                                    : AppTextStyles.buttonSecondary,
                               ),
                             ],
                           ),
@@ -130,16 +133,17 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
         );
       case AppButtonVariant.secondary:
         return BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColors.borderSubtle,
           borderRadius: BorderRadius.circular(widget.borderRadius),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: AppColors.borderDefault),
         );
       case AppButtonVariant.ghost:
         return BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(widget.borderRadius),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: AppColors.borderSubtle),
         );
     }
   }
+
 }

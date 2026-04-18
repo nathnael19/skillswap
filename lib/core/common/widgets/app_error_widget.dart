@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 
 class AppErrorWidget extends StatelessWidget {
@@ -25,14 +26,16 @@ class AppErrorWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isAuthError 
-                    ? const Color(0xFFCA8A04).withValues(alpha: 0.1) 
-                    : const Color(0xFFEF4444).withValues(alpha: 0.1),
+                color: isAuthError
+                    ? AppColors.primary.withValues(alpha: 0.1)
+                    : AppColors.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isAuthError ? Icons.lock_outline_rounded : Icons.error_outline_rounded,
-                color: isAuthError ? const Color(0xFFCA8A04) : const Color(0xFFEF4444),
+                isAuthError
+                    ? Icons.lock_outline_rounded
+                    : Icons.error_outline_rounded,
+                color: isAuthError ? AppColors.primary : AppColors.error,
                 size: 48,
               ),
             ),
@@ -42,30 +45,32 @@ class AppErrorWidget extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 letterSpacing: 1.0,
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              isAuthError 
-                  ? "You need to be logged in to view this content and interact with others." 
+              isAuthError
+                  ? "You need to be logged in to view this content and interact with others."
                   : message,
               textAlign: TextAlign.center,
               style: GoogleFonts.dmSans(
                 fontSize: 16,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColors.overlay60,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: isAuthError 
-                  ? () => Navigator.of(context).push(OnboardingPage.route()) 
+              onPressed: isAuthError
+                  ? () => Navigator.of(context).push(OnboardingPage.route())
                   : onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: isAuthError ? const Color(0xFFCA8A04) : Colors.white.withValues(alpha: 0.1),
-                foregroundColor: Colors.white,
+                backgroundColor: isAuthError
+                    ? AppColors.primary
+                    : AppColors.overlay10,
+                foregroundColor: AppColors.textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
