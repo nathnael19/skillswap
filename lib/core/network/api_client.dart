@@ -2,15 +2,23 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'api_constants.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
 
 class ApiClient {
   final FirebaseAuth _auth;
   final http.Client _client;
   
   String? _cachedToken;
-  DateTime? _tokenExpiry;
 
-  ApiClient(this._auth, this._client);
+  ApiClient(this._auth, this._client) {
+    _auth.idTokenChanges().listen((user) async {
+      if (user != null) {
+        _cachedToken = await user.getIdToken();
+      } else {
+        _cachedToken = null;
+      }
+    });
+  }
 
   Future<Map<String, String>> _getHeaders() async {
     final user = _auth.currentUser;
@@ -18,11 +26,8 @@ class ApiClient {
       return {'Content-Type': 'application/json'};
     }
     
-    // Cache for 45 minutes (Firebase tokens last 60 minutes) to avoid platform channel overhead
-    if (_cachedToken == null || _tokenExpiry == null || DateTime.now().isAfter(_tokenExpiry!)) {
-      _cachedToken = await user.getIdToken();
-      _tokenExpiry = DateTime.now().add(const Duration(minutes: 45));
-    }
+    // Fallback if the stream hasn't populated it yet
+    _cachedToken ??= await user.getIdToken();
 
     return {
       'Content-Type': 'application/json',
@@ -79,5 +84,17 @@ class ApiClient {
     final headers = await _getHeaders();
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     return await _client.delete(uri, headers: headers);
+  }
+
+  Future<http.Response> upload(String endpoint, String filePath, {String fieldName = 'file'}) async {
+    final headers = await _getHeaders();
+    final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    
+    final request = http.MultipartRequest('POST', uri)
+      ..headers.addAll(headers)
+      ..files.add(await http.MultipartFile.fromPath(fieldName, filePath));
+
+    final streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
   }
 }
