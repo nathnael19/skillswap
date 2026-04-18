@@ -46,10 +46,8 @@ class ChatIncomingCall extends ChatMessagesLoaded {
 
 class ChatSendError extends ChatMessagesLoaded {
   final String message;
-  const ChatSendError({
-    required List<Message> messages,
-    required this.message,
-  }) : super(messages);
+  const ChatSendError({required List<Message> messages, required this.message})
+    : super(messages);
 
   @override
   List<Object?> get props => [messages, message];
