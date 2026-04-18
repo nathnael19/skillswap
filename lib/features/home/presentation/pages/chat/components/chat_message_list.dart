@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
 import 'message_bubble.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ChatMessageList extends StatelessWidget {
   final ChatState state;
@@ -26,7 +27,7 @@ class ChatMessageList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (state is ChatLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFCA8A04)),
+        child: CircularProgressIndicator(color: AppColors.primary),
       );
     }
 
@@ -37,26 +38,27 @@ class ChatMessageList extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.cloud_off_rounded,
-                color: Colors.white24,
+                color: AppColors.textPrimary.withValues(alpha: 0.24),
                 size: 48,
               ),
               const SizedBox(height: 16),
               Text(
                 "Chat Offline",
-                style: GoogleFonts.dmSans(
-                  color: Colors.white30,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.textPrimary.withValues(alpha: 0.30),
                   letterSpacing: 1.5,
-                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 (state as ChatError).message,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.dmSans(color: Colors.white24, fontSize: 13),
+                style: GoogleFonts.dmSans(
+                  color: AppColors.textPrimary.withValues(alpha: 0.24),
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -76,12 +78,12 @@ class ChatMessageList extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.03),
+                    color: AppColors.overlay03,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.auto_awesome_rounded,
-                    color: Color(0xFFCA8A04),
+                    color: AppColors.primary,
                     size: 40,
                   ),
                 ),
@@ -91,7 +93,7 @@ class ChatMessageList extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -99,7 +101,7 @@ class ChatMessageList extends StatelessWidget {
                   'No messages yet. Send a message to start the conversation!',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: AppColors.overlay30,
                     height: 1.5,
                   ),
                 ),
@@ -111,8 +113,8 @@ class ChatMessageList extends StatelessWidget {
 
       return RefreshIndicator(
         onRefresh: onRefresh,
-        color: const Color(0xFFCA8A04),
-        backgroundColor: const Color(0xFF1C1917),
+        color: AppColors.primary,
+        backgroundColor: AppColors.surface,
         child: ListView.builder(
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),

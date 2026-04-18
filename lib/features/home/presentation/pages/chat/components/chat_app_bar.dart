@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/presence_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile/master_profile_page.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName;
@@ -27,8 +28,8 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.currentUser,
   });
 
-  static const Color primaryBgColor = Color(0xFF0C0A09);
-  static const Color accentColor = Color(0xFFCA8A04);
+  static const Color primaryBgColor = AppColors.background;
+  static const Color accentColor = AppColors.primary;
 
   @override
   Size get preferredSize => const Size.fromHeight(80);
@@ -45,7 +46,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Colors.white,
+              color: AppColors.textPrimary,
               size: 20,
             ),
             onPressed: () => Navigator.pop(context),
@@ -75,7 +76,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                             border: Border.all(
                               color: isOnline
                                   ? accentColor
-                                  : Colors.white.withValues(alpha: 0.1),
+                                  : AppColors.overlay10,
                               width: 1.5,
                             ),
                           ),
@@ -116,7 +117,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                             style: GoogleFonts.dmSans(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               letterSpacing: -0.3,
                             ),
                           ),
@@ -130,7 +131,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                               fontWeight: FontWeight.w800,
                               color: isTyping || isOnline
                                   ? accentColor
-                                  : Colors.white.withValues(alpha: 0.3),
+                                  : AppColors.overlay30,
                               letterSpacing: 0.8,
                             ),
                           ),
@@ -146,17 +147,15 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             Container(
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.overlay05,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
+                border: Border.all(color: AppColors.overlay08),
               ),
               child: IconButton(
                 icon: const Icon(
                   Icons.calendar_today_rounded,
                   size: 18,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
                 onPressed: () {
                   Navigator.push(
