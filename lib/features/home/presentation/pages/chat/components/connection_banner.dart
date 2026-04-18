@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ConnectionBanner extends StatelessWidget {
   final String userName;
@@ -11,7 +12,7 @@ class ConnectionBanner extends StatelessWidget {
     required this.onAccept,
   });
 
-  static const Color accentColor = Color(0xFFCA8A04);
+  static const Color accentColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class ConnectionBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 100, 16, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1917).withValues(alpha: 0.9),
+        color: AppColors.surface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: accentColor.withValues(alpha: 0.2)),
         boxShadow: [
@@ -57,7 +58,7 @@ class ConnectionBanner extends StatelessWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -65,7 +66,7 @@ class ConnectionBanner extends StatelessWidget {
                       "$userName reached out via paid message.",
                       style: GoogleFonts.dmSans(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: AppColors.overlay40,
                       ),
                     ),
                   ],
@@ -81,7 +82,7 @@ class ConnectionBanner extends StatelessWidget {
               height: 48,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [accentColor, Color(0xFFB47B03)],
+                  colors: [accentColor, AppColors.primaryDark],
                 ),
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -91,7 +92,7 @@ class ConnectionBanner extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),

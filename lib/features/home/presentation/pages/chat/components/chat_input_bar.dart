@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
@@ -30,9 +31,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
       _isTyping = true;
       widget.onTypingChanged?.call(true);
     }
-    
+
     _typingTimer?.cancel();
-    
+
     if (text.isEmpty) {
       if (_isTyping) {
         _isTyping = false;
@@ -40,7 +41,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
       }
       return;
     }
-    
+
     _typingTimer = Timer(const Duration(seconds: 2), () {
       if (_isTyping) {
         _isTyping = false;
@@ -57,25 +58,28 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 16),
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 32,
+            top: 16,
+          ),
           decoration: BoxDecoration(
-            color: const Color(0xFF0C0A09).withValues(alpha: 0.8),
-            border: Border(
-              top: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-            ),
+            color: AppColors.background.withValues(alpha: 0.8),
+            border: Border(top: BorderSide(color: AppColors.overlay08)),
           ),
           child: Row(
             children: [
               IconButton(
                 icon: Icon(
                   Icons.add_circle_outline_rounded,
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: AppColors.overlay30,
                   size: 28,
                 ),
                 onPressed: widget.onAddTap,
@@ -86,20 +90,23 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   height: 54,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.04),
+                    color: AppColors.textPrimary.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(27),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                    border: Border.all(color: AppColors.overlay08),
                   ),
                   child: Center(
                     child: TextField(
                       controller: widget.controller,
                       onChanged: _onTextChanged,
-                      style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15),
+                      style: GoogleFonts.dmSans(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                      ),
                       cursorColor: accentColor,
                       decoration: InputDecoration(
                         hintText: 'Type a message...',
                         hintStyle: GoogleFonts.dmSans(
-                          color: Colors.white.withValues(alpha: 0.25),
+                          color: AppColors.textPrimary.withValues(alpha: 0.25),
                           fontWeight: FontWeight.w500,
                         ),
                         border: InputBorder.none,
@@ -123,7 +130,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   width: 54,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                      colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -136,7 +143,11 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
+                  child: const Icon(
+                    Icons.send_rounded,
+                    color: AppColors.textPrimary,
+                    size: 22,
+                  ),
                 ),
               ),
             ],

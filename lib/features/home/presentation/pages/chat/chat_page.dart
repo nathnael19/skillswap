@@ -12,6 +12,7 @@ import 'components/chat_quick_actions.dart';
 import 'components/connection_banner.dart';
 import 'components/incoming_call_overlay.dart';
 import 'components/chat_message_list.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ChatPage extends StatefulWidget {
   final String userName;
@@ -71,8 +72,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
-    const accentColor = Color(0xFFCA8A04);
+    const primaryBgColor = AppColors.background;
+    const accentColor = AppColors.primary;
 
     return MultiBlocProvider(
       providers: [
