@@ -4,10 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class ReviewInput extends StatelessWidget {
   final TextEditingController controller;
 
-  const ReviewInput({
-    super.key,
-    required this.controller,
-  });
+  const ReviewInput({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {

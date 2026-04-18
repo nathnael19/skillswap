@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
+import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'components/avatar_header.dart';
 import 'components/rating_stars_card.dart';
 import 'components/endorsements_section.dart';
 import 'components/review_input.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ReviewSessionPage extends StatefulWidget {
   final String? sessionId;
@@ -49,11 +51,8 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   }
 
   void _exitAfterComplete(BuildContext context) {
-    final nav = Navigator.of(context);
-    nav.pop();
-    if (widget.sessionId != null) {
-      if (nav.canPop()) nav.pop();
-      if (nav.canPop()) nav.pop();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(context, HomePage.route(), (route) => false);
     }
   }
 
@@ -134,15 +133,15 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.textPrimary,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.textPrimary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Color(0xFF101828), size: 24),
           onPressed: _finishingSession
               ? null
-              : () => _tryCompleteThenExit(),
+              : () => _exitAfterComplete(context),
         ),
         title: Text(
           'Review Session',
@@ -234,7 +233,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   )
                 : Text(
@@ -242,7 +241,7 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
           ),

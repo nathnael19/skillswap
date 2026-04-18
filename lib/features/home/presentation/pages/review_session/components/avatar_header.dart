@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class AvatarHeader extends StatelessWidget {
   final String peerName;
@@ -35,7 +36,11 @@ class AvatarHeader extends StatelessWidget {
                 color: Color(0xFF9E6400),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.stars, color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.stars,
+                color: AppColors.textPrimary,
+                size: 18,
+              ),
             ),
           ],
         ),
