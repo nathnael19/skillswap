@@ -12,6 +12,8 @@ import 'components/empty_discovery_state.dart';
 import 'components/swipeable_card_stack.dart';
 import '../../shared/premium_dialogs.dart';
 import 'package:skillswap/init_dependencies.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({super.key});
@@ -39,9 +41,9 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
       if (_currentIndex < users.length) {
         final targetId = users[_currentIndex].id;
         context.read<DiscoveryCubit>().swipeUser(
-              targetId: targetId,
-              direction: isLiked ? 'like' : 'dislike',
-            );
+          targetId: targetId,
+          direction: isLiked ? 'like' : 'dislike',
+        );
 
         setState(() {
           _currentIndex++;
@@ -85,12 +87,13 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
       builder: (dialogContext) => PremiumActionDialog(
         title: "Instant Connection",
         description:
-            "Connect with ${user.name} immediately for 1 Coin. This will open a permanent chat channel.",
+            "Connect with ${user.name} immediately for ${AppConstants.paidChatCostLabel}. This will open a permanent chat channel.",
         actionLabel: "Message Now",
-        costLabel: "1 Coin",
+        costLabel: AppConstants.paidChatCostLabel,
         onConfirm: () async {
-          final result =
-              await serviceLocator<HomeRepository>().initPaidChat(user.id);
+          final result = await serviceLocator<HomeRepository>().initPaidChat(
+            user.id,
+          );
 
           if (!context.mounted) return;
 
@@ -99,7 +102,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(failure.message),
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: AppColors.error,
                 ),
               );
             },
@@ -135,16 +138,10 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           payerId: user.matchPayerId,
         );
       } else {
-        _showPaidMessageDialog(
-          context,
-          authState.uid,
-          user,
-        );
+        _showPaidMessageDialog(context, authState.uid, user);
       }
     } else {
-      Navigator.of(context).push(
-        OnboardingPage.route(),
-      );
+      Navigator.of(context).push(OnboardingPage.route());
     }
   }
 
@@ -152,7 +149,14 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   Widget build(BuildContext context) {
     return BlocListener<DiscoveryCubit, DiscoveryState>(
       listener: (context, state) {
-        if (state is DiscoveryLoaded) {
+        if (state is DiscoverySwipeError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        } else if (state is DiscoveryLoaded) {
           setState(() {
             _currentIndex = 0;
           });
@@ -163,7 +167,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           if (state is DiscoveryLoading) {
             return const Center(
               child: CircularProgressIndicator(
-                color: Color(0xFFCA8A04),
+                color: AppColors.primary,
                 strokeWidth: 2,
               ),
             );
@@ -185,8 +189,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
               return RefreshIndicator(
                 onRefresh: () =>
                     context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-                color: const Color(0xFFCA8A04),
-                backgroundColor: const Color(0xFF1C1917),
+                color: AppColors.primary,
+                backgroundColor: AppColors.surface,
                 child: const EmptyDiscoveryState(),
               );
             }
@@ -194,8 +198,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             return RefreshIndicator(
               onRefresh: () =>
                   context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-              color: const Color(0xFFCA8A04),
-              backgroundColor: const Color(0xFF1C1917),
+              color: AppColors.primary,
+              backgroundColor: AppColors.surface,
               child: SwipeableCardStack(
                 users: users,
                 currentIndex: _currentIndex,

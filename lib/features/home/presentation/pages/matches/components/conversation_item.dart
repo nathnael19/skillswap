@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/core/network/api_constants.dart';
 
 class ConversationItem extends StatelessWidget {
   final String userName;
@@ -29,20 +30,18 @@ class ConversationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.03),
+          color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
-            width: 1,
-          ),
+          border: Border.all(color: AppColors.borderSubtle, width: 1),
         ),
+
         clipBehavior: Clip.antiAlias,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -57,10 +56,9 @@ class ConversationItem extends StatelessWidget {
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
+                        border: Border.all(color: AppColors.borderSubtle),
                       ),
+
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(22),
                         child: userImageUrl.startsWith('assets')
@@ -71,13 +69,19 @@ class ConversationItem extends StatelessWidget {
                                 fit: BoxFit.cover,
                               )
                             : CachedNetworkImage(
-                                imageUrl: userImageUrl,
+                                imageUrl: userImageUrl.startsWith('/')
+                                    ? '${ApiConstants.mediaBaseUrl}$userImageUrl'
+                                    : userImageUrl,
                                 width: 52,
                                 height: 52,
                                 fit: BoxFit.cover,
                                 errorWidget: (context, error, stackTrace) =>
-                                    Image.asset('assets/home.png',
-                                        width: 52, height: 52, fit: BoxFit.cover),
+                                    Image.asset(
+                                      'assets/home.png',
+                                      width: 52,
+                                      height: 52,
+                                      fit: BoxFit.cover,
+                                    ),
                               ),
                       ),
                     ),
@@ -92,7 +96,7 @@ class ConversationItem extends StatelessWidget {
                             color: accentColor,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: const Color(0xFF0C0A09),
+                              color: AppColors.background,
                               width: 2,
                             ),
                             boxShadow: [
@@ -118,19 +122,15 @@ class ConversationItem extends StatelessWidget {
                         children: [
                           Text(
                             userName,
-                            style: GoogleFonts.dmSans(
-                              fontSize: 16,
+                            style: AppTextStyles.bodyLarge.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: -0.2,
                             ),
                           ),
+
                           Text(
                             timestamp,
-                            style: GoogleFonts.dmSans(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white.withValues(alpha: 0.3),
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -140,21 +140,24 @@ class ConversationItem extends StatelessWidget {
                         lastMessage,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 13,
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: hasUnread
                               ? accentColor
-                              : Colors.white.withValues(alpha: 0.4),
-                          fontWeight:
-                              hasUnread ? FontWeight.w700 : FontWeight.w400,
+                              : AppColors.textSecondary,
+                          fontWeight: hasUnread
+                              ? FontWeight.w700
+                              : FontWeight.w400,
                         ),
                       ),
+
                       const SizedBox(height: 10),
                       Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: accentColor.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(100),
@@ -164,11 +167,8 @@ class ConversationItem extends StatelessWidget {
                             ),
                             child: Text(
                               skillTag,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: accentColor,
-                                letterSpacing: 1.0,
                               ),
                             ),
                           ),
@@ -176,21 +176,25 @@ class ConversationItem extends StatelessWidget {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: Colors.blueAccent.withValues(alpha: 0.1),
+                                color: AppColors.googleBlue.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(100),
+
                                 border: Border.all(
-                                  color: Colors.blueAccent.withValues(alpha: 0.2),
+                                  color: AppColors.googleBlue.withValues(
+                                    alpha: 0.2,
+                                  ),
                                 ),
                               ),
                               child: Text(
                                 "Direct Message",
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.blueAccent,
-                                  letterSpacing: 0.5,
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.googleBlue,
                                 ),
                               ),
                             ),
