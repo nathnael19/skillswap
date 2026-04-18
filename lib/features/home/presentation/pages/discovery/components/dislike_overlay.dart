@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class DislikeOverlay extends StatelessWidget {
   final AnimationController animationController;
@@ -29,16 +30,13 @@ class DislikeOverlay extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: AppColors.overlay10,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
+                    border: Border.all(color: AppColors.overlay30, width: 2),
                   ),
                   child: const Icon(
                     Icons.close_rounded,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     size: 80,
                   ),
                 ),

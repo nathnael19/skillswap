@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class IncomingCallOverlay extends StatelessWidget {
   final ChatIncomingCall state;
@@ -28,7 +29,7 @@ class IncomingCallOverlay extends StatelessWidget {
     required this.userImageUrl,
   });
 
-  static const Color accentColor = Color(0xFFCA8A04);
+  static const Color accentColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +43,9 @@ class IncomingCallOverlay extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 40),
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1917),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                border: Border.all(color: AppColors.overlay10),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -64,9 +65,11 @@ class IncomingCallOverlay extends StatelessWidget {
                         ),
                         child: CircleAvatar(
                           radius: 46,
-                          backgroundImage: state.peerImageUrl.startsWith('assets')
+                          backgroundImage:
+                              state.peerImageUrl.startsWith('assets')
                               ? AssetImage(state.peerImageUrl)
-                              : NetworkImage(state.peerImageUrl) as ImageProvider,
+                              : NetworkImage(state.peerImageUrl)
+                                    as ImageProvider,
                         ),
                       ),
                     ],
@@ -87,7 +90,7 @@ class IncomingCallOverlay extends StatelessWidget {
                     style: GoogleFonts.dmSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -97,13 +100,13 @@ class IncomingCallOverlay extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {
                             context.read<ChatCubit>().rejectCall(
-                                  targetId: state.peerId,
-                                );
+                              targetId: state.peerId,
+                            );
                           },
                           child: Container(
                             height: 56,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: AppColors.overlay05,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Center(
@@ -112,7 +115,7 @@ class IncomingCallOverlay extends StatelessWidget {
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white54,
+                                  color: AppColors.textPrimary.withValues(alpha: 0.54),
                                   letterSpacing: 1.5,
                                 ),
                               ),
@@ -140,15 +143,15 @@ class IncomingCallOverlay extends StatelessWidget {
                               ),
                             );
                             context.read<ChatCubit>().loadMessages(
-                                  matchId,
-                                  userId,
-                                );
+                              matchId,
+                              userId,
+                            );
                           },
                           child: Container(
                             height: 56,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [accentColor, Color(0xFFB47B03)],
+                                colors: [accentColor, AppColors.primaryDark],
                               ),
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -158,7 +161,7 @@ class IncomingCallOverlay extends StatelessWidget {
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                   letterSpacing: 1.5,
                                 ),
                               ),
