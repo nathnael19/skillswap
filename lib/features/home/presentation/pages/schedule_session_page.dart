@@ -9,6 +9,8 @@ import 'package:skillswap/features/home/presentation/shared/schedule/meeting_hub
 import 'package:skillswap/features/home/presentation/shared/schedule/session_progress_header.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/teaching_points_section.dart';
 import 'package:skillswap/init_dependencies.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ScheduleSessionPage extends StatefulWidget {
   final String matchId;
@@ -20,7 +22,7 @@ class ScheduleSessionPage extends StatefulWidget {
   final String? currentUserImageUrl;
 
   const ScheduleSessionPage({
-    super.key, 
+    super.key,
     required this.matchId,
     required this.peerName,
     required this.peerImageUrl,
@@ -36,14 +38,17 @@ class ScheduleSessionPage extends StatefulWidget {
 
 class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
   DateTime? selectedDate = DateTime.now().add(const Duration(days: 1));
-  String? selectedTime = '10:30 AM';
+  String? selectedTime = AppConstants.defaultScheduleTime;
   final List<String> manifestations = [];
   final TextEditingController _topicController = TextEditingController();
   bool _creatingSession = false;
 
+  bool get _isValid =>
+      manifestations.isNotEmpty && _combinedSchedule().isAfter(DateTime.now());
+
   DateTime _combinedSchedule() {
     final d = selectedDate!;
-    final slot = selectedTime ?? '10:30 AM';
+    final slot = selectedTime ?? AppConstants.defaultScheduleTime;
     final timePart = DateFormat.jm().parse(slot);
     return DateTime(d.year, d.month, d.day, timePart.hour, timePart.minute);
   }
@@ -71,13 +76,13 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
+    const primaryBgColor = AppColors.background;
 
     // Calculate sub-progress for Step 2
     double subProgress = 0.0;
     if (selectedDate != null && selectedTime != null) subProgress += 0.5;
     if (manifestations.isNotEmpty) subProgress += 0.5;
-    
+
     // Total progress logic: Discovery (1.0) + Logistics (0.0 to 1.0)
     final totalProgress = (1.0 + subProgress) / 3.0;
 
@@ -99,11 +104,15 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                     height: 48,
                     width: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: AppColors.overlay05,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(color: AppColors.overlay10),
                     ),
-                    child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: AppColors.textPrimary,
+                      size: 20,
+                    ),
                   ),
                 ),
               ),
@@ -112,16 +121,13 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   letterSpacing: 2.0,
                 ),
               ),
               centerTitle: true,
               shape: Border(
-                bottom: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  width: 1,
-                ),
+                bottom: BorderSide(color: AppColors.overlay05, width: 1),
               ),
             ),
           ),
@@ -170,7 +176,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                   style: GoogleFonts.dmSans(
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: AppColors.overlay20,
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -184,11 +190,27 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
   }
 
   Widget _buildConfirmButton(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
+
+    final isValid = _isValid;
 
     return GestureDetector(
-      onTap: _creatingSession
-          ? null
+      onTap: (_creatingSession || !isValid)
+          ? () {
+              if (!isValid && !_creatingSession) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      manifestations.isEmpty
+                          ? 'Please add at least one topic to discuss.'
+                          : 'Please select a future date and time.',
+                      style: GoogleFonts.dmSans(),
+                    ),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            }
           : () async {
               setState(() => _creatingSession = true);
               final repo = serviceLocator<HomeRepository>();
@@ -201,14 +223,19 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
               result.fold(
                 (failure) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(failure.message)),
+                    SnackBar(
+                      content: Text(failure.message),
+                      backgroundColor: AppColors.error,
+                    ),
                   );
                 },
                 (data) {
                   final id = data['id'] as String? ?? '';
                   if (id.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Session created but missing id.')),
+                      const SnackBar(
+                        content: Text('Session created but missing id.'),
+                      ),
                     );
                     return;
                   }
@@ -230,48 +257,64 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 },
               );
             },
-      child: Container(
-        width: double.infinity,
-        height: 72,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [accentColor, Color(0xFFB47B03)],
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: accentColor.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_creatingSession)
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 300),
+        opacity: isValid ? 1.0 : 0.4,
+        child: Container(
+          width: double.infinity,
+          height: 72,
+          decoration: BoxDecoration(
+            gradient: isValid
+                ? const LinearGradient(
+                    colors: [accentColor, AppColors.primaryDark],
+                  )
+                : LinearGradient(
+                    colors: [AppColors.overlay10, AppColors.overlay05],
                   ),
-                )
-              else
-                const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
-              const SizedBox(width: 16),
-              Text(
-                _creatingSession ? 'Scheduling...' : 'Schedule Session',
-                style: GoogleFonts.dmSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 2.0,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: isValid
+                ? [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : [],
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_creatingSession)
+                  const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.textPrimary,
+                    ),
+                  )
+                else
+                  Icon(
+                    isValid
+                        ? Icons.auto_awesome_rounded
+                        : Icons.info_outline_rounded,
+                    color: AppColors.textPrimary,
+                    size: 22,
+                  ),
+                const SizedBox(width: 16),
+                Text(
+                  _creatingSession ? 'Scheduling...' : 'Schedule Session',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimary,
+                    letterSpacing: 2.0,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

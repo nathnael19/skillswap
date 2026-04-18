@@ -8,14 +8,15 @@ abstract class DiscoveryState extends Equatable {
 }
 
 class DiscoveryInitial extends DiscoveryState {}
+
 class DiscoveryLoading extends DiscoveryState {}
 
 class DiscoveryLoaded extends DiscoveryState {
   final List<User> allUsers;
   final List<User> users;
-  
+
   const DiscoveryLoaded({required this.allUsers, required this.users});
-  
+
   @override
   List<Object?> get props => [allUsers, users];
 }
@@ -29,4 +30,15 @@ class DiscoveryError extends DiscoveryState {
   const DiscoveryError(this.message);
   @override
   List<Object?> get props => [message];
+}
+
+class DiscoverySwipeError extends DiscoveryLoaded {
+  final String errorMessage;
+  const DiscoverySwipeError({
+    required super.allUsers,
+    required super.users,
+    required this.errorMessage,
+  });
+  @override
+  List<Object?> get props => [allUsers, users, errorMessage];
 }
