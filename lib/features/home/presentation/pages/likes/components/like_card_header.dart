@@ -1,20 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile/master_profile_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LikeCardHeader extends StatelessWidget {
   final User user;
 
-  const LikeCardHeader({
-    super.key,
-    required this.user,
-  });
+  const LikeCardHeader({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return GestureDetector(
       onTap: () {
@@ -77,24 +74,13 @@ class LikeCardHeader extends StatelessWidget {
                   ),
                   child: Text(
                     user.teaching?.name ?? 'Expert',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: accentColor,
-                      letterSpacing: 1.0,
                     ),
                   ),
                 ),
                 const SizedBox(height: 14),
-                Text(
-                  '${user.name}, ${user.age}',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: -0.8,
-                  ),
-                ),
+                Text('${user.name}, ${user.age}', style: AppTextStyles.h2),
               ],
             ),
           ),

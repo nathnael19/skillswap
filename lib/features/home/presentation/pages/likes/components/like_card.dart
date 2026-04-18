@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
@@ -8,6 +7,7 @@ import 'package:skillswap/features/home/presentation/pages/master_profile/master
 import 'like_card_header.dart';
 import 'like_card_actions.dart';
 import 'retract_confirmation_dialog.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LikeCard extends StatelessWidget {
   final User user;
@@ -25,17 +25,12 @@ class LikeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(36),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.borderSubtle, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -54,12 +49,11 @@ class LikeCard extends StatelessWidget {
                       : user.bio,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.4),
-                    height: 1.6,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
+
                 const SizedBox(height: 32),
                 LikeCardActions(
                   isReceived: isReceived,

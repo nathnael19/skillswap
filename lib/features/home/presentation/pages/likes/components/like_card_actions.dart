@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LikeCardActions extends StatelessWidget {
   final bool isReceived;
@@ -21,7 +21,7 @@ class LikeCardActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Row(
       children: [
@@ -31,19 +31,16 @@ class LikeCardActions extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.borderSubtle,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
+                border: Border.all(color: AppColors.borderDefault),
               ),
+
               child: Center(
                 child: Text(
                   'Profile',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 14,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -57,7 +54,7 @@ class LikeCardActions extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [accentColor, Color(0xFFB47B03)],
+                  colors: [accentColor, AppColors.primaryDark],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -75,7 +72,7 @@ class LikeCardActions extends StatelessWidget {
                 onPressed: onConnectTap,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textPrimary,
                   shadowColor: Colors.transparent,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -84,8 +81,7 @@ class LikeCardActions extends StatelessWidget {
                 ),
                 child: Text(
                   isPassed ? 'Connect' : 'Connect',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 14,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -102,17 +98,14 @@ class LikeCardActions extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
-                  ),
+                  border: Border.all(color: AppColors.borderDefault),
                 ),
+
                 child: Center(
                   child: Text(
                     'Withdraw',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
                     ),
                   ),
                 ),
