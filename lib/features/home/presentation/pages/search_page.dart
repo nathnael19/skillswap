@@ -7,6 +7,8 @@ import 'package:skillswap/features/home/domain/repositories/home_repository.dart
 import 'package:skillswap/init_dependencies.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile/master_profile_page.dart';
 import '../shared/expert_card.dart';
+import 'package:skillswap/core/constants/app_categories.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -17,13 +19,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   String _selectedCategory = 'All';
-  final List<String> _categories = [
-    'All',
-    'Design',
-    'Python',
-    'Cooking',
-    'Business',
-  ];
+  final List<String> _categories = ['All', ...AppCategories.categories];
 
   List<User> _users = [];
   bool _isLoading = false;
@@ -82,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0A09),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,15 +97,13 @@ class _SearchPageState extends State<SearchPage> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: AppColors.overlay05,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
+                        border: Border.all(color: AppColors.overlay10),
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         size: 20,
                       ),
                     ),
@@ -122,25 +116,25 @@ class _SearchPageState extends State<SearchPage> {
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.05),
+                            color: AppColors.overlay05,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.1),
-                            ),
+                            border: Border.all(color: AppColors.overlay10),
                           ),
                           child: TextField(
                             controller: _searchController,
                             onChanged: _onSearchChanged,
-                            style: GoogleFonts.dmSans(color: Colors.white),
+                            style: GoogleFonts.dmSans(
+                              color: AppColors.textPrimary,
+                            ),
                             decoration: InputDecoration(
                               hintText: 'Search skills or experts',
                               hintStyle: GoogleFonts.dmSans(
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: AppColors.overlay30,
                                 fontSize: 15,
                               ),
                               prefixIcon: Icon(
                                 Icons.search_rounded,
-                                color: Colors.white.withValues(alpha: 0.5),
+                                color: AppColors.overlay50,
                               ),
                               suffixIcon: _searchController.text.isNotEmpty
                                   ? GestureDetector(
@@ -150,7 +144,7 @@ class _SearchPageState extends State<SearchPage> {
                                       },
                                       child: Icon(
                                         Icons.close_rounded,
-                                        color: Colors.white.withValues(
+                                        color: AppColors.textPrimary.withValues(
                                           alpha: 0.3,
                                         ),
                                         size: 20,
@@ -194,13 +188,13 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFFCA8A04)
-                            : Colors.white.withValues(alpha: 0.05),
+                            ? AppColors.primary
+                            : AppColors.overlay05,
                         borderRadius: BorderRadius.circular(100),
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFFCA8A04)
-                              : Colors.white.withValues(alpha: 0.1),
+                              ? AppColors.primary
+                              : AppColors.overlay10,
                         ),
                         boxShadow: isSelected
                             ? [
@@ -222,8 +216,8 @@ class _SearchPageState extends State<SearchPage> {
                               ? FontWeight.w700
                               : FontWeight.w500,
                           color: isSelected
-                              ? Colors.white
-                              : Colors.white.withValues(alpha: 0.6),
+                              ? AppColors.textPrimary
+                              : AppColors.overlay60,
                         ),
                       ),
                     ),
@@ -243,7 +237,7 @@ class _SearchPageState extends State<SearchPage> {
                     width: 4,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFCA8A04),
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -256,7 +250,7 @@ class _SearchPageState extends State<SearchPage> {
                         style: GoogleFonts.dmSans(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFFCA8A04),
+                          color: AppColors.primary,
                           letterSpacing: 1.5,
                         ),
                       ),
@@ -267,7 +261,7 @@ class _SearchPageState extends State<SearchPage> {
                         style: GoogleFonts.dmSans(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -284,7 +278,7 @@ class _SearchPageState extends State<SearchPage> {
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFCA8A04),
+                        color: AppColors.primary,
                         strokeWidth: 2,
                       ),
                     )
@@ -292,14 +286,18 @@ class _SearchPageState extends State<SearchPage> {
                   ? Center(
                       child: Text(
                         _errorMessage!,
-                        style: GoogleFonts.dmSans(color: Colors.white70),
+                        style: GoogleFonts.dmSans(
+                          color: AppColors.textPrimary.withValues(alpha: 0.70),
+                        ),
                       ),
                     )
                   : _users.isEmpty
                   ? Center(
                       child: Text(
                         "No experts found.",
-                        style: GoogleFonts.dmSans(color: Colors.white30),
+                        style: GoogleFonts.dmSans(
+                          color: AppColors.textPrimary.withValues(alpha: 0.30),
+                        ),
                       ),
                     )
                   : ListView.builder(
