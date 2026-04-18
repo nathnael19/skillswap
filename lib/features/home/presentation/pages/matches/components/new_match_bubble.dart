@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class NewMatchBubble extends StatelessWidget {
   final String name;
@@ -20,8 +20,8 @@ class NewMatchBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -37,7 +37,11 @@ class NewMatchBubble extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFCA8A04), Color(0xFFB47B03), Colors.transparent],
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primaryDark,
+                        Colors.transparent,
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -52,7 +56,7 @@ class NewMatchBubble extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(2),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF0C0A09),
+                      color: AppColors.background,
                       shape: BoxShape.circle,
                     ),
                     child: Container(
@@ -60,10 +64,11 @@ class NewMatchBubble extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: AppColors.borderSubtle,
                           width: 1,
                         ),
                       ),
+
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(40),
                         child: imageUrl.startsWith('assets')
@@ -79,8 +84,12 @@ class NewMatchBubble extends StatelessWidget {
                                 height: 72,
                                 fit: BoxFit.cover,
                                 errorWidget: (context, error, stackTrace) =>
-                                    Image.asset('assets/home.png',
-                                        width: 72, height: 72, fit: BoxFit.cover),
+                                    Image.asset(
+                                      'assets/home.png',
+                                      width: 72,
+                                      height: 72,
+                                      fit: BoxFit.cover,
+                                    ),
                               ),
                       ),
                     ),
@@ -94,12 +103,16 @@ class NewMatchBubble extends StatelessWidget {
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                          colors: [AppColors.primary, AppColors.primaryDark],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF0C0A09), width: 2),
+                        border: Border.all(
+                          color: AppColors.background,
+                          width: 2,
+                        ),
+
                         boxShadow: [
                           BoxShadow(
                             color: accentColor.withValues(alpha: 0.4),
@@ -108,8 +121,11 @@ class NewMatchBubble extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.star_rounded,
-                          color: Colors.white, size: 12),
+                      child: const Icon(
+                        Icons.star_rounded,
+                        color: AppColors.textPrimary,
+                        size: 12,
+                      ),
                     ),
                   ),
               ],
@@ -117,22 +133,15 @@ class NewMatchBubble extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               name,
-              style: GoogleFonts.dmSans(
-                fontSize: 13,
+              style: AppTextStyles.bodySmall.copyWith(
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: -0.2,
               ),
             ),
+
             const SizedBox(height: 2),
             Text(
               teachingSkill.toUpperCase(),
-              style: GoogleFonts.dmSans(
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                color: accentColor,
-                letterSpacing: 1.0,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: accentColor),
             ),
           ],
         ),

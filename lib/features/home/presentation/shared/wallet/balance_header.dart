@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:skillswap/features/home/presentation/pages/withdraw_page.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class BalanceHeader extends StatelessWidget {
   final double balance;
   final VoidCallback? onBuyCredits;
+
   /// Progress bar target in display credits (purely visual).
   final double progressCapCredits;
 
@@ -13,25 +16,24 @@ class BalanceHeader extends StatelessWidget {
     super.key,
     required this.balance,
     this.onBuyCredits,
-    this.progressCapCredits = 50,
+    this.progressCapCredits = AppConstants.walletProgressCap,
   });
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
     final fmt = NumberFormat('#,##0.##');
     final balanceLabel = fmt.format(balance);
-    final progress =
-        (balance / progressCapCredits).clamp(0.0, 1.0).toDouble();
+    final progress = (balance / progressCapCredits).clamp(0.0, 1.0).toDouble();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.03),
+          color: AppColors.overlay03,
           borderRadius: BorderRadius.circular(40),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: AppColors.overlay08),
         ),
         child: Column(
           children: [
@@ -55,13 +57,13 @@ class BalanceHeader extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 64,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     letterSpacing: -2.0,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'CR',
+                  AppConstants.currencyLabel,
                   style: GoogleFonts.dmSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -79,7 +81,7 @@ class BalanceHeader extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: AppColors.overlay40,
                   ),
                 ),
                 Text(
@@ -97,7 +99,7 @@ class BalanceHeader extends StatelessWidget {
               height: 8,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.overlay05,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Stack(
@@ -107,7 +109,7 @@ class BalanceHeader extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [accentColor, Color(0xFFB47B03)],
+                          colors: [accentColor, AppColors.primaryDark],
                         ),
                         borderRadius: BorderRadius.circular(100),
                         boxShadow: [
@@ -144,7 +146,8 @@ class BalanceHeader extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => WithdrawPage(currentBalance: balance),
+                          builder: (context) =>
+                              WithdrawPage(currentBalance: balance),
                         ),
                       );
                     },
@@ -164,7 +167,7 @@ class BalanceHeader extends StatelessWidget {
     required bool isPrimary,
     VoidCallback? onTap,
   }) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Material(
       color: Colors.transparent,
@@ -176,14 +179,12 @@ class BalanceHeader extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: isPrimary
                 ? const LinearGradient(
-                    colors: [accentColor, Color(0xFFB47B03)],
+                    colors: [accentColor, AppColors.primaryDark],
                   )
                 : null,
-            color: isPrimary ? null : Colors.white.withValues(alpha: 0.05),
+            color: isPrimary ? null : AppColors.overlay05,
             borderRadius: BorderRadius.circular(22),
-            border: isPrimary
-                ? null
-                : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: isPrimary ? null : Border.all(color: AppColors.overlay10),
             boxShadow: isPrimary
                 ? [
                     BoxShadow(
@@ -200,9 +201,7 @@ class BalanceHeader extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isPrimary
-                    ? Colors.white
-                    : Colors.white.withValues(alpha: 0.4),
+                color: isPrimary ? AppColors.textPrimary : AppColors.overlay40,
                 size: 18,
               ),
               const SizedBox(width: 10),
@@ -212,8 +211,8 @@ class BalanceHeader extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   color: isPrimary
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.4),
+                      ? AppColors.textPrimary
+                      : AppColors.overlay40,
                   letterSpacing: 1.5,
                 ),
               ),
