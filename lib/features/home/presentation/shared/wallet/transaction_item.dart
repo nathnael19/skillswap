@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class TransactionItem extends StatelessWidget {
   final Map<String, dynamic> data;
 
-  const TransactionItem({
-    super.key,
-    required this.data,
-  });
+  const TransactionItem({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     final String type = data['type'] ?? 'earn';
     final bool isPositive = const {'earn', 'grant', 'purchase'}.contains(type);
-    final String title = data['description'] ?? (isPositive ? 'Revenue Inflow' : 'Credit Expenditure');
+    final String title =
+        data['description'] ??
+        (isPositive ? 'Revenue Inflow' : 'Credit Expenditure');
     final dynamic displayAmount = data['amount_display'] ?? data['amount'] ?? 0;
     final String amount = displayAmount is num
         ? (displayAmount == displayAmount.roundToDouble()
-            ? displayAmount.toStringAsFixed(0)
-            : displayAmount.toStringAsFixed(2))
+              ? displayAmount.toStringAsFixed(0)
+              : displayAmount.toStringAsFixed(2))
         : displayAmount.toString();
     final String rawTimestamp = data['timestamp'] ?? '';
     final String subtitle = _formatSubtitle(rawTimestamp);
@@ -35,34 +35,36 @@ class TransactionItem extends StatelessWidget {
     } else {
       icon = Icons.auto_awesome_rounded;
     }
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(
+          color: AppColors.textPrimary.withValues(alpha: 0.06),
+        ),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isPositive 
-                ? accentColor.withValues(alpha: 0.1) 
-                : Colors.white.withValues(alpha: 0.05),
+              color: isPositive
+                  ? accentColor.withValues(alpha: 0.1)
+                  : AppColors.overlay05,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isPositive 
-                  ? accentColor.withValues(alpha: 0.2) 
-                  : Colors.white.withValues(alpha: 0.1),
+                color: isPositive
+                    ? accentColor.withValues(alpha: 0.2)
+                    : AppColors.overlay10,
               ),
             ),
             child: Icon(
-              icon, 
-              color: isPositive ? accentColor : Colors.white.withValues(alpha: 0.5), 
-              size: 20
+              icon,
+              color: isPositive ? accentColor : AppColors.overlay50,
+              size: 20,
             ),
           ),
           const SizedBox(width: 20),
@@ -77,7 +79,7 @@ class TransactionItem extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -86,7 +88,7 @@ class TransactionItem extends StatelessWidget {
                   subtitle,
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: AppColors.overlay30,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -99,7 +101,7 @@ class TransactionItem extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: isPositive ? accentColor : Colors.white,
+              color: isPositive ? accentColor : AppColors.textPrimary,
             ),
           ),
         ],

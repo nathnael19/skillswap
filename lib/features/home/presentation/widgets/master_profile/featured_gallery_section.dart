@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/section_header.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class FeaturedGallerySection extends StatelessWidget {
   final List<PortfolioItem> portfolio;
@@ -27,8 +28,8 @@ class FeaturedGallerySection extends StatelessWidget {
             title: 'Portfolio Projects',
             actionLabel: 'View All',
             onActionTap: () {},
-            titleColor: Colors.white,
-            labelColor: const Color(0xFFCA8A04),
+            titleColor: AppColors.textPrimary,
+            labelColor: AppColors.primary,
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -116,7 +117,7 @@ class FeaturedGallerySection extends StatelessWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         letterSpacing: -0.5,
                       ),
                       maxLines: 1,
@@ -128,7 +129,7 @@ class FeaturedGallerySection extends StatelessWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColors.overlay60,
                         height: 1.4,
                       ),
                       maxLines: 2,
@@ -150,18 +151,16 @@ class FeaturedGallerySection extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
+                            color: AppColors.overlay10,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.1),
-                            ),
+                            border: Border.all(color: AppColors.overlay10),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.code_rounded,
-                                color: Color(0xFFCA8A04),
+                                color: AppColors.primary,
                                 size: 14,
                               ),
                               const SizedBox(width: 6),
@@ -170,7 +169,7 @@ class FeaturedGallerySection extends StatelessWidget {
                                 style: GoogleFonts.dmSans(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
