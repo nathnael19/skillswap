@@ -9,6 +9,8 @@ abstract class AuthRepository {
     String? bio,
     String? profession,
     String? location,
+    String? primaryCategory,
+    String? expertiseLevel,
     List<Map<String, dynamic>>? skills,
   });
 
@@ -20,4 +22,6 @@ abstract class AuthRepository {
   Future<Either<Failure, String>> currentUser();
 
   Future<Either<Failure, void>> logout();
+
+  Future<Either<Failure, void>> syncFcmToken(String token);
 }

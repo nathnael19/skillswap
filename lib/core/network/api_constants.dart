@@ -1,11 +1,26 @@
 class ApiConstants {
-  static String get baseUrl => 'https://skillswap-06182658.fastapicloud.dev/api/v1';
-  static String get wsBaseUrl => 'wss://skillswap-06182658.fastapicloud.dev/api/v1';
-  static String get mediaBaseUrl => 'https://skillswap-06182658.fastapicloud.dev';
+  static const String _defaultHost = 'skillswap-06182658.fastapicloud.dev';
+
+  static String get baseUrl => const String.fromEnvironment(
+        'API_BASE_URL',
+        defaultValue: 'https://$_defaultHost/api/v1',
+      );
+  static String get wsBaseUrl => const String.fromEnvironment(
+        'WS_BASE_URL',
+        defaultValue: 'wss://$_defaultHost/api/v1',
+      );
+  static String get mediaBaseUrl => const String.fromEnvironment(
+        'MEDIA_BASE_URL',
+        defaultValue: 'https://$_defaultHost',
+      );
+
+  // App Config
+  static const String appConfig = '/config';
   
   // Auth & Users
   static const String initUser = '/users/init';
   static const String me = '/users/me';
+  static const String updateUser = '/users/me';
   static const String discover = '/users/discover';
   static const String userById = '/users'; // /users/{id}
   
