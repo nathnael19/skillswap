@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class RemoteVideoRenderer extends StatelessWidget {
   final bool isInitialized;
@@ -29,19 +29,16 @@ class RemoteVideoRenderer extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_tethering_rounded,
-              color: Colors.white24,
+              color: AppColors.textPrimary.withValues(alpha: 0.24),
               size: 48,
             ),
             const SizedBox(height: 16),
             Text(
               'Waiting for expert...',
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: Colors.white.withValues(alpha: 0.3),
-                letterSpacing: 2.0,
+              style: AppTextStyles.overline.copyWith(
+                color: AppColors.overlay30,
               ),
             ),
           ],

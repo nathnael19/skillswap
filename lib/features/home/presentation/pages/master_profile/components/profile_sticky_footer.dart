@@ -10,6 +10,8 @@ import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/chat/chat_page.dart';
 import 'package:skillswap/features/home/presentation/shared/premium_dialogs.dart';
 import 'package:skillswap/init_dependencies.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ProfileStickyFooter extends StatelessWidget {
   final User user;
@@ -45,9 +47,9 @@ class ProfileStickyFooter extends StatelessWidget {
       builder: (dialogContext) => PremiumActionDialog(
         title: "Instant Connection",
         description:
-            "Connect with ${user.name} immediately for 1 Coin. This will open a permanent chat channel.",
+            "Connect with ${user.name} immediately for ${AppConstants.paidChatCostLabel}. This will open a permanent chat channel.",
         actionLabel: "Message Now",
-        costLabel: "1 Coin",
+        costLabel: AppConstants.paidChatCostLabel,
         onConfirm: () async {
           final result = await serviceLocator<HomeRepository>().initPaidChat(
             user.id,
@@ -84,8 +86,8 @@ class ProfileStickyFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const kPrimary = Color(0xFFCA8A04);
-    const kBackground = Color(0xFF1C1917);
+    const kPrimary = AppColors.primary;
+    const kBackground = AppColors.surface;
 
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
@@ -120,9 +122,7 @@ class ProfileStickyFooter extends StatelessWidget {
                   offset: const Offset(0, -10),
                 ),
               ],
-              border: Border(
-                top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
-              ),
+              border: Border(top: BorderSide(color: AppColors.overlay05)),
             ),
             child: Row(
               children: [
@@ -135,7 +135,7 @@ class ProfileStickyFooter extends StatelessWidget {
                       height: 60,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                          colors: [AppColors.primary, AppColors.primaryDark],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -154,7 +154,7 @@ class ProfileStickyFooter extends StatelessWidget {
                           style: GoogleFonts.dmSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             letterSpacing: -0.2,
                           ),
                         ),
@@ -181,11 +181,9 @@ class ProfileStickyFooter extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: AppColors.overlay05,
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
+                      border: Border.all(color: AppColors.overlay05),
                     ),
                     child: const Icon(
                       Icons.chat_bubble_rounded,

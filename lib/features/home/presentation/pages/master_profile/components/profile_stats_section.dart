@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ProfileStatsSection extends StatelessWidget {
   final User user;
   const ProfileStatsSection({super.key, required this.user});
 
-  static const Color kPrimary = Color(0xFFCA8A04);
-  static const Color kSecondary = Colors.white;
+  static const Color kPrimary = AppColors.primary;
+  static const Color kSecondary = AppColors.textPrimary;
   static const Color kTextMuted = Color(0xFF9CA3AF);
 
   @override
@@ -20,7 +21,11 @@ class ProfileStatsSection extends StatelessWidget {
           const SizedBox(width: 12),
           _buildStatCard('Swaps', '24', ''), // Placeholder for real swap count
           const SizedBox(width: 12),
-          _buildStatCard('Response', 'Fast', ''), // Placeholder for response time
+          _buildStatCard(
+            'Response',
+            'Fast',
+            '',
+          ), // Placeholder for response time
         ],
       ),
     );
@@ -31,9 +36,9 @@ class ProfileStatsSection extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF1C1917),
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: AppColors.overlay05),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +61,7 @@ class ProfileStatsSection extends StatelessWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   if (suffix.isNotEmpty)
