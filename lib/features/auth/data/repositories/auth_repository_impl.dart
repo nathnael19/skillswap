@@ -19,6 +19,8 @@ class AuthRepositoryImpl implements AuthRepository {
     String? bio,
     String? profession,
     String? location,
+    String? primaryCategory,
+    String? expertiseLevel,
     List<Map<String, dynamic>>? skills,
   }) async {
     try {
@@ -36,10 +38,12 @@ class AuthRepositoryImpl implements AuthRepository {
         body: {
           'name': name,
           'email': email,
-          'bio': ? bio,
-          'profession': ? profession,
-          'location': ? location,
-          'skills': ? skills,
+          'bio': bio,
+          'profession': profession,
+          'location': location,
+          'primary_category': primaryCategory,
+          'expertise_level': expertiseLevel,
+          'skills': skills,
         },
       );
 
@@ -94,6 +98,24 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(ServerFailure('User not logged in.'));
       }
       return right(user.uid);
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> syncFcmToken(String token) async {
+    try {
+      final response = await _apiClient.put(
+        ApiConstants.updateUser,
+        body: {
+          'fcm_tokens': [token],
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return right(null);
+      }
+      return left(ServerFailure('Failed to sync FCM token'));
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }

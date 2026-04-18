@@ -3,26 +3,44 @@ import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
+import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/core/services/presence_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final UserSignUp _userSignUp;
   final UserSignIn _userSignIn;
   final GetCurrentUser _getCurrentUser;
   final UserSignOut _userSignOut;
+  final SyncFcmToken _syncFcmToken;
 
   AuthCubit({
     required UserSignUp userSignUp,
     required UserSignIn userSignIn,
     required GetCurrentUser getCurrentUser,
     required UserSignOut userSignOut,
+    required SyncFcmToken syncFcmToken,
   })  : _userSignUp = userSignUp,
         _userSignIn = userSignIn,
         _getCurrentUser = getCurrentUser,
         _userSignOut = userSignOut,
+        _syncFcmToken = syncFcmToken,
         super(AuthInitial());
+
+  Future<void> _handleFcmToken() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      await messaging.requestPermission();
+      final token = await messaging.getToken();
+      if (token != null) {
+        await _syncFcmToken(SyncFcmTokenParams(token));
+      }
+    } catch (_) {
+      // Gracefully ignore notification setup failures mapping cleanly
+    }
+  }
 
   void getUserData() async {
     final res = await _getCurrentUser();
@@ -31,6 +49,7 @@ class AuthCubit extends Cubit<AuthState> {
       (l) => emit(AuthInitial()),
       (r) {
         PresenceService.instance.goOnline(r);
+        _handleFcmToken();
         emit(AuthSuccess(r));
       },
     );
@@ -43,6 +62,8 @@ class AuthCubit extends Cubit<AuthState> {
     String? bio,
     String? profession,
     String? location,
+    String? primaryCategory,
+    String? expertiseLevel,
     List<Map<String, dynamic>>? skills,
   }) async {
     emit(AuthLoading());
@@ -54,6 +75,8 @@ class AuthCubit extends Cubit<AuthState> {
         bio: bio,
         profession: profession,
         location: location,
+        primaryCategory: primaryCategory,
+        expertiseLevel: expertiseLevel,
         skills: skills,
       ),
     );
@@ -62,6 +85,7 @@ class AuthCubit extends Cubit<AuthState> {
       (l) => emit(AuthFailure(l.message)),
       (r) {
         PresenceService.instance.goOnline(r);
+        _handleFcmToken();
         emit(AuthSuccess(r));
       },
     );
@@ -83,6 +107,7 @@ class AuthCubit extends Cubit<AuthState> {
       (l) => emit(AuthFailure(l.message)),
       (r) {
         PresenceService.instance.goOnline(r);
+        _handleFcmToken();
         emit(AuthSuccess(r));
       },
     );
