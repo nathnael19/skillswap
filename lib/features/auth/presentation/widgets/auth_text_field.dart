@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class AuthTextField extends StatefulWidget {
   final String label;
@@ -47,7 +47,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,11 +55,10 @@ class _AuthTextFieldState extends State<AuthTextField> {
         if (widget.label.isNotEmpty) ...[
           Text(
             widget.label,
-            style: GoogleFonts.dmSans(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: _isFocused ? accentColor : AppColors.textSecondary,
               letterSpacing: 1.5,
-              color: _isFocused ? accentColor : Colors.white.withValues(alpha: 0.3),
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 12),
@@ -67,46 +66,52 @@ class _AuthTextFieldState extends State<AuthTextField> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: _isFocused 
-                  ? accentColor.withValues(alpha: 0.5) 
-                  : Colors.white.withValues(alpha: 0.08),
+              color: _isFocused
+                  ? accentColor.withValues(alpha: 0.5)
+                  : AppColors.borderSubtle,
               width: 1.5,
             ),
-            boxShadow: _isFocused ? [
-              BoxShadow(
-                color: accentColor.withValues(alpha: 0.1),
-                blurRadius: 15,
-                spreadRadius: 2,
-              )
-            ] : [],
+            boxShadow: _isFocused
+                ? [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : [],
           ),
           child: TextFormField(
             controller: widget.controller,
             focusNode: _focusNode,
             obscureText: widget.isPassword,
             maxLines: widget.maxLines,
-            style: GoogleFonts.dmSans(
-              fontSize: 15,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTextStyles.bodyMedium,
             decoration: InputDecoration(
               hintText: widget.hint,
-              hintStyle: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.15)),
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary.withValues(alpha: 0.15),
+              ),
               prefixIcon: widget.iconIsPrefix
-                  ? Icon(widget.icon, 
-                      color: _isFocused ? accentColor : Colors.white.withValues(alpha: 0.2), 
-                      size: 20)
+                  ? Icon(
+                      widget.icon,
+                      color: _isFocused ? accentColor : AppColors.textMuted,
+                      size: 20,
+                    )
                   : null,
               suffixIcon: widget.iconIsPrefix
                   ? null
-                  : Icon(widget.icon, 
-                      color: _isFocused ? accentColor : Colors.white.withValues(alpha: 0.2), 
-                      size: 20),
+                  : Icon(
+                      widget.icon,
+                      color: _isFocused ? accentColor : AppColors.textMuted,
+                      size: 20,
+                    ),
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 20,
