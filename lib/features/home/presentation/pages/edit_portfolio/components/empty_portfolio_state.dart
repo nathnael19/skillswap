@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class EmptyPortfolioState extends StatelessWidget {
   const EmptyPortfolioState({super.key});
@@ -13,7 +14,7 @@ class EmptyPortfolioState extends StatelessWidget {
           Icon(
             Icons.auto_awesome_motion_rounded,
             size: 64,
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppColors.overlay10,
           ),
           const SizedBox(height: 16),
           Text(
@@ -21,16 +22,13 @@ class EmptyPortfolioState extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.3),
+              color: AppColors.overlay30,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Add your best work to show off your skills.',
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
+            style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.overlay20),
           ),
         ],
       ),

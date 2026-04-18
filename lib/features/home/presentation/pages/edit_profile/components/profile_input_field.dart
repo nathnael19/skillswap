@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ProfileInputField extends StatelessWidget {
   final String label;
@@ -15,8 +15,8 @@ class ProfileInputField extends StatelessWidget {
     this.maxLines = 1,
   });
 
-  static const Color kAccent = Color(0xFFCA8A04);
-  static const Color kText = Colors.white;
+  static const Color kAccent = AppColors.primary;
+  static const Color kText = AppColors.textPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -27,20 +27,15 @@ class ProfileInputField extends StatelessWidget {
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
             label,
-            style: GoogleFonts.dmSans(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: kAccent,
-              letterSpacing: 1.5,
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: kAccent),
           ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: Row(
             crossAxisAlignment: maxLines > 1
@@ -63,11 +58,7 @@ class ProfileInputField extends StatelessWidget {
                   controller: controller,
                   maxLines: maxLines,
                   cursorColor: kAccent,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: kText,
-                  ),
+                  style: AppTextStyles.bodyMedium,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     isDense: true,
