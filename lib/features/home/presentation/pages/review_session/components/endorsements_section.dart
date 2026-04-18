@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class EndorsementsSection extends StatelessWidget {
   final List<String> endorsementOptions;
@@ -41,10 +42,9 @@ class EndorsementsSection extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color:
-                      isSelected
-                          ? const Color(0xFF0B6A7A)
-                          : const Color(0xFFE4E7EC).withValues(alpha: 0.5),
+                  color: isSelected
+                      ? const Color(0xFF0B6A7A)
+                      : const Color(0xFFE4E7EC).withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -52,7 +52,9 @@ class EndorsementsSection extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : const Color(0xFF475467),
+                    color: isSelected
+                        ? AppColors.textPrimary
+                        : const Color(0xFF475467),
                   ),
                 ),
               ),

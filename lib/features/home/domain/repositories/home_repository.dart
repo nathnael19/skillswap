@@ -44,4 +44,5 @@ abstract interface class HomeRepository {
   Future<Either<Failure, User>> getUserById(String userId);
   Future<Either<Failure, List<Review>>> getRatings(String userId);
   Future<Either<Failure, User>> updateUserProfile(User user);
+  Future<Either<Failure, String>> uploadImage(String filePath);
 }

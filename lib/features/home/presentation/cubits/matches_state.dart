@@ -14,9 +14,9 @@ class MatchesLoading extends MatchesState {}
 class MatchesLoaded extends MatchesState {
   final List<Conversation> matches;
   final Map<String, bool> onlineStatuses;
-  
+
   const MatchesLoaded(this.matches, {this.onlineStatuses = const {}});
-  
+
   @override
   List<Object?> get props => [matches, onlineStatuses];
 }
