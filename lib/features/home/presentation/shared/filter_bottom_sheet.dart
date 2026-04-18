@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/core/constants/app_categories.dart';
 
 import 'filter/category_selector.dart';
 import 'filter/expertise_segmented_control.dart';
@@ -28,16 +30,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   late String _tempExpertise;
   late double _tempRating;
 
-  final List<String> _categories = [
-    'Design',
-    'Development',
-    'Marketing',
-    'Writing',
-    'Business',
-    'Data Science',
-  ];
+  final List<String> _categories = AppCategories.categories;
 
-  final List<String> _expertiseLevels = ['Beginner', 'Intermediate', 'Expert'];
+  final List<String> _expertiseLevels = AppCategories.expertiseLevels;
 
   @override
   void initState() {
@@ -49,8 +44,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
-    
+    const primaryBgColor = AppColors.background;
+
     return Container(
       decoration: const BoxDecoration(
         color: primaryBgColor,
@@ -69,17 +64,14 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               width: 48,
               height: 5,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: AppColors.overlay10,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
           const SizedBox(height: 8),
           _buildHeader(),
-          Container(
-            height: 1,
-            color: Colors.white.withValues(alpha: 0.05),
-          ),
+          Container(height: 1, color: AppColors.overlay05),
           Flexible(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -143,7 +135,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+            icon: const Icon(
+              Icons.close_rounded,
+              color: AppColors.textPrimary,
+              size: 24,
+            ),
           ),
           Expanded(
             child: Center(
@@ -152,7 +148,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   letterSpacing: 2.0,
                 ),
               ),
@@ -161,9 +157,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           TextButton(
             onPressed: () {
               setState(() {
-                _tempCategories = ['Design'];
-                _tempExpertise = 'Intermediate';
-                _tempRating = 4.0;
+                _tempCategories = [];
+                _tempExpertise = 'All';
+                _tempRating = 0.0;
               });
             },
             child: Text(
@@ -171,7 +167,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
                 letterSpacing: 1.0,
               ),
             ),
@@ -192,7 +188,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               width: 3,
               height: 12,
               decoration: BoxDecoration(
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -202,7 +198,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               style: GoogleFonts.dmSans(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
                 letterSpacing: 1.2,
               ),
             ),
@@ -214,7 +210,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           style: GoogleFonts.dmSans(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
@@ -227,14 +223,14 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+          colors: [AppColors.primary, AppColors.primaryDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFCA8A04).withValues(alpha: 0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -247,7 +243,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.textPrimary,
           shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(vertical: 20),
           shape: RoundedRectangleBorder(

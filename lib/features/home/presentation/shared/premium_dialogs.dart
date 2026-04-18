@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class PremiumActionDialog extends StatelessWidget {
   final String title;
@@ -20,7 +21,7 @@ class PremiumActionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const kPrimary = Color(0xFFCA8A04);
+    const kPrimary = AppColors.primary;
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
@@ -30,12 +31,9 @@ class PremiumActionDialog extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1917).withValues(alpha: 0.8),
+            color: AppColors.surface.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(32),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 1,
-            ),
+            border: Border.all(color: AppColors.overlay10, width: 1),
             boxShadow: [
               BoxShadow(
                 color: kPrimary.withValues(alpha: 0.1),
@@ -66,7 +64,7 @@ class PremiumActionDialog extends StatelessWidget {
                 style: GoogleFonts.dmSans(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   letterSpacing: -0.5,
                 ),
                 textAlign: TextAlign.center,
@@ -76,13 +74,13 @@ class PremiumActionDialog extends StatelessWidget {
                 description,
                 style: GoogleFonts.dmSans(
                   fontSize: 15,
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: AppColors.overlay60,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              
+
               // Action Button
               GestureDetector(
                 onTap: () {
@@ -94,7 +92,7 @@ class PremiumActionDialog extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [kPrimary, Color(0xFFB47B03)],
+                      colors: [kPrimary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -113,7 +111,7 @@ class PremiumActionDialog extends StatelessWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -126,7 +124,7 @@ class PremiumActionDialog extends StatelessWidget {
                   "Maybe Later",
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: AppColors.overlay30,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

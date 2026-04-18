@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class RatingSelector extends StatelessWidget {
   final double currentRating;
@@ -16,11 +17,9 @@ class RatingSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: AppColors.overlay08),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -34,10 +33,12 @@ class RatingSelector extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 6.0),
                   child: Icon(
-                    isHighlighted ? Icons.star_rounded : Icons.star_outline_rounded,
+                    isHighlighted
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
                     color: isHighlighted
-                        ? const Color(0xFFCA8A04)
-                        : Colors.white.withValues(alpha: 0.2),
+                        ? AppColors.primary
+                        : AppColors.overlay20,
                     size: 30,
                   ),
                 ),
@@ -47,7 +48,7 @@ class RatingSelector extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -55,7 +56,7 @@ class RatingSelector extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
               ),
             ),
           ),
