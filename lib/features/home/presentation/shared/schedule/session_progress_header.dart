@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class SessionProgressHeader extends StatelessWidget {
   final double progress;
@@ -21,7 +22,7 @@ class SessionProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -46,7 +47,7 @@ class SessionProgressHeader extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -55,9 +56,9 @@ class SessionProgressHeader extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.overlay05,
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                border: Border.all(color: AppColors.overlay10),
               ),
               child: Row(
                 children: [
@@ -74,7 +75,7 @@ class SessionProgressHeader extends StatelessWidget {
                     style: GoogleFonts.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: AppColors.overlay30,
                     ),
                   ),
                 ],
@@ -87,7 +88,7 @@ class SessionProgressHeader extends StatelessWidget {
         Container(
           height: 6,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: AppColors.overlay05,
             borderRadius: BorderRadius.circular(100),
           ),
           child: Stack(
@@ -98,7 +99,7 @@ class SessionProgressHeader extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [accentColor, Color(0xFFB47B03)],
+                      colors: [accentColor, AppColors.primaryDark],
                     ),
                     borderRadius: BorderRadius.circular(100),
                     boxShadow: [
@@ -121,7 +122,7 @@ class SessionProgressHeader extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w500,
             fontStyle: FontStyle.italic,
-            color: Colors.white.withValues(alpha: 0.4),
+            color: AppColors.overlay40,
             height: 1.5,
           ),
         ),

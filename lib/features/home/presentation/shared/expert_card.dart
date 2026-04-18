@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/network/api_constants.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ExpertCard extends StatelessWidget {
   final User user;
@@ -22,12 +24,9 @@ class ExpertCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.overlay08, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: BackdropFilter(
@@ -44,11 +43,12 @@ class ExpertCard extends StatelessWidget {
                     padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(color: AppColors.overlay10),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: user.imageUrl.startsWith('http') ||
+                      child:
+                          user.imageUrl.startsWith('http') ||
                               user.imageUrl.startsWith('/static')
                           ? CachedNetworkImage(
                               imageUrl: user.imageUrl.startsWith('/')
@@ -73,7 +73,7 @@ class ExpertCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  
+
                   // Content
                   Expanded(
                     child: Column(
@@ -88,7 +88,7 @@ class ExpertCard extends StatelessWidget {
                                 style: GoogleFonts.dmSans(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                   letterSpacing: -0.5,
                                 ),
                               ),
@@ -103,19 +103,19 @@ class ExpertCard extends StatelessWidget {
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFFCA8A04),
+                            color: AppColors.primary,
                             letterSpacing: 1.2,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           user.bio.isEmpty
-                              ? 'Passionate about sharing skills and growing together.'
+                              ? AppConstants.defaultBio
                               : user.bio,
                           style: GoogleFonts.dmSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w400,
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: AppColors.overlay50,
                             height: 1.5,
                           ),
                           maxLines: 2,
@@ -127,7 +127,7 @@ class ExpertCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               // Actions
               Row(
                 children: [
@@ -135,14 +135,14 @@ class ExpertCard extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                          colors: [AppColors.primary, AppColors.primaryDark],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFCA8A04).withValues(alpha: 0.2),
+                            color: AppColors.primary.withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -152,7 +152,7 @@ class ExpertCard extends StatelessWidget {
                         onPressed: onRequestMatch,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.textPrimary,
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -185,21 +185,21 @@ class ExpertCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFCA8A04).withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: Color(0xFFCA8A04), size: 14),
+          const Icon(Icons.star_rounded, color: AppColors.primary, size: 14),
           const SizedBox(width: 4),
           Text(
             rating.toStringAsFixed(1),
             style: GoogleFonts.dmSans(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFFCA8A04),
+              color: AppColors.primary,
             ),
           ),
         ],
@@ -210,16 +210,18 @@ class ExpertCard extends StatelessWidget {
   Widget _buildLikeButton() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: AppColors.overlay05,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: AppColors.overlay10),
       ),
       child: IconButton(
         onPressed: onLike,
-        icon: const Icon(Icons.favorite_outline_rounded, color: Colors.white, size: 20),
-        style: IconButton.styleFrom(
-          padding: const EdgeInsets.all(12),
+        icon: const Icon(
+          Icons.favorite_outline_rounded,
+          color: AppColors.textPrimary,
+          size: 20,
         ),
+        style: IconButton.styleFrom(padding: const EdgeInsets.all(12)),
       ),
     );
   }

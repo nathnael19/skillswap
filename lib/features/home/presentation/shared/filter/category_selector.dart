@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class CategorySelector extends StatelessWidget {
   final List<String> categories;
@@ -27,13 +28,13 @@ class CategorySelector extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFFCA8A04).withValues(alpha: 0.1)
-                  : Colors.white.withValues(alpha: 0.03),
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : AppColors.overlay03,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected
-                    ? const Color(0xFFCA8A04).withValues(alpha: 0.4)
-                    : Colors.white.withValues(alpha: 0.08),
+                    ? AppColors.primary.withValues(alpha: 0.4)
+                    : AppColors.overlay08,
                 width: 1.5,
               ),
             ),
@@ -42,7 +43,7 @@ class CategorySelector extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? const Color(0xFFCA8A04) : Colors.white.withValues(alpha: 0.6),
+                color: isSelected ? AppColors.primary : AppColors.overlay60,
               ),
             ),
           ),
