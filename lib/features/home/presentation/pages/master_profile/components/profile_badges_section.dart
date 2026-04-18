@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ProfileBadgesSection extends StatelessWidget {
   final User user;
   const ProfileBadgesSection({super.key, required this.user});
 
-  static const Color kPrimary = Color(0xFFCA8A04);
+  static const Color kPrimary = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +39,8 @@ class ProfileBadgesSection extends StatelessWidget {
             _buildBadge(
               Icons.auto_awesome_rounded,
               'Learning ${user.learning!.name}',
-              Colors.white.withValues(alpha: 0.05),
-              Colors.white.withValues(alpha: 0.7),
+              AppColors.overlay05,
+              AppColors.overlay70,
             ),
         ],
       ),
@@ -47,7 +48,11 @@ class ProfileBadgesSection extends StatelessWidget {
   }
 
   Widget _buildBadge(
-      IconData icon, String label, Color bgColor, Color textColor) {
+    IconData icon,
+    String label,
+    Color bgColor,
+    Color textColor,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(

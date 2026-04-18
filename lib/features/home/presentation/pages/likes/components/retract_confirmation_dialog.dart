@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class RetractConfirmationDialog extends StatelessWidget {
   final User user;
@@ -18,25 +19,22 @@ class RetractConfirmationDialog extends StatelessWidget {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
       child: AlertDialog(
-        backgroundColor: const Color(0xFF0C0A09).withValues(alpha: 0.9),
+        backgroundColor: AppColors.background.withValues(alpha: 0.9),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(32),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          side: BorderSide(color: AppColors.overlay10),
         ),
         title: Text(
           'Withdraw interest for ${user.name}?',
           style: GoogleFonts.dmSans(
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
         content: Text(
           'This action is final and will remove ${user.name} from your curated feed.',
-          style: GoogleFonts.dmSans(
-            color: Colors.white.withValues(alpha: 0.4),
-            height: 1.5,
-          ),
+          style: GoogleFonts.dmSans(color: AppColors.overlay40, height: 1.5),
         ),
         actions: [
           TextButton(
@@ -44,7 +42,7 @@ class RetractConfirmationDialog extends StatelessWidget {
             child: Text(
               'Cancel',
               style: GoogleFonts.dmSans(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppColors.overlay20,
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
                 letterSpacing: 1.5,
@@ -57,21 +55,18 @@ class RetractConfirmationDialog extends StatelessWidget {
               onConfirm();
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                  color: AppColors.error.withValues(alpha: 0.2),
                 ),
               ),
               child: Text(
                 'Confirm',
                 style: GoogleFonts.dmSans(
-                  color: const Color(0xFFEF4444),
+                  color: AppColors.error,
                   fontWeight: FontWeight.w800,
                   fontSize: 12,
                   letterSpacing: 1.5,

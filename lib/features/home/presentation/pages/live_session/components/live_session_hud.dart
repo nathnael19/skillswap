@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LiveSessionHud extends StatelessWidget {
   final String peerName;
@@ -13,7 +14,7 @@ class LiveSessionHud extends StatelessWidget {
     required this.pulseAnimation,
   });
 
-  static const Color accentColor = Color(0xFFCA8A04);
+  static const Color accentColor = AppColors.primary;
 
   String _formatDuration(int seconds) {
     int minutes = seconds ~/ 60;
@@ -38,12 +39,12 @@ class LiveSessionHud extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: AppColors.overlay10,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.arrow_back_rounded,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     size: 24,
                   ),
                 ),
@@ -66,7 +67,7 @@ class LiveSessionHud extends StatelessWidget {
                     style: GoogleFonts.dmSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],
@@ -86,7 +87,7 @@ class LiveSessionHud extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: AppColors.overlay10),
       ),
       child: Row(
         children: [
@@ -96,7 +97,7 @@ class LiveSessionHud extends StatelessWidget {
               width: 8,
               height: 8,
               decoration: const BoxDecoration(
-                color: Color(0xFFEF4444),
+                color: AppColors.error,
                 shape: BoxShape.circle,
               ),
             ),
@@ -110,7 +111,7 @@ class LiveSessionHud extends StatelessWidget {
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               );
             },
