@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
@@ -10,6 +9,7 @@ import 'components/profile_header.dart';
 import 'components/recent_activity_section.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -37,7 +37,7 @@ class ProfilePage extends StatelessWidget {
                     if (state is ProfileLoading) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFFCA8A04),
+                          color: AppColors.primary,
                           strokeWidth: 2,
                         ),
                       );
@@ -56,8 +56,8 @@ class ProfilePage extends StatelessWidget {
                       return RefreshIndicator(
                         onRefresh: () =>
                             context.read<ProfileCubit>().fetchUserProfile(),
-                        color: const Color(0xFFCA8A04),
-                        backgroundColor: const Color(0xFF1C1917),
+                        color: AppColors.primary,
+                        backgroundColor: AppColors.surface,
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -87,7 +87,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, bool isLoggedIn) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,12 +108,7 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   'PORTFOLIO',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: accentColor,
-                    letterSpacing: 2.0,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: accentColor),
                 ),
               ],
             ),
@@ -129,16 +124,17 @@ class ProfilePage extends StatelessWidget {
                   height: 40,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: AppColors.borderSubtle,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: AppColors.borderDefault,
                       width: 1,
                     ),
                   ),
+
                   child: const Icon(
                     Icons.account_balance_wallet_outlined,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     size: 18,
                   ),
                 ),
@@ -146,15 +142,7 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        Text(
-          'Your Profile',
-          style: GoogleFonts.dmSans(
-            fontSize: 34,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -1.0,
-          ),
-        ),
+        Text('Your Profile', style: AppTextStyles.h1),
       ],
     );
   }

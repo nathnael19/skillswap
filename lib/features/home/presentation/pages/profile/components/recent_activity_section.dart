@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:skillswap/core/theme/theme.dart';
 
 class RecentActivitySection extends StatelessWidget {
   const RecentActivitySection({super.key});
@@ -39,7 +39,7 @@ class RecentActivitySection extends StatelessWidget {
               width: 3,
               height: 12,
               decoration: BoxDecoration(
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -49,7 +49,7 @@ class RecentActivitySection extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
                 letterSpacing: 1.2,
               ),
             ),
@@ -61,7 +61,7 @@ class RecentActivitySection extends StatelessWidget {
           style: GoogleFonts.dmSans(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
@@ -78,19 +78,19 @@ class RecentActivitySection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: AppColors.overlay08),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: AppColors.overlay05,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFFCA8A04), size: 20),
+            child: Icon(icon, color: AppColors.primary, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -102,7 +102,7 @@ class RecentActivitySection extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -110,7 +110,7 @@ class RecentActivitySection extends StatelessWidget {
                   subtitle,
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: AppColors.overlay40,
                   ),
                 ),
               ],
@@ -122,7 +122,7 @@ class RecentActivitySection extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFFCA8A04),
+              color: AppColors.primary,
               letterSpacing: 0.5,
             ),
           ),

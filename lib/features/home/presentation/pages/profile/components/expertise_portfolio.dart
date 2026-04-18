@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/pages/edit_portfolio/edit_portfolio_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ExpertisePortfolio extends StatelessWidget {
   final User user;
@@ -19,25 +19,17 @@ class ExpertisePortfolio extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: const Color(0xFFCA8A04).withValues(alpha: 0.2),
-            ),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(
-                    'Portfolio Projects',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Text('Portfolio Projects', style: AppTextStyles.h4),
+
                   const Spacer(),
                   IconButton(
                     onPressed: () {
@@ -48,7 +40,7 @@ class ExpertisePortfolio extends StatelessWidget {
                     },
                     icon: const Icon(
                       Icons.edit_note_rounded,
-                      color: Color(0xFFCA8A04),
+                      color: AppColors.primary,
                     ),
                     tooltip: 'Manage Projects',
                   ),
@@ -57,19 +49,18 @@ class ExpertisePortfolio extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '${user.portfolio.length} projects showcased on your profile',
-                style: GoogleFonts.dmSans(
-                  fontSize: 14,
-                  color: Colors.white.withValues(alpha: 0.5),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
                 ),
               ),
+
               const SizedBox(height: 20),
               if (user.portfolio.isEmpty)
                 Text(
                   'No projects added yet. Showcase your work to attract more swaps!',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12,
+                  style: AppTextStyles.bodySmall.copyWith(
                     fontStyle: FontStyle.italic,
-                    color: const Color(0xFFCA8A04).withValues(alpha: 0.7),
+                    color: AppColors.primary.withValues(alpha: 0.7),
                   ),
                 )
               else
@@ -89,10 +80,11 @@ class ExpertisePortfolio extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -101,24 +93,17 @@ class ExpertisePortfolio extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.menu_book_rounded,
-                      color: Color(0xFFCA8A04),
+                      color: AppColors.primary,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Text(
-                    'Skills I Teach',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Text('Skills I Teach', style: AppTextStyles.h4),
                 ],
               ),
               const SizedBox(height: 24),
@@ -140,36 +125,34 @@ class ExpertisePortfolio extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.03),
+                  color: AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
-                  ),
+                  border: Border.all(color: AppColors.borderSubtle),
                 ),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.insights_rounded,
-                        color: Color(0xFFCA8A04),
+                        color: AppColors.primary,
                         size: 20,
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Learning',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16,
+                      style: AppTextStyles.bodyLarge.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
                       ),
                     ),
+
                     const SizedBox(height: 12),
                     ...user.allSkills
                         .where((s) => s.type == 'learn')
@@ -188,10 +171,10 @@ class ExpertisePortfolio extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFFCA8A04).withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -199,21 +182,21 @@ class ExpertisePortfolio extends StatelessWidget {
                   children: [
                     Text(
                       'My Active\nSwaps',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16,
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.primary,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFFCA8A04),
                         height: 1.2,
                       ),
                     ),
+
                     const SizedBox(height: 4),
                     Text(
                       '2 Ongoing',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        color: const Color(0xFFCA8A04).withValues(alpha: 0.6),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.primary.withValues(alpha: 0.6),
                       ),
                     ),
+
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 40,
@@ -227,20 +210,18 @@ class ExpertisePortfolio extends StatelessWidget {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFCA8A04),
+                                color: AppColors.primary,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: const Color(0xFF0C0A09),
+                                  color: AppColors.background,
                                   width: 2,
                                 ),
                               ),
                               child: Center(
                                 child: Text(
                                   'You',
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                               ),
@@ -263,16 +244,16 @@ class ExpertisePortfolio extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: AppColors.borderSubtle,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: AppColors.borderSubtle),
       ),
+
       child: Text(
         title,
-        style: GoogleFonts.dmSans(
-          fontSize: 12,
+        style: AppTextStyles.bodySmall.copyWith(
+          color: AppColors.textSecondary,
           fontWeight: FontWeight.w600,
-          color: Colors.white.withValues(alpha: 0.7),
         ),
       ),
     );
@@ -288,32 +269,21 @@ class ExpertisePortfolio extends StatelessWidget {
               width: 3,
               height: 12,
               decoration: BoxDecoration(
-                color: const Color(0xFFCA8A04),
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(width: 10),
             Text(
               label,
-              style: GoogleFonts.dmSans(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
-                letterSpacing: 1.2,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.primary,
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Text(
-          title,
-          style: GoogleFonts.dmSans(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -0.5,
-          ),
-        ),
+        Text(title, style: AppTextStyles.h3),
       ],
     );
   }
@@ -322,18 +292,15 @@ class ExpertisePortfolio extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFCA8A04).withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Text(
         label,
-        style: GoogleFonts.dmSans(
-          fontSize: 13,
+        style: AppTextStyles.bodySmall.copyWith(
+          color: AppColors.primary,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFFCA8A04),
         ),
       ),
     );
@@ -344,16 +311,13 @@ class ExpertisePortfolio extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: AppColors.borderSubtle,
         borderRadius: BorderRadius.circular(8),
       ),
+
       child: Text(
         label,
-        style: GoogleFonts.dmSans(
-          fontSize: 12,
-          color: Colors.white.withValues(alpha: 0.6),
-          fontWeight: FontWeight.w500,
-        ),
+        style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
       ),
     );
   }
@@ -366,7 +330,7 @@ class ExpertisePortfolio extends StatelessWidget {
         height: 36,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFF0C0A09), width: 2),
+          border: Border.all(color: AppColors.background, width: 2),
           image: DecorationImage(image: AssetImage(url), fit: BoxFit.cover),
         ),
       ),
