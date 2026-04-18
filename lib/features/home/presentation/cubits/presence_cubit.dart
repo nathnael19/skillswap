@@ -30,11 +30,15 @@ class PresenceCubit extends Cubit<PresenceState> {
     _onlineSub?.cancel();
     _typingSub?.cancel();
 
-    _onlineSub = PresenceService.instance.watchPresence(peerId).listen((online) {
+    _onlineSub = PresenceService.instance.watchPresence(peerId).listen((
+      online,
+    ) {
       emit(state.copyWith(isOnline: online));
     });
 
-    _typingSub = PresenceService.instance.watchTyping(matchId, peerId).listen((typing) {
+    _typingSub = PresenceService.instance.watchTyping(matchId, peerId).listen((
+      typing,
+    ) {
       emit(state.copyWith(isTyping: typing));
     });
   }
