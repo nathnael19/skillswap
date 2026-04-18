@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class CalendarSlotPicker extends StatelessWidget {
   final DateTime? selectedDate;
@@ -17,14 +18,14 @@ class CalendarSlotPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: AppColors.overlay08),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,18 +39,16 @@ class CalendarSlotPicker extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: accentColor.withValues(alpha: 0.2)),
                 ),
-                child: const Icon(Icons.calendar_month_rounded,
-                    color: accentColor, size: 22),
+                child: const Icon(
+                  Icons.calendar_month_rounded,
+                  color: accentColor,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 20),
               Text(
                 '1. Choose a Time',
-                style: GoogleFonts.dmSans(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 2.0,
-                ),
+                style: AppTextStyles.buttonPrimary.copyWith(fontSize: 16),
               ),
             ],
           ),
@@ -74,43 +73,48 @@ class CalendarSlotPicker extends StatelessWidget {
 
   Widget _buildPremiumCalendar(BuildContext context) {
     final days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(Icons.chevron_left_rounded, color: Colors.white24),
+            Icon(
+              Icons.chevron_left_rounded,
+              color: AppColors.textPrimary.withValues(alpha: 0.24),
+            ),
             Text(
               'October 2026',
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: Colors.white.withValues(alpha: 0.6),
-                letterSpacing: 2.0,
+              style: AppTextStyles.overline.copyWith(
+                color: AppColors.overlay60,
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.white24),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textPrimary.withValues(alpha: 0.24),
+            ),
           ],
         ),
         const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: days
-              .map((d) => SizedBox(
-                    width: 32,
-                    child: Center(
-                      child: Text(
-                        d,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: accentColor.withValues(alpha: 0.5),
-                        ),
+              .map(
+                (d) => SizedBox(
+                  width: 32,
+                  child: Center(
+                    child: Text(
+                      d,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: accentColor.withValues(alpha: 0.5),
                       ),
                     ),
-                  ))
+                  ),
+                ),
+              )
               .toList(),
         ),
         const SizedBox(height: 20),
@@ -123,7 +127,9 @@ class CalendarSlotPicker extends StatelessWidget {
             bool isSelected = selectedDate?.day == dateValue;
 
             return GestureDetector(
-              onTap: isPast ? null : () => onDateSelected(DateTime(2026, 10, dateValue)),
+              onTap: isPast
+                  ? null
+                  : () => onDateSelected(DateTime(2026, 10, dateValue)),
               child: Container(
                 width: 32,
                 height: 32,
@@ -135,7 +141,7 @@ class CalendarSlotPicker extends StatelessWidget {
                           BoxShadow(
                             color: accentColor.withValues(alpha: 0.4),
                             blurRadius: 10,
-                          )
+                          ),
                         ],
                       )
                     : null,
@@ -144,12 +150,14 @@ class CalendarSlotPicker extends StatelessWidget {
                     dateValue.toString(),
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w900
+                          : FontWeight.w600,
                       color: isSelected
-                          ? Colors.white
+                          ? AppColors.textPrimary
                           : (isPast
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.white),
+                                ? AppColors.overlay10
+                                : AppColors.textPrimary),
                     ),
                   ),
                 ),
@@ -163,18 +171,22 @@ class CalendarSlotPicker extends StatelessWidget {
 
   Widget _buildTimeChip(String label) {
     bool isSelected = selectedTime == label;
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return Expanded(
       child: GestureDetector(
         onTap: () => onTimeSelected(label),
         child: Container(
           height: 52,
           decoration: BoxDecoration(
-            color: isSelected ? accentColor.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.03),
+            color: isSelected
+                ? accentColor.withValues(alpha: 0.1)
+                : AppColors.overlay03,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? accentColor.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.08),
+              color: isSelected
+                  ? accentColor.withValues(alpha: 0.4)
+                  : AppColors.overlay08,
             ),
           ),
           child: Center(
@@ -183,7 +195,7 @@ class CalendarSlotPicker extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                color: isSelected ? accentColor : Colors.white.withValues(alpha: 0.4),
+                color: isSelected ? accentColor : AppColors.overlay40,
               ),
             ),
           ),

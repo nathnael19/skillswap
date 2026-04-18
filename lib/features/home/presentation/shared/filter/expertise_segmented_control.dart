@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ExpertiseSegmentedControl extends StatelessWidget {
   final List<String> expertiseLevels;
@@ -18,11 +19,9 @@ class ExpertiseSegmentedControl extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: AppColors.overlay08),
       ),
       child: Row(
         children: expertiseLevels.map((level) {
@@ -35,12 +34,12 @@ class ExpertiseSegmentedControl extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFCA8A04) : Colors.transparent,
+                  color: isSelected ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFFCA8A04).withValues(alpha: 0.2),
+                            color: AppColors.primary.withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -53,7 +52,9 @@ class ExpertiseSegmentedControl extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.4),
+                    color: isSelected
+                        ? AppColors.textPrimary
+                        : AppColors.overlay40,
                   ),
                 ),
               ),
