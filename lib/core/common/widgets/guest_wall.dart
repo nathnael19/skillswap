@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 
 class GuestWall extends StatelessWidget {
@@ -9,13 +10,14 @@ class GuestWall extends StatelessWidget {
   const GuestWall({
     super.key,
     this.title = "Sign in required",
-    this.description = "You need to be logged in to view this content and interact with others.",
+    this.description =
+        "You need to be logged in to view this content and interact with others.",
   });
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    const darkBg = Color(0xFF0C0A09);
+    const accentColor = AppColors.primary;
+    const darkBg = AppColors.background;
 
     return Container(
       width: double.infinity,
@@ -42,14 +44,10 @@ class GuestWall extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.lock_rounded,
-              size: 56,
-              color: accentColor,
-            ),
+            child: const Icon(Icons.lock_rounded, size: 56, color: accentColor),
           ),
           const SizedBox(height: 48),
-          
+
           // Typography Section
           Text(
             title,
@@ -57,7 +55,7 @@ class GuestWall extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: AppColors.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
@@ -67,7 +65,7 @@ class GuestWall extends StatelessWidget {
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
               fontSize: 16,
-              color: Colors.white.withValues(alpha: 0.4),
+              color: AppColors.overlay40,
               height: 1.6,
             ),
           ),
@@ -78,7 +76,7 @@ class GuestWall extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [accentColor, Color(0xFFB47B03)],
+                colors: [accentColor, AppColors.primaryDark],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -95,7 +93,7 @@ class GuestWall extends StatelessWidget {
               onPressed: () => Navigator.push(context, OnboardingPage.route()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textPrimary,
                 shadowColor: Colors.transparent,
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 shape: RoundedRectangleBorder(

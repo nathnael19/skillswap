@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/app_button.dart';
+import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/widgets/auth_social_button.dart';
@@ -32,8 +32,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
-    const accentColor = Color(0xFFCA8A04);
+    const primaryBgColor = AppColors.background;
+    const accentColor = AppColors.primary;
 
     return Scaffold(
       backgroundColor: primaryBgColor,
@@ -42,8 +42,8 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message, style: GoogleFonts.dmSans()),
-                backgroundColor: const Color(0xFFEF4444),
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
               ),
             );
           } else if (state is AuthSuccess) {
@@ -108,9 +108,9 @@ class _LoginPageState extends State<LoginPage> {
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white.withValues(alpha: 0.03),
+                                  color: AppColors.overlay03,
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.08),
+                                    color: AppColors.overlay08,
                                   ),
                                 ),
                                 child: Image.asset(
@@ -125,10 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 32),
                           Text(
                             'SKILLSWAP',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                            style: AppTextStyles.captionEmphasis.copyWith(
                               letterSpacing: 4,
                             ),
                           ),
@@ -138,12 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'Welcome Back',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: -1,
-                              ),
+                              style: AppTextStyles.h2,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -151,12 +143,12 @@ class _LoginPageState extends State<LoginPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'Sign in to your account to continue.',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 16,
-                                color: Colors.white.withValues(alpha: 0.4),
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ),
+
                           const SizedBox(height: 48),
 
                           // Email Field
@@ -180,13 +172,24 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 16),
                           Align(
                             alignment: Alignment.centerRight,
-                            child: Text(
-                              'Forgot Password?',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: accentColor,
-                                letterSpacing: 1.0,
+                            child: GestureDetector(
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                      'Password reset link will be sent to your email.',
+                                    ),
+                                    backgroundColor: accentColor,
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'Forgot Password?',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: accentColor,
+                                  letterSpacing: 1.0,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                             ),
                           ),
@@ -211,11 +214,8 @@ class _LoginPageState extends State<LoginPage> {
                           // Divider
                           Row(
                             children: [
-                              Expanded(
-                                child: Container(
-                                  height: 1,
-                                  color: Colors.white.withValues(alpha: 0.05),
-                                ),
+                              const Expanded(
+                                child: Divider(color: AppColors.borderSubtle),
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -223,22 +223,18 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 child: Text(
                                   'Or sign in with',
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w900,
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.textMuted,
                                     letterSpacing: 2,
-                                    color: Colors.white.withValues(alpha: 0.2),
                                   ),
                                 ),
                               ),
-                              Expanded(
-                                child: Container(
-                                  height: 1,
-                                  color: Colors.white.withValues(alpha: 0.05),
-                                ),
+                              const Expanded(
+                                child: Divider(color: AppColors.borderSubtle),
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 40),
 
                           // Social Login Buttons
@@ -248,7 +244,16 @@ class _LoginPageState extends State<LoginPage> {
                                 child: AuthSocialButton(
                                   label: 'Google',
                                   icon: Icons.g_mobiledata_rounded,
-                                  onTap: () {},
+                                  onTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text(
+                                          'Google Sign-In coming soon!',
+                                        ),
+                                        backgroundColor: AppColors.googleBlue,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -256,7 +261,16 @@ class _LoginPageState extends State<LoginPage> {
                                 child: AuthSocialButton(
                                   label: 'Apple',
                                   icon: Icons.apple_rounded,
-                                  onTap: () {},
+                                  onTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Apple Sign-In coming soon!',
+                                        ),
+                                        backgroundColor: AppColors.surface,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             ],
@@ -269,11 +283,11 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Text(
                                 "New to SkillSwap? ",
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 14,
-                                  color: Colors.white.withValues(alpha: 0.3),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
                                 ),
                               ),
+
                               GestureDetector(
                                 onTap: () {
                                   Navigator.of(
@@ -282,9 +296,7 @@ class _LoginPageState extends State<LoginPage> {
                                 },
                                 child: Text(
                                   "Sign Up",
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
+                                  style: AppTextStyles.link.copyWith(
                                     color: accentColor,
                                   ),
                                 ),
@@ -297,11 +309,9 @@ class _LoginPageState extends State<LoginPage> {
                             child: Text(
                               '© 2026 SkillSwap',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 8,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: AppColors.textMuted,
                                 letterSpacing: 1.5,
-                                color: Colors.white.withValues(alpha: 0.1),
-                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
