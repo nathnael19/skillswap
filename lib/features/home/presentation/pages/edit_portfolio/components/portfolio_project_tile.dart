@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class PortfolioProjectTile extends StatelessWidget {
   final PortfolioItem item;
@@ -18,9 +19,9 @@ class PortfolioProjectTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: AppColors.overlay05),
       ),
       child: Row(
         children: [
@@ -33,7 +34,7 @@ class PortfolioProjectTile extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -41,7 +42,7 @@ class PortfolioProjectTile extends StatelessWidget {
                   item.description,
                   style: GoogleFonts.dmSans(
                     fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppColors.overlay50,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

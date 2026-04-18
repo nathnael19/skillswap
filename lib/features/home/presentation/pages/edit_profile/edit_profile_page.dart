@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/constants/app_categories.dart';
+
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
@@ -22,25 +26,31 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   // Premium Color Palette
-  static const Color kBackground = Color(0xFF0C0A09);
-  static const Color kAccent = Color(0xFFCA8A04);
-  static const Color kText = Colors.white;
-  static const Color kTextMuted = Color(0xFFA8A29E);
+  static const Color kBackground = AppColors.background;
+  static const Color kAccent = AppColors.primary;
+  static const Color kText = AppColors.textPrimary;
+  static const Color kTextSecondary = AppColors.textSecondary;
 
   late final TextEditingController _nameController;
   late final TextEditingController _locationController;
   late final TextEditingController _professionController;
   late final TextEditingController _bioController;
   late List<Skill> _userSkills;
+  XFile? _pickedAvatar;
+  final ImagePicker _picker = ImagePicker();
+
+  String? _selectedCategory;
+  String? _selectedExpertise;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.user.name);
     _locationController = TextEditingController(text: widget.user.location);
-    _professionController = TextEditingController(text: widget.user.profession);
     _bioController = TextEditingController(text: widget.user.bio);
     _userSkills = List.from(widget.user.allSkills);
+    _selectedCategory = widget.user.primaryCategory ?? AppCategories.categories.first;
+    _selectedExpertise = widget.user.expertiseLevel ?? AppCategories.expertiseLevels[1];
   }
 
   @override
@@ -54,7 +64,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   void _addSkill(String name, String type) {
     setState(() {
-      _userSkills.add(Skill(name: name, type: type, category: 'General'));
+      _userSkills.add(Skill(name: name, type: type, category: AppConstants.defaultSkillCategory));
     });
   }
 
@@ -69,32 +79,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1C1917),
+        backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Add ${type == 'teach' ? 'Skill to Teach' : 'Skill to Learn'}',
-          style: GoogleFonts.dmSans(
-            fontWeight: FontWeight.w900,
-            fontSize: 14,
+          'Add ${type == AppConstants.skillTypeTeach ? 'Skill to Teach' : 'Skill to Learn'}',
+          style: AppTextStyles.labelMedium.copyWith(
             color: kAccent,
             letterSpacing: 1.5,
           ),
         ),
+
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
             hintText: 'Skill name (e.g. Flutter)',
-            hintStyle: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.2)),
+            hintStyle: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.overlay20,
+            ),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.03),
+            fillColor: AppColors.cardBackground,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+              borderSide: const BorderSide(color: AppColors.borderSubtle),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+              borderSide: const BorderSide(color: AppColors.borderSubtle),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -103,15 +114,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           autofocus: true,
         ),
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: GoogleFonts.dmSans(
-                color: kTextMuted,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
             ),
           ),
           ElevatedButton(
@@ -121,22 +130,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Navigator.pop(context);
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kAccent,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            child: Text(
-              'Add',
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
-            ),
+            child: const Text('Add'),
           ),
         ],
       ),
     );
+  }
+
+  void _pickAvatar() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        setState(() {
+          _pickedAvatar = image;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+      }
+    }
   }
 
   void _onSave() {
@@ -145,17 +165,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
       name: _nameController.text,
       age: widget.user.age,
       rating: widget.user.rating,
-      imageUrl: widget.user.imageUrl,
+      imageUrl: _pickedAvatar?.path ?? widget.user.imageUrl,
       bio: _bioController.text,
       location: _locationController.text,
       profession: _professionController.text,
       allSkills: _userSkills,
-      teaching: _userSkills.any((s) => s.type == 'teach')
-          ? _userSkills.firstWhere((s) => s.type == 'teach')
+      teaching: _userSkills.any((s) => s.type == AppConstants.skillTypeTeach)
+          ? _userSkills.firstWhere((s) => s.type == AppConstants.skillTypeTeach)
           : null,
-      learning: _userSkills.any((s) => s.type == 'learn')
-          ? _userSkills.firstWhere((s) => s.type == 'learn')
+      learning: _userSkills.any((s) => s.type == AppConstants.skillTypeLearn)
+          ? _userSkills.firstWhere((s) => s.type == AppConstants.skillTypeLearn)
           : null,
+      primaryCategory: _selectedCategory,
+      expertiseLevel: _selectedExpertise,
     );
     context.read<ProfileCubit>().updateUserProfile(updatedUser);
   }
@@ -164,30 +186,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1C1917),
+        backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'Sign Out',
-          style: GoogleFonts.dmSans(
-            fontWeight: FontWeight.w900,
-            color: const Color(0xFFEF4444),
-            letterSpacing: 1.0,
-          ),
+          style: AppTextStyles.h4.copyWith(color: AppColors.error),
         ),
+
         content: Text(
           'Are you sure you want to sign out of your account?',
-          style: GoogleFonts.dmSans(color: kTextMuted, height: 1.5),
+          style: AppTextStyles.bodyMedium.copyWith(color: kTextSecondary),
         ),
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: GoogleFonts.dmSans(
-                fontWeight: FontWeight.w600,
-                color: kTextMuted,
-              ),
+              style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
             ),
           ),
           ElevatedButton(
@@ -195,18 +212,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Navigator.pop(context);
               context.read<AuthCubit>().signOut();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              'Sign Out',
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Sign Out'),
           ),
         ],
       ),
@@ -255,13 +262,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               title: Text(
                 'Edit Profile',
-                style: GoogleFonts.dmSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                style: AppTextStyles.labelMedium.copyWith(
                   color: kAccent,
                   letterSpacing: 2.0,
                 ),
               ),
+
               centerTitle: true,
               actions: [
                 if (isLoading)
@@ -289,9 +295,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                       child: Text(
                         'Save',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                        style: AppTextStyles.labelMedium.copyWith(
                           color: kAccent,
                           letterSpacing: 1.0,
                         ),
@@ -308,7 +312,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   const SizedBox(height: 16),
                   AvatarEditorSection(
                     imageUrl: widget.user.imageUrl,
-                    onTap: () {},
+                    localImage: _pickedAvatar,
+                    onTap: _pickAvatar,
                   ),
                   const SizedBox(height: 48),
                   ProfileInputField(
@@ -335,18 +340,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     maxLines: 4,
                     icon: Icons.description_outlined,
                   ),
+                  const SizedBox(height: 32),
+                  _buildSelectionSection(),
                   const SizedBox(height: 40),
                   ExpertiseEditorSection(
                     title: 'Teaching',
-                    tags: _userSkills.where((s) => s.type == 'teach').toList(),
-                    onAdd: () => _showAddSkillDialog('teach'),
+                    tags: _userSkills.where((s) => s.type == AppConstants.skillTypeTeach).toList(),
+                    onAdd: () => _showAddSkillDialog(AppConstants.skillTypeTeach),
                     onRemove: _removeSkill,
                   ),
                   const SizedBox(height: 32),
                   ExpertiseEditorSection(
                     title: 'Learning',
-                    tags: _userSkills.where((s) => s.type == 'learn').toList(),
-                    onAdd: () => _showAddSkillDialog('learn'),
+                    tags: _userSkills.where((s) => s.type == AppConstants.skillTypeLearn).toList(),
+                    onAdd: () => _showAddSkillDialog(AppConstants.skillTypeLearn),
                     onRemove: _removeSkill,
                   ),
                   const SizedBox(height: 48),
@@ -355,7 +362,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const IdentityVerificationPage(),
+                          builder: (context) =>
+                              const IdentityVerificationPage(),
                         ),
                       );
                     },
@@ -368,6 +376,59 @@ class _EditProfilePageState extends State<EditProfilePage> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSelectionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'CORE IDENTITY',
+          style: AppTextStyles.labelMedium.copyWith(
+            color: kAccent,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 20),
+        DropdownButtonFormField<String>(
+          value: _selectedCategory,
+          dropdownColor: AppColors.surface,
+          style: AppTextStyles.bodyMedium.copyWith(color: kText),
+          decoration: InputDecoration(
+            labelText: 'Primary Category',
+            labelStyle: AppTextStyles.labelSmall.copyWith(color: kAccent),
+            prefixIcon: const Icon(Icons.category_outlined, color: kTextSecondary),
+            filled: true,
+            fillColor: AppColors.overlay05,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.borderSubtle),
+            ),
+          ),
+          items: AppCategories.categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+          onChanged: (val) => setState(() => _selectedCategory = val),
+        ),
+        const SizedBox(height: 20),
+        DropdownButtonFormField<String>(
+          value: _selectedExpertise,
+          dropdownColor: AppColors.surface,
+          style: AppTextStyles.bodyMedium.copyWith(color: kText),
+          decoration: InputDecoration(
+            labelText: 'Expertise Level',
+            labelStyle: AppTextStyles.labelSmall.copyWith(color: kAccent),
+            prefixIcon: const Icon(Icons.show_chart_rounded, color: kTextSecondary),
+            filled: true,
+            fillColor: AppColors.overlay05,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.borderSubtle),
+            ),
+          ),
+          items: AppCategories.expertiseLevels.where((e) => e != 'All').map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          onChanged: (val) => setState(() => _selectedExpertise = val),
+        ),
+      ],
     );
   }
 }
