@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/widgets.dart';
+import 'package:skillswap/core/network/api_constants.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 /// A circular avatar with an optional online status dot.
 /// Used in MatchesPage, ChatPage, and anywhere user presence is shown.
@@ -22,20 +25,35 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget avatar = borderRadius != null
-        ? ClipRRect(
-            borderRadius: borderRadius!,
-            child: Image.asset(
-              imageUrl,
+    final bool isNetwork =
+        imageUrl.startsWith('http') || imageUrl.startsWith('/static');
+    final String fullImageUrl = imageUrl.startsWith('/')
+        ? '${ApiConstants.mediaBaseUrl}$imageUrl'
+        : imageUrl;
+
+    final Widget imageWidget = isNetwork
+        ? CachedNetworkImage(
+            imageUrl: fullImageUrl,
+            width: radius * 2,
+            height: radius * 2,
+            fit: BoxFit.cover,
+            errorWidget: (_, __, ___) => Image.asset(
+              'assets/home.png',
               width: radius * 2,
               height: radius * 2,
               fit: BoxFit.cover,
             ),
           )
-        : CircleAvatar(
-            radius: radius,
-            backgroundImage: AssetImage(imageUrl),
+        : Image.asset(
+            imageUrl.isEmpty ? 'assets/home.png' : imageUrl,
+            width: radius * 2,
+            height: radius * 2,
+            fit: BoxFit.cover,
           );
+
+    final Widget avatar = borderRadius != null
+        ? ClipRRect(borderRadius: borderRadius!, child: imageWidget)
+        : ClipOval(child: imageWidget);
 
     if (!showOnlineDot) return avatar;
 
@@ -52,7 +70,7 @@ class UserAvatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF12B76A),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(color: AppColors.textPrimary, width: 2),
               ),
             ),
           ),

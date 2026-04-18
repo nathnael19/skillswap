@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class RegistrationSuccessOverlay extends StatefulWidget {
   final VoidCallback onAnimationComplete;
@@ -11,7 +12,8 @@ class RegistrationSuccessOverlay extends StatefulWidget {
   });
 
   @override
-  State<RegistrationSuccessOverlay> createState() => _RegistrationSuccessOverlayState();
+  State<RegistrationSuccessOverlay> createState() =>
+      _RegistrationSuccessOverlayState();
 }
 
 class _RegistrationSuccessOverlayState extends State<RegistrationSuccessOverlay>
@@ -31,13 +33,17 @@ class _RegistrationSuccessOverlayState extends State<RegistrationSuccessOverlay>
 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.2)
-            .chain(CurveTween(curve: Curves.easeOutBack)),
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 1.2,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
         weight: 40,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.2, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: 1.2,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(_controller);
@@ -92,7 +98,7 @@ class _RegistrationSuccessOverlayState extends State<RegistrationSuccessOverlay>
                           width: 120,
                           height: 120,
                           decoration: const BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -122,7 +128,7 @@ class _RegistrationSuccessOverlayState extends State<RegistrationSuccessOverlay>
                               style: GoogleFonts.lora(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -166,7 +172,7 @@ class Particle {
     double speed = random.nextDouble() * 5 + 2;
     vx = cos(angle) * speed;
     vy = sin(angle) * speed;
-    
+
     // Random colors (whites and oranges)
     List<Color> colors = [
       Colors.white,
@@ -198,7 +204,7 @@ class ParticlePainter extends CustomPainter {
 
       double opacity = (1.0 - progress).clamp(0.0, 1.0);
       paint.color = particle.color.withValues(alpha: opacity);
-      
+
       canvas.drawCircle(
         Offset(center.dx + dx, center.dy + dy),
         particle.size,
