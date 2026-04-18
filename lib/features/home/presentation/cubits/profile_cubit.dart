@@ -21,13 +21,53 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> updateUserProfile(User user) async {
     emit(ProfileLoading());
-    final result = await _homeRepository.updateUserProfile(user);
-    result.fold(
-      (failure) => emit(ProfileError(failure.message)),
-      (updatedUser) {
-        emit(ProfileUpdateSuccess());
-        emit(ProfileLoaded(updatedUser));
-      },
-    );
+
+    User userToUpdate = user;
+
+    // Check if imageUrl is a local path (from ImagePicker)
+    if (user.imageUrl.isNotEmpty &&
+        !user.imageUrl.startsWith('http') &&
+        !user.imageUrl.startsWith('assets/')) {
+      final uploadResult = await _homeRepository.uploadImage(user.imageUrl);
+      
+      bool uploadFailed = false;
+      uploadResult.fold(
+        (failure) {
+          emit(ProfileError('Failed to upload profile picture: ${failure.message}'));
+          uploadFailed = true;
+        },
+        (remoteUrl) {
+          userToUpdate = User(
+            id: user.id,
+            name: user.name,
+            age: user.age,
+            rating: user.rating,
+            imageUrl: remoteUrl, // Use the new remote URL
+            bio: user.bio,
+            location: user.location,
+            profession: user.profession,
+            allSkills: user.allSkills,
+            teaching: user.teaching,
+            learning: user.learning,
+            primaryCategory: user.primaryCategory,
+            expertiseLevel: user.expertiseLevel,
+            portfolio: user.portfolio,
+            matchId: user.matchId,
+            matchStatus: user.matchStatus,
+            matchPayerId: user.matchPayerId,
+          );
+        },
+      );
+      
+      if (uploadFailed) return;
+    }
+
+    final result = await _homeRepository.updateUserProfile(userToUpdate);
+    result.fold((failure) => emit(ProfileError(failure.message)), (
+      updatedUser,
+    ) {
+      emit(ProfileUpdateSuccess());
+      emit(ProfileLoaded(updatedUser));
+    });
   }
 }

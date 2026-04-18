@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/shared/wallet/balance_header.dart';
@@ -12,6 +13,7 @@ import 'package:skillswap/core/common/widgets/guest_wall.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class WalletPage extends StatelessWidget {
   const WalletPage({super.key});
@@ -54,8 +56,8 @@ class WalletPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
-    const accentColor = Color(0xFFCA8A04);
+    const primaryBgColor = AppColors.background;
+    const accentColor = AppColors.primary;
 
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
@@ -84,15 +86,13 @@ class WalletPage extends StatelessWidget {
                         height: 48,
                         width: 48,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
+                          color: AppColors.overlay05,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.1),
-                          ),
+                          border: Border.all(color: AppColors.overlay10),
                         ),
                         child: const Icon(
                           Icons.arrow_back_rounded,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           size: 20,
                         ),
                       ),
@@ -103,16 +103,13 @@ class WalletPage extends StatelessWidget {
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       letterSpacing: 2.0,
                     ),
                   ),
                   centerTitle: true,
                   shape: Border(
-                    bottom: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      width: 1,
-                    ),
+                    bottom: BorderSide(color: AppColors.overlay05, width: 1),
                   ),
                 ),
               ),
@@ -137,7 +134,7 @@ class WalletPage extends StatelessWidget {
                 return RefreshIndicator(
                   onRefresh: () => context.read<CreditsCubit>().fetchCredits(),
                   color: accentColor,
-                  backgroundColor: const Color(0xFF1C1917),
+                  backgroundColor: AppColors.surface,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(
                       parent: BouncingScrollPhysics(),
@@ -147,7 +144,7 @@ class WalletPage extends StatelessWidget {
                         const SizedBox(height: 120),
                         BalanceHeader(
                           balance: state.balance,
-                          progressCapCredits: 50,
+                          progressCapCredits: AppConstants.walletProgressCap,
                           onBuyCredits: () => _openCheckout(context),
                         ),
                         const SizedBox(height: 24),
