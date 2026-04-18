@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/edit_profile/edit_profile_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 
@@ -21,19 +21,15 @@ class ProfileHeader extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 2,
-                ),
+                border: Border.all(color: AppColors.borderDefault, width: 2),
               ),
+
               child: Container(
                 padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
+                decoration: const BoxDecoration(shape: BoxShape.circle),
                 child: CircleAvatar(
                   radius: 64,
-                  backgroundColor: const Color(0xFF1C1917),
+                  backgroundColor: AppColors.surface,
                   backgroundImage: user.imageUrl.startsWith('http')
                       ? NetworkImage(user.imageUrl) as ImageProvider
                       : AssetImage(user.imageUrl),
@@ -48,12 +44,12 @@ class ProfileHeader extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCA8A04),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF0C0A09), width: 3),
+                  border: Border.all(color: AppColors.background, width: 3),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFCA8A04).withValues(alpha: 0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 10,
                       spreadRadius: 2,
                     ),
@@ -64,17 +60,14 @@ class ProfileHeader extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.verified_rounded,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       size: 14,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       'Verified Expert',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -84,25 +77,14 @@ class ProfileHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        Text(
-          user.name,
-          style: GoogleFonts.dmSans(
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -1.0,
-          ),
-        ),
+        Text(user.name, style: AppTextStyles.h1),
+
         const SizedBox(height: 8),
         Text(
           '${user.profession} • ${user.location}',
-          style: GoogleFonts.dmSans(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFFCA8A04),
-            letterSpacing: 1.5,
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
         ),
+
         const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -111,12 +93,12 @@ class ProfileHeader extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFCA8A04), Color(0xFFB47B03)],
+                    colors: [AppColors.primary, AppColors.primaryDark],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFCA8A04).withValues(alpha: 0.25),
+                      color: AppColors.primary.withValues(alpha: 0.25),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -137,7 +119,7 @@ class ProfileHeader extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textPrimary,
                     shadowColor: Colors.transparent,
                     minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(
@@ -151,8 +133,7 @@ class ProfileHeader extends StatelessWidget {
                       const SizedBox(width: 12),
                       Text(
                         'Edit Profile',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 16,
+                        style: AppTextStyles.bodyLarge.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -166,15 +147,14 @@ class ProfileHeader extends StatelessWidget {
               height: 56,
               width: 56,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.borderSubtle,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
+                border: Border.all(color: AppColors.borderDefault),
               ),
+
               child: const Icon(
                 Icons.ios_share_rounded,
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 size: 24,
               ),
             ),
