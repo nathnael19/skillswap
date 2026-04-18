@@ -460,4 +460,27 @@ class HomeRepositoryImpl implements HomeRepository {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> uploadImage(String filePath) async {
+    try {
+      final response = await _apiClient.upload(
+        ApiConstants.uploadImage,
+        filePath,
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return right(data['url']);
+      }
+      return left(
+        ServerFailure.fromResponse(
+          response.statusCode,
+          response.body,
+          fallbackMessage: 'Failed to upload image',
+        ),
+      );
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }
