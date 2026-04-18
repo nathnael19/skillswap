@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/chat/chat_page.dart';
 import 'conversation_item.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ChatMessagesSection extends StatelessWidget {
   final List<dynamic> matches;
@@ -19,8 +19,6 @@ class ChatMessagesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -73,7 +71,7 @@ class ChatMessagesSection extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(String title) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -90,12 +88,7 @@ class ChatMessagesSection extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             title,
-            style: GoogleFonts.dmSans(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: accentColor,
-              letterSpacing: 2.0,
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: accentColor),
           ),
         ],
       ),
