@@ -8,6 +8,7 @@ import 'components/live_session_hud.dart';
 import 'components/live_session_controls.dart';
 import 'components/local_pip_view.dart';
 import 'components/remote_video_renderer.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LiveSessionPage extends StatefulWidget {
   final List<String> agenda;
@@ -261,7 +262,7 @@ class _LiveSessionPageState extends State<LiveSessionPage>
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
+    const primaryBgColor = AppColors.background;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -320,5 +321,4 @@ class _LiveSessionPageState extends State<LiveSessionPage>
       ),
     );
   }
-
 }

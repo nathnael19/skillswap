@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LocalPiPView extends StatelessWidget {
   final bool isInitialized;
@@ -24,10 +25,7 @@ class LocalPiPView extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColors.overlay20, width: 1.5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.4),
@@ -43,10 +41,10 @@ class LocalPiPView extends StatelessWidget {
                   mirror: true,
                   objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                 )
-              : const Center(
+              : Center(
                   child: Icon(
                     Icons.videocam_off_rounded,
-                    color: Colors.white54,
+                    color: AppColors.textPrimary.withValues(alpha: 0.54),
                   ),
                 ),
         ),

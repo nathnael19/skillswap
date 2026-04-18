@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LiveSessionControls extends StatelessWidget {
   final bool isMuted;
@@ -18,7 +19,7 @@ class LiveSessionControls extends StatelessWidget {
     required this.onEndCallRequest,
   });
 
-  static const Color accentColor = Color(0xFFCA8A04);
+  static const Color accentColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +30,9 @@ class LiveSessionControls extends StatelessWidget {
       child: Container(
         height: 88,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: AppColors.overlay08,
           borderRadius: BorderRadius.circular(44),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: AppColors.overlay10),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.3),
@@ -84,7 +85,7 @@ class LiveSessionControls extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive
               ? accentColor.withValues(alpha: 0.1)
-              : Colors.white.withValues(alpha: 0.05),
+              : AppColors.overlay05,
           shape: BoxShape.circle,
           border: isActive
               ? Border.all(color: accentColor.withValues(alpha: 0.3))
@@ -92,7 +93,7 @@ class LiveSessionControls extends StatelessWidget {
         ),
         child: Icon(
           icon,
-          color: isActive ? accentColor : Colors.white,
+          color: isActive ? accentColor : AppColors.textPrimary,
           size: 26,
         ),
       ),
@@ -105,28 +106,28 @@ class LiveSessionControls extends StatelessWidget {
         final confirm = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: const Color(0xFF0C0A09),
+            backgroundColor: AppColors.background,
             title: Text(
               'End Session?',
-              style: GoogleFonts.dmSans(color: Colors.white),
+              style: GoogleFonts.dmSans(color: AppColors.textPrimary),
             ),
             content: Text(
               'This will complete the session and settle credits.',
-              style: GoogleFonts.dmSans(color: Colors.white70),
+              style: GoogleFonts.dmSans(color: AppColors.textPrimary.withValues(alpha: 0.70)),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: Text(
                   'Cancel',
-                  style: GoogleFonts.dmSans(color: Colors.white54),
+                  style: GoogleFonts.dmSans(color: AppColors.textPrimary.withValues(alpha: 0.54)),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 child: Text(
                   'End Session',
-                  style: GoogleFonts.dmSans(color: const Color(0xFFEF4444)),
+                  style: GoogleFonts.dmSans(color: AppColors.error),
                 ),
               ),
             ],
@@ -141,12 +142,12 @@ class LiveSessionControls extends StatelessWidget {
         width: 52,
         height: 52,
         decoration: const BoxDecoration(
-          color: Color(0xFFEF4444),
+          color: AppColors.error,
           shape: BoxShape.circle,
         ),
         child: const Icon(
           Icons.call_end_rounded,
-          color: Colors.white,
+          color: AppColors.textPrimary,
           size: 26,
         ),
       ),
