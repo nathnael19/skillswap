@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class EmptyDiscoveryState extends StatelessWidget {
   const EmptyDiscoveryState({super.key});
@@ -19,12 +20,12 @@ class EmptyDiscoveryState extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.auto_awesome_rounded,
-                    color: Color(0xFFCA8A04),
+                    color: AppColors.primary,
                     size: 64,
                   ),
                 ),
@@ -34,7 +35,7 @@ class EmptyDiscoveryState extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -44,7 +45,7 @@ class EmptyDiscoveryState extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(
                     fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppColors.overlay50,
                     height: 1.5,
                   ),
                 ),

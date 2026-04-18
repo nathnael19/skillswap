@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ExpertiseEditorSection extends StatelessWidget {
   final String title;
@@ -16,7 +16,7 @@ class ExpertiseEditorSection extends StatelessWidget {
     required this.onRemove,
   });
 
-  static const Color kAccent = Color(0xFFCA8A04);
+  static const Color kAccent = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +28,12 @@ class ExpertiseEditorSection extends StatelessWidget {
           children: [
             Text(
               title,
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: kAccent,
                 letterSpacing: 1.5,
               ),
             ),
+
             InkWell(
               onTap: onAdd,
               borderRadius: BorderRadius.circular(8),
@@ -53,10 +52,9 @@ class ExpertiseEditorSection extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'Add',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.bodySmall.copyWith(
                         color: kAccent,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -69,11 +67,7 @@ class ExpertiseEditorSection extends StatelessWidget {
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: tags
-              .map(
-                (skill) => _buildEditableTag(skill),
-              )
-              .toList(),
+          children: tags.map((skill) => _buildEditableTag(skill)).toList(),
         ),
       ],
     );
@@ -92,12 +86,12 @@ class ExpertiseEditorSection extends StatelessWidget {
         children: [
           Text(
             skill.name,
-            style: GoogleFonts.dmSans(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.bodySmall.copyWith(
               color: kAccent,
+              fontWeight: FontWeight.w700,
             ),
           ),
+
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => onRemove(skill),
