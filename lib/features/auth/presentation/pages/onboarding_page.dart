@@ -1,11 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
 import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
+import 'package:skillswap/core/constants/app_categories.dart';
 
 import '../widgets/onboarding/about_you_step.dart';
 import '../widgets/onboarding/expertise_step.dart';
@@ -34,7 +35,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final passwordController = TextEditingController();
 
   // Skills State
-  final List<Map<String, String>> _skills = [];
+  final List<Map<String, dynamic>> _skills = [];
+  String? _selectedCategory;
+  String? _selectedExpertise;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = AppCategories.categories.first;
+    _selectedExpertise = AppCategories.expertiseLevels[1]; // Skip 'All'
+  }
 
   @override
   void dispose() {
@@ -70,11 +80,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _addSkill(String type, String skillName) {
     setState(() {
-      _skills.add({
-        'name': skillName,
-        'type': type,
-        'category': 'General',
-      });
+      _skills.add({'name': skillName, 'type': type, 'category': 'General'});
     });
   }
 
@@ -92,14 +98,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
       bio: bioController.text.trim(),
       profession: professionController.text.trim(),
       location: locationController.text.trim(),
+      primaryCategory: _selectedCategory,
+      expertiseLevel: _selectedExpertise,
       skills: _skills,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
-    const accentColor = Color(0xFFCA8A04);
+    const primaryBgColor = AppColors.background;
+    const accentColor = AppColors.primary;
 
     return Scaffold(
       backgroundColor: primaryBgColor,
@@ -114,17 +122,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
               elevation: 0,
               leading: Center(
                 child: GestureDetector(
-                  onTap: _currentStep > 0 ? _previousStep : () => Navigator.pop(context),
+                  onTap: _currentStep > 0
+                      ? _previousStep
+                      : () => Navigator.pop(context),
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: AppColors.borderSubtle,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      border: Border.all(color: AppColors.borderDefault),
                     ),
                     child: Icon(
-                      _currentStep > 0 ? Icons.arrow_back_rounded : Icons.close_rounded,
-                      color: Colors.white,
+                      _currentStep > 0
+                          ? Icons.arrow_back_rounded
+                          : Icons.close_rounded,
+                      color: AppColors.textPrimary,
                       size: 20,
                     ),
                   ),
@@ -135,20 +147,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 children: [
                   Text(
                     'Profile Setup',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
+                    style: AppTextStyles.labelMedium.copyWith(
                       color: accentColor,
                       letterSpacing: 2.0,
                     ),
                   ),
+
                   const SizedBox(height: 12),
                   _buildProgressTrack(accentColor),
                 ],
               ),
               centerTitle: true,
-              shape: Border(
-                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05), width: 1),
+              shape: const Border(
+                bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
               ),
             ),
           ),
@@ -159,8 +170,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message, style: GoogleFonts.dmSans()),
-                backgroundColor: const Color(0xFFEF4444),
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
               ),
             );
           } else if (state is AuthSuccess) {
@@ -169,7 +180,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
               barrierDismissible: false,
               builder: (context) => RegistrationSuccessOverlay(
                 onAnimationComplete: () {
-                  Navigator.of(context).pushAndRemoveUntil(HomePage.route(), (route) => false);
+                  Navigator.of(
+                    context,
+                  ).pushAndRemoveUntil(HomePage.route(), (route) => false);
                 },
               ),
             );
@@ -207,8 +220,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     nameController: nameController,
                     professionController: professionController,
                     locationController: locationController,
+                    selectedCategory: _selectedCategory,
+                    selectedExpertise: _selectedExpertise,
+                    onCategoryChanged: (val) => setState(() => _selectedCategory = val),
+                    onExpertiseChanged: (val) => setState(() => _selectedExpertise = val),
                     onContinue: () {
-                      if (nameController.text.isNotEmpty && professionController.text.isNotEmpty) {
+                      if (nameController.text.isNotEmpty &&
+                          professionController.text.isNotEmpty) {
                         _nextStep();
                       }
                     },
@@ -231,7 +249,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     passwordController: passwordController,
                     isLoading: isLoading,
                     onContinue: () {
-                      if (emailController.text.isNotEmpty && passwordController.text.length >= 6) {
+                      if (emailController.text.isNotEmpty &&
+                          passwordController.text.length >= 6) {
                         _register();
                       }
                     },
@@ -256,11 +275,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
           height: 4,
           width: 32,
           decoration: BoxDecoration(
-            color: isActive ? accent : Colors.white.withValues(alpha: 0.05),
+            color: isActive ? accent : AppColors.borderSubtle,
             borderRadius: BorderRadius.circular(2),
-            boxShadow: isActive ? [
-              BoxShadow(color: accent.withValues(alpha: 0.3), blurRadius: 8)
-            ] : [],
+
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                    ),
+                  ]
+                : [],
           ),
         );
       }),
