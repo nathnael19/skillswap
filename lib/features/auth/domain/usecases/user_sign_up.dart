@@ -16,6 +16,8 @@ class UserSignUp implements UseCase<String, UserSignUpParams> {
       bio: params.bio,
       profession: params.profession,
       location: params.location,
+      primaryCategory: params.primaryCategory,
+      expertiseLevel: params.expertiseLevel,
       skills: params.skills,
     );
   }
@@ -28,6 +30,8 @@ class UserSignUpParams {
   final String? bio;
   final String? profession;
   final String? location;
+  final String? primaryCategory;
+  final String? expertiseLevel;
   final List<Map<String, dynamic>>? skills;
 
   UserSignUpParams({
@@ -37,6 +41,8 @@ class UserSignUpParams {
     this.bio,
     this.profession,
     this.location,
+    this.primaryCategory,
+    this.expertiseLevel,
     this.skills,
   });
 }

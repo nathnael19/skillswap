@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class AuthSocialButton extends StatelessWidget {
   final String label;
@@ -20,22 +20,20 @@ class AuthSocialButton extends StatelessWidget {
       child: Container(
         height: 64, // Standardizing height
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.03),
+          color: AppColors.overlay03,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: AppColors.overlay08),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white.withValues(alpha: 0.6), size: 24),
+            Icon(icon, color: AppColors.overlay60, size: 24),
             const SizedBox(width: 12),
             Text(
               label,
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.captionEmphasis.copyWith(
                 letterSpacing: 1.5,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: AppColors.overlay60,
               ),
             ),
           ],
