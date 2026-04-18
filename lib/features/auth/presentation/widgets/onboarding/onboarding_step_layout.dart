@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/app_button.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class OnboardingStepLayout extends StatelessWidget {
   final String title;
@@ -30,36 +30,18 @@ class OnboardingStepLayout extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.dmSans(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: -1,
-            ),
-          ),
+          Text(title, style: AppTextStyles.h2),
           const SizedBox(height: 12),
           Text(
             subtitle,
-            style: GoogleFonts.dmSans(
-              fontSize: 16,
-              color: Colors.white.withValues(alpha: 0.4),
-              height: 1.5,
-            ),
+            style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
           ),
+
           const SizedBox(height: 48),
           ...content,
           const SizedBox(height: 56),
-          AppButton(
-            label: ctaLabel,
-            isLoading: isLoading,
-            onTap: onContinue,
-          ),
-          if (footer != null) ...[
-            const SizedBox(height: 32),
-            footer!,
-          ],
+          AppButton(label: ctaLabel, isLoading: isLoading, onTap: onContinue),
+          if (footer != null) ...[const SizedBox(height: 32), footer!],
         ],
       ),
     );

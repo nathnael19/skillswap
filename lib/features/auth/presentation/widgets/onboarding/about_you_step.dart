@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'onboarding_step_layout.dart';
+import 'package:skillswap/core/constants/app_categories.dart';
 
 class AboutYouStep extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController professionController;
   final TextEditingController locationController;
+  final String? selectedCategory;
+  final String? selectedExpertise;
+  final Function(String?) onCategoryChanged;
+  final Function(String?) onExpertiseChanged;
   final VoidCallback onContinue;
 
   const AboutYouStep({
@@ -15,6 +20,10 @@ class AboutYouStep extends StatelessWidget {
     required this.nameController,
     required this.professionController,
     required this.locationController,
+    required this.selectedCategory,
+    required this.selectedExpertise,
+    required this.onCategoryChanged,
+    required this.onExpertiseChanged,
     required this.onContinue,
   });
 
@@ -44,36 +53,80 @@ class AboutYouStep extends StatelessWidget {
           hint: 'San Francisco, CA',
           icon: Icons.location_on_outlined,
         ),
+        const SizedBox(height: 24),
+
+        // Category Selection
+        DropdownButtonFormField<String>(
+          value: selectedCategory,
+          dropdownColor: AppColors.surface,
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+          decoration: InputDecoration(
+            labelText: 'Primary Category',
+            labelStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
+            prefixIcon: const Icon(Icons.category_outlined, color: AppColors.textSecondary),
+            filled: true,
+            fillColor: AppColors.overlay05,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.borderSubtle),
+            ),
+          ),
+          items: AppCategories.categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+          onChanged: onCategoryChanged,
+        ),
+        const SizedBox(height: 24),
+
+        // Expertise Selection
+        DropdownButtonFormField<String>(
+          value: selectedExpertise,
+          dropdownColor: AppColors.surface,
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+          decoration: InputDecoration(
+            labelText: 'Expertise Level',
+            labelStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
+            prefixIcon: const Icon(Icons.show_chart_rounded, color: AppColors.textSecondary),
+            filled: true,
+            fillColor: AppColors.overlay05,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.borderSubtle),
+            ),
+          ),
+          items: AppCategories.expertiseLevels.where((e) => e != 'All').map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          onChanged: onExpertiseChanged,
+        ),
       ],
       onContinue: onContinue,
-      footer: _buildAuthSwitch(context, 'Already have an account?', 'Log in', () {
-        Navigator.of(context).push(LoginPage.route());
-      }),
+      footer: _buildAuthSwitch(
+        context,
+        'Already have an account?',
+        'Log in',
+        () {
+          Navigator.of(context).push(LoginPage.route());
+        },
+      ),
     );
   }
 
-  Widget _buildAuthSwitch(BuildContext context, String question, String action, VoidCallback onTap) {
+  Widget _buildAuthSwitch(
+    BuildContext context,
+    String question,
+    String action,
+    VoidCallback onTap,
+  ) {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             "$question ",
-            style: GoogleFonts.dmSans(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.3),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
           GestureDetector(
             onTap: onTap,
-            child: Text(
-              action,
-              style: GoogleFonts.dmSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFFCA8A04),
-              ),
-            ),
+            child: Text(action, style: AppTextStyles.link),
           ),
         ],
       ),
