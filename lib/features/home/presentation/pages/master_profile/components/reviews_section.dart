@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/section_header.dart';
 import 'package:skillswap/features/home/domain/models/review_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ReviewsSection extends StatelessWidget {
   final List<Review> reviews;
   const ReviewsSection({super.key, required this.reviews});
 
-  static const Color kPrimary = Color(0xFFCA8A04);
-  static const Color kSecondary = Colors.white;
+  static const Color kPrimary = AppColors.primary;
+  static const Color kSecondary = AppColors.textPrimary;
   static const Color kTextMuted = Color(0xFF9CA3AF);
 
   @override
@@ -22,17 +23,19 @@ class ReviewsSection extends StatelessWidget {
           SectionHeader(
             label: 'REVIEWS',
             title: '${reviews.length} Partner Reviews',
-            titleColor: Colors.white,
+            titleColor: AppColors.textPrimary,
             labelColor: kPrimary,
           ),
           const SizedBox(height: 24),
           if (reviews.isEmpty)
             _buildEmptyState()
           else ...[
-            ...reviews.map((review) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildReviewCard(review),
-                )),
+            ...reviews.map(
+              (review) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildReviewCard(review),
+              ),
+            ),
             const SizedBox(height: 8),
             if (reviews.length > 3) _buildLoadMoreButton(),
           ],
@@ -46,9 +49,9 @@ class ReviewsSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1917),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: AppColors.overlay05),
       ),
       child: Column(
         children: [
@@ -61,7 +64,7 @@ class ReviewsSection extends StatelessWidget {
           Text(
             "No reviews yet",
             style: GoogleFonts.dmSans(
-              color: Colors.white,
+              color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -70,10 +73,7 @@ class ReviewsSection extends StatelessWidget {
           Text(
             "Be the first to swap skills with this expert!",
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
-              color: kTextMuted,
-              fontSize: 13,
-            ),
+            style: GoogleFonts.dmSans(color: kTextMuted, fontSize: 13),
           ),
         ],
       ),
@@ -111,9 +111,9 @@ class ReviewsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1917),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: AppColors.overlay05),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +126,9 @@ class ReviewsSection extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: kPrimary.withValues(alpha: 0.2), width: 2),
+                    color: kPrimary.withValues(alpha: 0.2),
+                    width: 2,
+                  ),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
@@ -150,7 +152,7 @@ class ReviewsSection extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
@@ -171,7 +173,7 @@ class ReviewsSection extends StatelessWidget {
                     Icons.star_rounded,
                     color: i < review.rating.floor()
                         ? const Color(0xFFFACC15)
-                        : Colors.white.withValues(alpha: 0.1),
+                        : AppColors.overlay10,
                     size: 16,
                   ),
                 ),
@@ -184,7 +186,7 @@ class ReviewsSection extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 14,
               fontStyle: FontStyle.italic,
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColors.overlay70,
               height: 1.6,
               fontWeight: FontWeight.w500,
             ),

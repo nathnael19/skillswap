@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/presentation/pages/search_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class MatchesHeader extends StatelessWidget {
   const MatchesHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,9 +28,7 @@ class MatchesHeader extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   'CONNECTIONS',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: accentColor,
                     letterSpacing: 2.0,
                   ),
@@ -64,15 +62,7 @@ class MatchesHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        Text(
-          'Find Synergy',
-          style: GoogleFonts.dmSans(
-            fontSize: 34,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -1.0,
-          ),
-        ),
+        Text('Find Synergy', style: AppTextStyles.h1),
       ],
     );
   }
@@ -87,14 +77,12 @@ class MatchesHeader extends StatelessWidget {
         height: 40,
         width: 40,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AppColors.borderSubtle,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
-            width: 1,
-          ),
+          border: Border.all(color: AppColors.borderDefault, width: 1),
         ),
-        child: Icon(icon, color: Colors.white, size: 18),
+
+        child: Icon(icon, color: AppColors.textPrimary, size: 18),
       ),
     );
   }

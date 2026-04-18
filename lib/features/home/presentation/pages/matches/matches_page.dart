@@ -9,13 +9,14 @@ import 'components/matches_header.dart';
 import 'components/matches_empty_state.dart';
 import 'components/new_connections_section.dart';
 import 'components/chat_messages_section.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class MatchesPage extends StatelessWidget {
   const MatchesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
@@ -62,7 +63,7 @@ class MatchesPage extends StatelessWidget {
                         onRefresh: () =>
                             context.read<MatchesCubit>().fetchMatches(),
                         color: accentColor,
-                        backgroundColor: const Color(0xFF1C1917),
+                        backgroundColor: AppColors.surface,
                         child: CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(
                             parent: BouncingScrollPhysics(),
