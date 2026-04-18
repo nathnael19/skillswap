@@ -8,7 +8,9 @@ abstract class LikesState extends Equatable {
 }
 
 class LikesInitial extends LikesState {}
+
 class LikesLoading extends LikesState {}
+
 class LikesLoaded extends LikesState {
   final List<User> receivedLikes;
   final List<User> sentLikes;

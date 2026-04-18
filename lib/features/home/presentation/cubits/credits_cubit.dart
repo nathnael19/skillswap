@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
 
 abstract class CreditsState extends Equatable {
   const CreditsState();
@@ -39,20 +40,17 @@ class CreditsCubit extends Cubit<CreditsState> {
   Future<void> fetchCredits() async {
     emit(CreditsLoading());
     final result = await _homeRepository.getCredits();
-    result.fold(
-      (failure) => emit(CreditsError(failure.message)),
-      (data) {
-        final balanceMinor = (data['balance_minor'] as num?)?.toInt() ?? 0;
-        final balance = (data['balance'] as num?)?.toDouble() ??
-            balanceMinor / 100.0;
-        emit(
-          CreditsLoaded(
-            balanceMinor,
-            balance,
-            List<dynamic>.from(data['transactions'] ?? []),
-          ),
-        );
-      },
-    );
+    result.fold((failure) => emit(CreditsError(failure.message)), (data) {
+      final balanceMinor = (data['balance_minor'] as num?)?.toInt() ?? 0;
+      final balance =
+          (data['balance'] as num?)?.toDouble() ?? (balanceMinor / AppConstants.minorScale.toDouble());
+      emit(
+        CreditsLoaded(
+          balanceMinor,
+          balance,
+          List<dynamic>.from(data['transactions'] ?? []),
+        ),
+      );
+    });
   }
 }
