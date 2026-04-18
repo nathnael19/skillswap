@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/storage/firebase_storage_service.dart';
 import 'package:skillswap/core/storage/storage_service.dart';
@@ -15,6 +16,7 @@ import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
+import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/home/data/repositories/home_repository_impl.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
@@ -81,6 +83,9 @@ void _initAuth() {
   serviceLocator.registerFactory(
     () => UserSignOut(serviceLocator()),
   );
+  serviceLocator.registerFactory(
+    () => SyncFcmToken(serviceLocator()),
+  );
 
   // Cubits
   serviceLocator.registerLazySingleton(
@@ -89,6 +94,7 @@ void _initAuth() {
       userSignIn: serviceLocator(),
       getCurrentUser: serviceLocator(),
       userSignOut: serviceLocator(),
+      syncFcmToken: serviceLocator(),
     ),
   );
 }
@@ -100,7 +106,7 @@ void _initHome() {
       serviceLocator<ApiClient>(),
       FirebaseDatabase.instanceFor(
         app: Firebase.app(),
-        databaseURL: 'https://skillswap-887cc-default-rtdb.firebaseio.com',
+        databaseURL: AppConstants.firebaseRtdbUrl,
       ),
     ),
   );
@@ -133,7 +139,7 @@ void _initChat() {
       serviceLocator<ApiClient>(),
       FirebaseDatabase.instanceFor(
         app: Firebase.app(),
-        databaseURL: 'https://skillswap-887cc-default-rtdb.firebaseio.com',
+        databaseURL: AppConstants.firebaseRtdbUrl,
       ),
     ),
   );
