@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class SkillSelectionInput extends StatefulWidget {
   final String type;
-  final List<Map<String, String>> skills;
+  final List<Map<String, dynamic>> skills;
   final Function(String) onAddSkill;
   final Function(int) onRemoveSkill;
 
@@ -37,7 +37,7 @@ class _SkillSelectionInputState extends State<SkillSelectionInput> {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,20 +46,22 @@ class _SkillSelectionInputState extends State<SkillSelectionInput> {
           height: 64,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
+
           child: Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _skillInputController,
-                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+                  style: AppTextStyles.bodySmall,
                   decoration: InputDecoration(
                     hintText: 'e.g. Flutter, Advanced Design...',
-                    hintStyle: GoogleFonts.dmSans(
-                        color: Colors.white.withValues(alpha: 0.15)),
+                    hintStyle: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textPrimary.withValues(alpha: 0.15),
+                    ),
                     border: InputBorder.none,
                   ),
                   onSubmitted: (_) => _handleAdd(),
@@ -73,7 +75,11 @@ class _SkillSelectionInputState extends State<SkillSelectionInput> {
                     color: accentColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: AppColors.textPrimary,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
@@ -91,33 +97,35 @@ class _SkillSelectionInputState extends State<SkillSelectionInput> {
                 (e) => Container(
                   padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: AppColors.borderSubtle,
                     borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: Border.all(color: AppColors.borderDefault),
                   ),
+
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        e.value['name']!,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white.withValues(alpha: 0.6),
-                          letterSpacing: 1.0,
+                        e.value['name']?.toString() ?? '',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
+
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () => widget.onRemoveSkill(e.key),
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
+                          decoration: const BoxDecoration(
+                            color: AppColors.borderDefault,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close_rounded,
-                              color: Colors.white24, size: 12),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: AppColors.textMuted,
+                            size: 12,
+                          ),
                         ),
                       ),
                     ],

@@ -86,6 +86,8 @@ class User extends Equatable {
   final String? matchId;
   final String? matchStatus;
   final String? matchPayerId;
+  final String? primaryCategory;
+  final String? expertiseLevel;
 
   const User({
     required this.id,
@@ -103,6 +105,8 @@ class User extends Equatable {
     this.matchId,
     this.matchStatus,
     this.matchPayerId,
+    this.primaryCategory,
+    this.expertiseLevel,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -140,11 +144,14 @@ class User extends Equatable {
       matchId: map['match_id'],
       matchStatus: map['match_status'],
       matchPayerId: map['match_payer_id'],
+      primaryCategory: map['primary_category'],
+      expertiseLevel: map['expertise_level'] ?? 'beginner',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'age': age,
       'rating': rating,
@@ -154,6 +161,11 @@ class User extends Equatable {
       'profession': profession,
       'skills': allSkills.map((s) => s.toMap()).toList(),
       'portfolio': portfolio.map((p) => p.toMap()).toList(),
+      'primary_category': primaryCategory,
+      'expertise_level': expertiseLevel,
+      'match_id': matchId,
+      'match_status': matchStatus,
+      'match_payer_id': matchPayerId,
     };
   }
 
@@ -174,6 +186,8 @@ class User extends Equatable {
     matchId,
     matchStatus,
     matchPayerId,
+    primaryCategory,
+    expertiseLevel,
   ];
 }
 
@@ -211,6 +225,20 @@ class Conversation extends Equatable {
       status: map['status'] ?? 'mutual',
       payerId: map['payer_id'],
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'user': user.toMap(),
+      if (lastMessage != null) 'last_message': {
+        'content': lastMessage,
+        'timestamp': lastMessageTime,
+      },
+      'has_unread': hasUnread,
+      'match_id': matchId,
+      'status': status,
+      'payer_id': payerId,
+    };
   }
 
   @override
