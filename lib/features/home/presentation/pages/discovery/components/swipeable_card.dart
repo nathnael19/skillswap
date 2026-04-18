@@ -5,6 +5,7 @@ import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile/master_profile_page.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class SwipeableCard extends StatelessWidget {
   final User user;
@@ -100,7 +101,7 @@ class SwipeableCard extends StatelessWidget {
                       color: Colors.black.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(100),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: AppColors.textPrimary.withValues(alpha: 0.15),
                         width: 1,
                       ),
                     ),
@@ -128,7 +129,7 @@ class SwipeableCard extends StatelessWidget {
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             letterSpacing: 1.2,
                           ),
                         ),
@@ -171,7 +172,7 @@ class SwipeableCard extends StatelessWidget {
                                   style: GoogleFonts.dmSans(
                                     fontSize: 34,
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     letterSpacing: -1.0,
                                     shadows: [
                                       Shadow(
@@ -191,7 +192,7 @@ class SwipeableCard extends StatelessWidget {
                                     style: GoogleFonts.dmSans(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.white.withValues(
+                                      color: AppColors.textPrimary.withValues(
                                         alpha: 0.7,
                                       ),
                                     ),
@@ -233,22 +234,22 @@ class SwipeableCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFCA8A04).withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFCA8A04).withValues(alpha: 0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
           width: 0.8,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: Color(0xFFCA8A04), size: 18),
+          const Icon(Icons.star_rounded, color: AppColors.primary, size: 18),
           const SizedBox(width: 4),
           Text(
             rating.toStringAsFixed(1),
             style: GoogleFonts.dmSans(
-              color: const Color(0xFFCA8A04),
+              color: AppColors.primary,
               fontWeight: FontWeight.w700,
               fontSize: 14,
             ),
@@ -263,7 +264,7 @@ class SwipeableCard extends StatelessWidget {
     required String skill,
     required bool isPrimary,
   }) {
-    final accentColor = isPrimary ? const Color(0xFFCA8A04) : Colors.white;
+    final accentColor = isPrimary ? AppColors.primary : AppColors.textPrimary;
 
     return Expanded(
       child: Container(
@@ -294,7 +295,7 @@ class SwipeableCard extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 letterSpacing: -0.2,
               ),
               maxLines: 1,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LikeOverlay extends StatelessWidget {
   final AnimationController animationController;
@@ -25,16 +26,16 @@ class LikeOverlay extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCA8A04).withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFCA8A04).withValues(alpha: 0.5),
+                    color: AppColors.primary.withValues(alpha: 0.5),
                     width: 2,
                   ),
                 ),
                 child: const Icon(
                   Icons.favorite_rounded,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   size: 80,
                 ),
               ),
