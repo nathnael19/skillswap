@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class AccountSettingsSection extends StatelessWidget {
   final VoidCallback onIdentityVerificationTap;
@@ -11,8 +11,8 @@ class AccountSettingsSection extends StatelessWidget {
     required this.onLogoutTap,
   });
 
-  static const Color kAccent = Color(0xFFCA8A04);
-  static const Color kText = Colors.white;
+  static const Color kAccent = AppColors.primary;
+  static const Color kText = AppColors.textPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -21,30 +21,25 @@ class AccountSettingsSection extends StatelessWidget {
       children: [
         Text(
           'Account Settings',
-          style: GoogleFonts.dmSans(
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            color: kAccent,
-            letterSpacing: 1.5,
-          ),
+          style: AppTextStyles.labelSmall.copyWith(color: kAccent),
         ),
+
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
+
           child: Column(
             children: [
               _buildSettingsTile(Icons.settings_outlined, 'Account Settings'),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  height: 1,
-                ),
+                child: Divider(color: AppColors.borderSubtle, height: 1),
               ),
+
               _buildSettingsTile(
                 Icons.verified_user_outlined,
                 'Identity Verification',
@@ -52,11 +47,9 @@ class AccountSettingsSection extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  height: 1,
-                ),
+                child: Divider(color: AppColors.borderSubtle, height: 1),
               ),
+
               _buildLogoutTile(),
             ],
           ),
@@ -65,7 +58,11 @@ class AccountSettingsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsTile(IconData icon, String title, {VoidCallback? onTap}) {
+  Widget _buildSettingsTile(
+    IconData icon,
+    String title, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
       onTap: onTap ?? () {},
       child: Padding(
@@ -75,25 +72,17 @@ class AccountSettingsSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.borderSubtle,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: kAccent, size: 20),
             ),
+
             const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.dmSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: kText,
-                ),
-              ),
-            ),
+            Expanded(child: Text(title, style: AppTextStyles.bodyMedium)),
             Icon(
               Icons.chevron_right_rounded,
-              color: Colors.white.withValues(alpha: 0.2),
+              color: AppColors.textMuted,
               size: 20,
             ),
           ],
@@ -112,12 +101,12 @@ class AccountSettingsSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.logout_rounded,
-                color: Color(0xFFEF4444),
+                color: AppColors.error,
                 size: 20,
               ),
             ),
@@ -125,10 +114,9 @@ class AccountSettingsSection extends StatelessWidget {
             Expanded(
               child: Text(
                 'Sign Out',
-                style: GoogleFonts.dmSans(
-                  fontSize: 15,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.error,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFFEF4444),
                 ),
               ),
             ),

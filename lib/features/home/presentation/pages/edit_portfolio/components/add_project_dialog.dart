@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class AddProjectDialog extends StatefulWidget {
   final Function(PortfolioItem) onAdd;
@@ -29,18 +30,18 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: const Color(0xFF1C1917),
+      backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(28),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        side: BorderSide(color: AppColors.overlay10),
       ),
       title: Text(
         'New Project',
         style: GoogleFonts.dmSans(
           fontSize: 14,
           fontWeight: FontWeight.w800,
-          color: const Color(0xFFCA8A04),
+          color: AppColors.primary,
           letterSpacing: 1.5,
         ),
       ),
@@ -48,13 +49,30 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildDialogField('Project Title', _titleController, 'e.g. SkillSwap App'),
+            _buildDialogField(
+              'Project Title',
+              _titleController,
+              'e.g. SkillSwap App',
+            ),
             const SizedBox(height: 16),
-            _buildDialogField('Description', _descController, 'What did you build?', maxLines: 3),
+            _buildDialogField(
+              'Description',
+              _descController,
+              'What did you build?',
+              maxLines: 3,
+            ),
             const SizedBox(height: 16),
-            _buildDialogField('Image URL (Optional)', _imageController, 'https://...'),
+            _buildDialogField(
+              'Image URL (Optional)',
+              _imageController,
+              'https://...',
+            ),
             const SizedBox(height: 16),
-            _buildDialogField('GitHub URL (Optional)', _githubController, 'https://github.com/...'),
+            _buildDialogField(
+              'GitHub URL (Optional)',
+              _githubController,
+              'https://github.com/...',
+            ),
           ],
         ),
       ),
@@ -64,27 +82,36 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
           child: Text(
             'Cancel',
             style: GoogleFonts.dmSans(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColors.overlay50,
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
         ElevatedButton(
           onPressed: () {
-            if (_titleController.text.isNotEmpty && _descController.text.isNotEmpty) {
-              widget.onAdd(PortfolioItem(
-                title: _titleController.text,
-                description: _descController.text,
-                imageUrl: _imageController.text.isNotEmpty ? _imageController.text : null,
-                githubUrl: _githubController.text.isNotEmpty ? _githubController.text : null,
-              ));
+            if (_titleController.text.isNotEmpty &&
+                _descController.text.isNotEmpty) {
+              widget.onAdd(
+                PortfolioItem(
+                  title: _titleController.text,
+                  description: _descController.text,
+                  imageUrl: _imageController.text.isNotEmpty
+                      ? _imageController.text
+                      : null,
+                  githubUrl: _githubController.text.isNotEmpty
+                      ? _githubController.text
+                      : null,
+                ),
+              );
               Navigator.pop(context);
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFCA8A04),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.textPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: Text(
             'Add Project',
@@ -95,7 +122,12 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
     );
   }
 
-  Widget _buildDialogField(String label, TextEditingController controller, String hint, {int maxLines = 1}) {
+  Widget _buildDialogField(
+    String label,
+    TextEditingController controller,
+    String hint, {
+    int maxLines = 1,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -104,19 +136,19 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
           style: GoogleFonts.dmSans(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Colors.white.withValues(alpha: 0.5),
+            color: AppColors.overlay50,
           ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: GoogleFonts.dmSans(color: Colors.white),
+          style: GoogleFonts.dmSans(color: AppColors.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.dmSans(color: Colors.white.withValues(alpha: 0.2)),
+            hintStyle: GoogleFonts.dmSans(color: AppColors.overlay20),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: AppColors.overlay05,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

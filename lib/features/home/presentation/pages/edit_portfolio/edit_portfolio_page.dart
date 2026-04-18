@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'components/add_project_dialog.dart';
 import 'components/empty_portfolio_state.dart';
 import 'components/portfolio_project_tile.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class EditPortfolioPage extends StatefulWidget {
   final User user;
@@ -76,9 +77,9 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
     return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
         if (state is ProfileUpdateSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Portfolio updated!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Portfolio updated!')));
           Navigator.pop(context);
         }
       },
@@ -86,12 +87,15 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
         final isLoading = state is ProfileLoading;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0C0A09),
+          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF0C0A09),
+            backgroundColor: AppColors.background,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppColors.textPrimary,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
@@ -99,7 +103,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
               style: GoogleFonts.dmSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 letterSpacing: 1.5,
               ),
             ),
@@ -111,7 +115,10 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
                     child: SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFCA8A04)),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 )
@@ -123,7 +130,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
                     style: GoogleFonts.dmSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFFCA8A04),
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -153,8 +160,6 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
     );
   }
 
-
-
   Widget _buildAddButton() {
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -166,12 +171,17 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
           icon: const Icon(Icons.add_rounded),
           label: Text(
             'Add Project',
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, letterSpacing: 1.0),
+            style: GoogleFonts.dmSans(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.0,
+            ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFCA8A04),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.textPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
           ),
         ),
       ),
