@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
@@ -10,13 +9,14 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'components/like_card.dart';
 import 'components/likes_empty_state.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class LikesPage extends StatelessWidget {
   const LikesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
@@ -59,31 +59,27 @@ class LikesPage extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 24),
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.03),
+                          color: AppColors.cardBackground,
                           borderRadius: BorderRadius.circular(100),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.06),
-                          ),
+                          border: Border.all(color: AppColors.borderSubtle),
                         ),
+
                         child: TabBar(
                           indicatorSize: TabBarIndicatorSize.tab,
                           indicator: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.05),
+                            color: AppColors.borderSubtle,
                             borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.08),
-                            ),
+                            border: Border.all(color: AppColors.borderDefault),
                           ),
+
                           dividerColor: Colors.transparent,
                           labelColor: accentColor,
-                          unselectedLabelColor: Colors.white.withValues(
-                            alpha: 0.3,
-                          ),
-                          labelStyle: GoogleFonts.dmSans(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
+                          unselectedLabelColor: AppColors.textPrimary
+                              .withValues(alpha: 0.3),
+                          labelStyle: AppTextStyles.labelSmall.copyWith(
                             letterSpacing: 1.2,
                           ),
+
                           labelPadding: EdgeInsets.zero,
                           tabs: const [
                             Tab(text: 'Interests'),
@@ -134,7 +130,7 @@ class LikesPage extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,25 +148,12 @@ class LikesPage extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               'Your Feed',
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: accentColor,
-                letterSpacing: 2.0,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: accentColor),
             ),
           ],
         ),
         const SizedBox(height: 14),
-        Text(
-          'Discover Experts',
-          style: GoogleFonts.dmSans(
-            fontSize: 34,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -1.0,
-          ),
-        ),
+        Text('Discover Experts', style: AppTextStyles.h1),
       ],
     );
   }
@@ -184,7 +167,7 @@ class LikesPage extends StatelessWidget {
     bool isSent = false,
     bool isPassed = false,
   }) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     if (users.isEmpty) {
       return RefreshIndicator(
@@ -195,11 +178,8 @@ class LikesPage extends StatelessWidget {
           }
         },
         color: accentColor,
-        backgroundColor: const Color(0xFF1C1917),
-        child: LikesEmptyState(
-          title: emptyTitle,
-          subtitle: emptySubtitle,
-        ),
+        backgroundColor: AppColors.surface,
+        child: LikesEmptyState(title: emptyTitle, subtitle: emptySubtitle),
       );
     }
 
@@ -211,7 +191,7 @@ class LikesPage extends StatelessWidget {
         }
       },
       color: accentColor,
-      backgroundColor: const Color(0xFF1C1917),
+      backgroundColor: AppColors.surface,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
         physics: const BouncingScrollPhysics(),

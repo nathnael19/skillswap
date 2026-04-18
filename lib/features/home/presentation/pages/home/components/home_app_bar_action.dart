@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class HomeAppBarAction extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const HomeAppBarAction({
-    super.key,
-    required this.icon,
-    required this.onTap,
-  });
+  const HomeAppBarAction({super.key, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +16,11 @@ class HomeAppBarAction extends StatelessWidget {
           height: 48,
           width: 48,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: AppColors.overlay05,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 1,
-            ),
+            border: Border.all(color: AppColors.overlay10, width: 1),
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: Icon(icon, color: AppColors.textPrimary, size: 20),
         ),
       ),
     );

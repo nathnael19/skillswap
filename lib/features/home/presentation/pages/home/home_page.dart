@@ -19,6 +19,7 @@ import 'package:skillswap/init_dependencies.dart';
 import '../../shared/filter_bottom_sheet.dart';
 import 'components/midnight_navigation_bar.dart';
 import 'components/home_app_bar_action.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class HomePage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() => MaterialPageRoute(
@@ -51,9 +52,9 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   // Filter State (Shared across tabs)
-  List<String> _selectedCategories = ['Design'];
-  String _selectedExpertise = 'Intermediate';
-  double _minRating = 4.0;
+  List<String> _selectedCategories = [];
+  String _selectedExpertise = 'All';
+  double _minRating = 0.0;
 
   void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -83,7 +84,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBgColor = Color(0xFF0C0A09);
+    const primaryBgColor = AppColors.background;
 
     return Builder(
       builder: (context) {
@@ -198,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                             style: GoogleFonts.dmSans(
                               fontWeight: FontWeight.w900,
                               fontSize: 16,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               letterSpacing: 2.0,
                             ),
                           ),
@@ -206,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                           actions: actions,
                           shape: Border(
                             bottom: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: AppColors.overlay05,
                               width: 1,
                             ),
                           ),
