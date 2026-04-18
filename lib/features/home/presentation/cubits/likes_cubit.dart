@@ -15,31 +15,27 @@ class LikesCubit extends Cubit<LikesState> {
       final results = await Future.wait([
         _homeRepository.getLikesReceived(),
         _homeRepository.getSentLikes(),
-        _homeRepository.getSentDislikes()
+        _homeRepository.getSentDislikes(),
       ]);
 
       final receivedResult = results[0];
       final sentResult = results[1];
       final passedResult = results[2];
 
-      receivedResult.fold(
-        (l) => emit(LikesError(l.message)),
-        (receivedList) {
-          sentResult.fold(
+      receivedResult.fold((l) => emit(LikesError(l.message)), (receivedList) {
+        sentResult.fold((l) => emit(LikesError(l.message)), (sentList) {
+          passedResult.fold(
             (l) => emit(LikesError(l.message)),
-            (sentList) {
-              passedResult.fold(
-                (l) => emit(LikesError(l.message)),
-                (passedList) => emit(LikesLoaded(
-                  receivedLikes: receivedList,
-                  sentLikes: sentList,
-                  passedUsers: passedList,
-                )),
-              );
-            },
+            (passedList) => emit(
+              LikesLoaded(
+                receivedLikes: receivedList,
+                sentLikes: sentList,
+                passedUsers: passedList,
+              ),
+            ),
           );
-        },
-      );
+        });
+      });
     } catch (e) {
       emit(LikesError(e.toString()));
     }
