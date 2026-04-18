@@ -10,6 +10,7 @@ import 'package:skillswap/features/home/presentation/pages/profile/components/re
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -37,7 +38,7 @@ class ProfileView extends StatelessWidget {
                     if (state is ProfileLoading) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFFCA8A04),
+                          color: AppColors.primary,
                           strokeWidth: 2,
                         ),
                       );
@@ -56,8 +57,8 @@ class ProfileView extends StatelessWidget {
                       return RefreshIndicator(
                         onRefresh: () =>
                             context.read<ProfileCubit>().fetchUserProfile(),
-                        color: const Color(0xFFCA8A04),
-                        backgroundColor: const Color(0xFF1C1917),
+                        color: AppColors.primary,
+                        backgroundColor: AppColors.surface,
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -87,7 +88,7 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, bool isLoggedIn) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,16 +130,13 @@ class ProfileView extends StatelessWidget {
                   height: 40,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: AppColors.overlay05,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      width: 1,
-                    ),
+                    border: Border.all(color: AppColors.overlay08, width: 1),
                   ),
                   child: const Icon(
                     Icons.account_balance_wallet_outlined,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     size: 18,
                   ),
                 ),
@@ -151,7 +149,7 @@ class ProfileView extends StatelessWidget {
           style: GoogleFonts.dmSans(
             fontSize: 34,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             letterSpacing: -1.0,
           ),
         ),

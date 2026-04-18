@@ -4,6 +4,7 @@ import 'package:skillswap/features/home/presentation/pages/live_session/live_ses
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class ChatQuickActions extends StatefulWidget {
   final String matchId;
@@ -15,7 +16,7 @@ class ChatQuickActions extends StatefulWidget {
   final String? currentUserImageUrl;
 
   const ChatQuickActions({
-    super.key, 
+    super.key,
     required this.matchId,
     required this.peerName,
     required this.peerImageUrl,
@@ -35,27 +36,27 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
   Future<void> _createInstantSession() async {
     setState(() => _isCreatingSession = true);
     final repo = serviceLocator<HomeRepository>();
-    
+
     // We pass peerId as payerId because the Caller (Expert) initiates the call, but the other person (Learner) pays.
     final result = await repo.createSession(
       matchId: widget.matchId,
       scheduledTime: DateTime.now(),
-      payerId: widget.peerId, 
+      payerId: widget.peerId,
     );
-    
+
     if (!mounted) return;
     setState(() => _isCreatingSession = false);
-    
+
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
       },
       (data) {
         final id = data['id'] as String?;
         if (id == null) return;
-        
+
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -78,7 +79,7 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -111,29 +112,25 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
             ),
             const SizedBox(width: 16),
             _buildActionButton(
-              context, 
-              _isCreatingSession ? 'Starting...' : 'Call now', 
+              context,
+              _isCreatingSession ? 'Starting...' : 'Call now',
               _isCreatingSession ? null : _createInstantSession,
             ),
             const SizedBox(width: 12),
-            _buildActionButton(
-              context, 
-              'Schedule a Swap', 
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScheduleSessionPage(
-                      matchId: widget.matchId,
-                      peerName: widget.peerName,
-                      peerImageUrl: widget.peerImageUrl,
-                      currentUserId: widget.currentUserId,
-                      peerId: widget.peerId,
-                    ),
+            _buildActionButton(context, 'Schedule a Swap', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ScheduleSessionPage(
+                    matchId: widget.matchId,
+                    peerName: widget.peerName,
+                    peerImageUrl: widget.peerImageUrl,
+                    currentUserId: widget.currentUserId,
+                    peerId: widget.peerId,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -145,16 +142,16 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
     String label,
     VoidCallback? onTap,
   ) {
-    const accentColor = Color(0xFFCA8A04);
+    const accentColor = AppColors.primary;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: AppColors.textPrimary.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: AppColors.overlay08),
         ),
         child: Text(
           label,
