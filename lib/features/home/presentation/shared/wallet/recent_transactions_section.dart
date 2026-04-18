@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'transaction_item.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class RecentTransactionsSection extends StatelessWidget {
   final List<dynamic> transactions;
 
-  const RecentTransactionsSection({
-    super.key,
-    required this.transactions,
-  });
+  const RecentTransactionsSection({super.key, required this.transactions});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -45,9 +43,9 @@ class RecentTransactionsSection extends StatelessWidget {
           if (transactions.isEmpty)
             _buildEmptyLedger()
           else
-            ...transactions.map((t) => TransactionItem(
-              data: t as Map<String, dynamic>,
-            )),
+            ...transactions.map(
+              (t) => TransactionItem(data: t as Map<String, dynamic>),
+            ),
         ],
       ),
     );
@@ -58,15 +56,17 @@ class RecentTransactionsSection extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.02),
+        color: AppColors.textPrimary.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
+        border: Border.all(
+          color: AppColors.textPrimary.withValues(alpha: 0.04),
+        ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.history_toggle_off_rounded,
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppColors.overlay10,
             size: 40,
           ),
           const SizedBox(height: 16),
@@ -75,7 +75,7 @@ class RecentTransactionsSection extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Colors.white.withValues(alpha: 0.2),
+              color: AppColors.overlay20,
               letterSpacing: 1.5,
             ),
           ),
@@ -85,7 +85,7 @@ class RecentTransactionsSection extends StatelessWidget {
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
               fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.15),
+              color: AppColors.textPrimary.withValues(alpha: 0.15),
               height: 1.5,
             ),
           ),

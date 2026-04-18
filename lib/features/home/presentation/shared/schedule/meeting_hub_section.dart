@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/theme.dart';
 
 class MeetingHubSection extends StatelessWidget {
   const MeetingHubSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFCA8A04);
-    
+    const accentColor = AppColors.primary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,8 +21,11 @@ class MeetingHubSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: accentColor.withValues(alpha: 0.2)),
               ),
-              child: const Icon(Icons.temple_buddhist_rounded,
-                  color: accentColor, size: 22),
+              child: const Icon(
+                Icons.temple_buddhist_rounded,
+                color: accentColor,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 20),
             Text(
@@ -29,7 +33,7 @@ class MeetingHubSection extends StatelessWidget {
               style: GoogleFonts.dmSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 letterSpacing: 2.0,
               ),
             ),
@@ -39,9 +43,9 @@ class MeetingHubSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: AppColors.overlay03,
             borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(color: AppColors.overlay08),
           ),
           child: Row(
             children: [
@@ -54,7 +58,7 @@ class MeetingHubSection extends StatelessWidget {
                     image: AssetImage('assets/home.png'),
                     fit: BoxFit.cover,
                   ),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  border: Border.all(color: AppColors.overlay10),
                 ),
               ),
               const SizedBox(width: 20),
@@ -67,7 +71,7 @@ class MeetingHubSection extends StatelessWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -77,7 +81,7 @@ class MeetingHubSection extends StatelessWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: AppColors.overlay30,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -87,12 +91,15 @@ class MeetingHubSection extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: AppColors.overlay05,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  border: Border.all(color: AppColors.overlay10),
                 ),
-                child: const Icon(Icons.explore_rounded,
-                    color: accentColor, size: 20),
+                child: const Icon(
+                  Icons.explore_rounded,
+                  color: accentColor,
+                  size: 20,
+                ),
               ),
             ],
           ),
