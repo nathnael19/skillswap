@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/services/presence_service.dart';
+import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/core/network/api_constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileHeaderSection extends StatelessWidget {
   final User user;
   const ProfileHeaderSection({super.key, required this.user});
 
-  static const Color kPrimary = Color(0xFFCA8A04);
-  static const Color kSecondary = Colors.white;
+  static const Color kPrimary = AppColors.primary;
+  static const Color kSecondary = AppColors.textPrimary;
   static const Color kTextMuted = Color(0xFF9CA3AF);
 
   @override
@@ -27,7 +30,10 @@ class ProfileHeaderSection extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(32),
-                  border: Border.all(color: kPrimary.withValues(alpha: 0.1), width: 1.5),
+                  border: Border.all(
+                    color: kPrimary.withValues(alpha: 0.1),
+                    width: 1.5,
+                  ),
                 ),
                 child: Stack(
                   alignment: Alignment.bottomRight,
@@ -36,12 +42,17 @@ class ProfileHeaderSection extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(28),
                         image: DecorationImage(
-                          image: user.imageUrl.startsWith('http')
-                              ? NetworkImage(user.imageUrl)
-                              : AssetImage(user.imageUrl.isEmpty
+                          image: (user.imageUrl.startsWith('http') || user.imageUrl.startsWith('/static'))
+                              ? CachedNetworkImageProvider(
+                                  user.imageUrl.startsWith('/')
+                                      ? '${ApiConstants.mediaBaseUrl}${user.imageUrl}'
+                                      : user.imageUrl,
+                                )
+                              : AssetImage(
+                                  user.imageUrl.isEmpty
                                       ? 'assets/home.png'
-                                      : user.imageUrl)
-                                  as ImageProvider,
+                                      : user.imageUrl,
+                                ) as ImageProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -52,7 +63,10 @@ class ProfileHeaderSection extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(0xFFFACC15), // Gold
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.5),
+                        border: Border.all(
+                          color: AppColors.textPrimary,
+                          width: 2.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
@@ -61,8 +75,11 @@ class ProfileHeaderSection extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.verified_rounded,
-                          color: Color(0xFF854D0E), size: 16),
+                      child: const Icon(
+                        Icons.verified_rounded,
+                        color: Color(0xFF854D0E),
+                        size: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -103,16 +120,19 @@ class ProfileHeaderSection extends StatelessWidget {
                 builder: (context, snapshot) {
                   final isOnline = snapshot.data ?? false;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: isOnline
                           ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                          : Colors.white.withValues(alpha: 0.05),
+                          : AppColors.overlay05,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isOnline
                             ? const Color(0xFF10B981).withValues(alpha: 0.2)
-                            : Colors.white.withValues(alpha: 0.1),
+                            : AppColors.overlay10,
                       ),
                     ),
                     child: Row(
@@ -122,7 +142,9 @@ class ProfileHeaderSection extends StatelessWidget {
                           width: 6,
                           height: 6,
                           decoration: BoxDecoration(
-                            color: isOnline ? const Color(0xFF10B981) : Colors.white38,
+                            color: isOnline
+                                ? const Color(0xFF10B981)
+                                : AppColors.textPrimary.withValues(alpha: 0.38),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -132,7 +154,9 @@ class ProfileHeaderSection extends StatelessWidget {
                           style: GoogleFonts.dmSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: isOnline ? const Color(0xFF10B981) : Colors.white38,
+                            color: isOnline
+                                ? const Color(0xFF10B981)
+                                : AppColors.textPrimary.withValues(alpha: 0.38),
                             letterSpacing: 0.5,
                           ),
                         ),
