@@ -21,6 +21,7 @@ class ApiConstants {
   static const String initUser = '/users/init';
   static const String me = '/users/me';
   static const String updateUser = '/users/me';
+  static const String deleteUser = '/users/me';
   static const String discover = '/users/discover';
   static const String userById = '/users'; // /users/{id}
   
