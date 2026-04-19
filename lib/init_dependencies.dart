@@ -17,6 +17,7 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
+import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/home/data/repositories/home_repository_impl.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
@@ -86,6 +87,9 @@ void _initAuth() {
   serviceLocator.registerFactory(
     () => SyncFcmToken(serviceLocator()),
   );
+  serviceLocator.registerFactory(
+    () => DeleteAccount(serviceLocator()),
+  );
 
   // Cubits
   serviceLocator.registerLazySingleton(
@@ -95,6 +99,7 @@ void _initAuth() {
       getCurrentUser: serviceLocator(),
       userSignOut: serviceLocator(),
       syncFcmToken: serviceLocator(),
+      deleteAccount: serviceLocator(),
     ),
   );
 }
