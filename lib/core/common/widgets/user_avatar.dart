@@ -37,7 +37,7 @@ class UserAvatar extends StatelessWidget {
             width: radius * 2,
             height: radius * 2,
             fit: BoxFit.cover,
-            errorWidget: (_, __, ___) => Image.asset(
+            errorWidget: (_, _, _) => Image.asset(
               'assets/home.png',
               width: radius * 2,
               height: radius * 2,
