@@ -57,13 +57,20 @@ class AboutYouStep extends StatelessWidget {
 
         // Category Selection
         DropdownButtonFormField<String>(
-          value: selectedCategory,
+          initialValue: selectedCategory,
           dropdownColor: AppColors.surface,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+          ),
           decoration: InputDecoration(
             labelText: 'Primary Category',
-            labelStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
-            prefixIcon: const Icon(Icons.category_outlined, color: AppColors.textSecondary),
+            labelStyle: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.primary,
+            ),
+            prefixIcon: const Icon(
+              Icons.category_outlined,
+              color: AppColors.textSecondary,
+            ),
             filled: true,
             fillColor: AppColors.overlay05,
             border: OutlineInputBorder(
@@ -71,20 +78,29 @@ class AboutYouStep extends StatelessWidget {
               borderSide: const BorderSide(color: AppColors.borderSubtle),
             ),
           ),
-          items: AppCategories.categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+          items: AppCategories.categories
+              .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+              .toList(),
           onChanged: onCategoryChanged,
         ),
         const SizedBox(height: 24),
 
         // Expertise Selection
         DropdownButtonFormField<String>(
-          value: selectedExpertise,
+          initialValue: selectedExpertise,
           dropdownColor: AppColors.surface,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+          ),
           decoration: InputDecoration(
             labelText: 'Expertise Level',
-            labelStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
-            prefixIcon: const Icon(Icons.show_chart_rounded, color: AppColors.textSecondary),
+            labelStyle: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.primary,
+            ),
+            prefixIcon: const Icon(
+              Icons.show_chart_rounded,
+              color: AppColors.textSecondary,
+            ),
             filled: true,
             fillColor: AppColors.overlay05,
             border: OutlineInputBorder(
@@ -92,7 +108,10 @@ class AboutYouStep extends StatelessWidget {
               borderSide: const BorderSide(color: AppColors.borderSubtle),
             ),
           ),
-          items: AppCategories.expertiseLevels.where((e) => e != 'All').map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          items: AppCategories.expertiseLevels
+              .where((e) => e != 'All')
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
           onChanged: onExpertiseChanged,
         ),
       ],
