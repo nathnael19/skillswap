@@ -1,13 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
+import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/core/services/presence_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:skillswap/core/usecase/usecase.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final UserSignUp _userSignUp;
@@ -15,6 +19,7 @@ class AuthCubit extends Cubit<AuthState> {
   final GetCurrentUser _getCurrentUser;
   final UserSignOut _userSignOut;
   final SyncFcmToken _syncFcmToken;
+  final DeleteAccount _deleteAccount;
 
   AuthCubit({
     required UserSignUp userSignUp,
@@ -22,37 +27,51 @@ class AuthCubit extends Cubit<AuthState> {
     required GetCurrentUser getCurrentUser,
     required UserSignOut userSignOut,
     required SyncFcmToken syncFcmToken,
-  })  : _userSignUp = userSignUp,
-        _userSignIn = userSignIn,
-        _getCurrentUser = getCurrentUser,
-        _userSignOut = userSignOut,
-        _syncFcmToken = syncFcmToken,
-        super(AuthInitial());
+    required DeleteAccount deleteAccount,
+  }) : _userSignUp = userSignUp,
+       _userSignIn = userSignIn,
+       _getCurrentUser = getCurrentUser,
+       _userSignOut = userSignOut,
+       _syncFcmToken = syncFcmToken,
+       _deleteAccount = deleteAccount,
+       super(AuthInitial());
 
   Future<void> _handleFcmToken() async {
     try {
       final messaging = FirebaseMessaging.instance;
-      await messaging.requestPermission();
-      final token = await messaging.getToken();
+      final settings = await messaging.requestPermission();
+      print('[FCM] Permission status: ${settings.authorizationStatus}');
+
+      // Web requires a VAPID key, other platforms do not
+      final token = await messaging.getToken(
+        vapidKey: kIsWeb ? AppConstants.fcmWebVapidKey : null,
+      );
+
       if (token != null) {
-        await _syncFcmToken(SyncFcmTokenParams(token));
+        print('[FCM] Got token: $token');
+        final result = await _syncFcmToken(SyncFcmTokenParams(token));
+        result.fold(
+          (failure) => print('[FCM] Sync failed: ${failure.message}'),
+          (_) => print('[FCM] Token synced successfully!'),
+        );
+      } else {
+        print(
+          '[FCM] Token is null — on web, make sure your VAPID key is set in AppConstants.fcmWebVapidKey',
+        );
       }
-    } catch (_) {
-      // Gracefully ignore notification setup failures mapping cleanly
+    } catch (e) {
+      print('[FCM] Error: $e');
     }
   }
 
   void getUserData() async {
     final res = await _getCurrentUser();
 
-    res.fold(
-      (l) => emit(AuthInitial()),
-      (r) {
-        PresenceService.instance.goOnline(r);
-        _handleFcmToken();
-        emit(AuthSuccess(r));
-      },
-    );
+    res.fold((l) => emit(AuthInitial()), (r) {
+      PresenceService.instance.goOnline(r);
+      _handleFcmToken();
+      emit(AuthSuccess(r));
+    });
   }
 
   void signUp({
@@ -81,36 +100,24 @@ class AuthCubit extends Cubit<AuthState> {
       ),
     );
 
-    res.fold(
-      (l) => emit(AuthFailure(l.message)),
-      (r) {
-        PresenceService.instance.goOnline(r);
-        _handleFcmToken();
-        emit(AuthSuccess(r));
-      },
-    );
+    res.fold((l) => emit(AuthFailure(l.message)), (r) {
+      PresenceService.instance.goOnline(r);
+      _handleFcmToken();
+      emit(AuthSuccess(r));
+    });
   }
 
-  void signIn({
-    required String email,
-    required String password,
-  }) async {
+  void signIn({required String email, required String password}) async {
     emit(AuthLoading());
     final res = await _userSignIn(
-      UserSignInParams(
-        email: email,
-        password: password,
-      ),
+      UserSignInParams(email: email, password: password),
     );
 
-    res.fold(
-      (l) => emit(AuthFailure(l.message)),
-      (r) {
-        PresenceService.instance.goOnline(r);
-        _handleFcmToken();
-        emit(AuthSuccess(r));
-      },
-    );
+    res.fold((l) => emit(AuthFailure(l.message)), (r) {
+      PresenceService.instance.goOnline(r);
+      _handleFcmToken();
+      emit(AuthSuccess(r));
+    });
   }
 
   void signOut() async {
@@ -118,8 +125,20 @@ class AuthCubit extends Cubit<AuthState> {
     if (uid != null) {
       PresenceService.instance.goOffline(uid);
     }
-    
+
     final res = await _userSignOut();
+
+    res.fold((l) => emit(AuthFailure(l.message)), (r) => emit(AuthInitial()));
+  }
+
+  void deleteAccount() async {
+    emit(AuthLoading());
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      PresenceService.instance.goOffline(uid);
+    }
+    
+    final res = await _deleteAccount(NoParams());
 
     res.fold(
       (l) => emit(AuthFailure(l.message)),
