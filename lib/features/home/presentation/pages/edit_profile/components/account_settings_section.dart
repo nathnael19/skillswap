@@ -4,11 +4,13 @@ import 'package:skillswap/core/theme/theme.dart';
 class AccountSettingsSection extends StatelessWidget {
   final VoidCallback onIdentityVerificationTap;
   final VoidCallback onLogoutTap;
+  final VoidCallback onDeleteAccountTap;
 
   const AccountSettingsSection({
     super.key,
     required this.onIdentityVerificationTap,
     required this.onLogoutTap,
+    required this.onDeleteAccountTap,
   });
 
   static const Color kAccent = AppColors.primary;
@@ -51,6 +53,12 @@ class AccountSettingsSection extends StatelessWidget {
               ),
 
               _buildLogoutTile(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Divider(color: AppColors.borderSubtle, height: 1),
+              ),
+              
+              _buildDeleteAccountTile(),
             ],
           ),
         ),
@@ -114,6 +122,41 @@ class AccountSettingsSection extends StatelessWidget {
             Expanded(
               child: Text(
                 'Sign Out',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountTile() {
+    return InkWell(
+      onTap: onDeleteAccountTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.delete_forever_rounded,
+                color: AppColors.error,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                'Delete Account',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.error,
                   fontWeight: FontWeight.w600,
