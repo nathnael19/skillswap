@@ -24,4 +24,6 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> logout();
 
   Future<Either<Failure, void>> syncFcmToken(String token);
+
+  Future<Either<Failure, void>> deleteAccount();
 }
