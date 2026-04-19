@@ -105,10 +105,12 @@ class MatchesCubit extends HydratedCubit<MatchesState> {
       if (json['status'] == 'MatchesLoaded') {
         final matchesRaw = json['matches'] as List<dynamic>;
         final onlineRaw = json['onlineStatuses'] as Map<String, dynamic>;
-        
+
         return MatchesLoaded(
-            matchesRaw.map((e) => Conversation.fromMap(e as Map<String, dynamic>)).toList(),
-            onlineStatuses: onlineRaw.map((k, v) => MapEntry(k, v as bool)),
+          matchesRaw
+              .map((e) => Conversation.fromMap(e as Map<String, dynamic>))
+              .toList(),
+          onlineStatuses: onlineRaw.map((k, v) => MapEntry(k, v as bool)),
         );
       }
     } catch (_) {}
