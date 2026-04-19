@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/discovery_state.dart';
@@ -97,12 +96,17 @@ class DiscoveryCubit extends HydratedCubit<DiscoveryState> {
   @override
   DiscoveryState? fromJson(Map<String, dynamic> json) {
     try {
-      if (json['status'] == 'DiscoveryLoaded' || json['status'] == 'DiscoveryFiltered') {
+      if (json['status'] == 'DiscoveryLoaded' ||
+          json['status'] == 'DiscoveryFiltered') {
         final allUsersRaw = json['allUsers'] as List<dynamic>;
         final usersRaw = json['users'] as List<dynamic>;
 
-        final allUsers = allUsersRaw.map((e) => User.fromMap(e as Map<String, dynamic>)).toList();
-        final users = usersRaw.map((e) => User.fromMap(e as Map<String, dynamic>)).toList();
+        final allUsers = allUsersRaw
+            .map((e) => User.fromMap(e as Map<String, dynamic>))
+            .toList();
+        final users = usersRaw
+            .map((e) => User.fromMap(e as Map<String, dynamic>))
+            .toList();
 
         if (json['status'] == 'DiscoveryFiltered') {
           return DiscoveryFiltered(allUsers: allUsers, users: users);
@@ -117,7 +121,9 @@ class DiscoveryCubit extends HydratedCubit<DiscoveryState> {
   Map<String, dynamic>? toJson(DiscoveryState state) {
     if (state is DiscoveryLoaded) {
       return {
-        'status': state is DiscoveryFiltered ? 'DiscoveryFiltered' : 'DiscoveryLoaded',
+        'status': state is DiscoveryFiltered
+            ? 'DiscoveryFiltered'
+            : 'DiscoveryLoaded',
         'allUsers': state.allUsers.map((u) => u.toMap()).toList(),
         'users': state.users.map((u) => u.toMap()).toList(),
       };
