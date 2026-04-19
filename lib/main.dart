@@ -8,6 +8,9 @@ import 'package:skillswap/init_dependencies.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/common/widgets/connectivity_banner.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +27,7 @@ void main() async {
         BlocProvider(
           create: (_) => serviceLocator<CreditsCubit>()..fetchCredits(),
         ),
+        BlocProvider(create: (_) => serviceLocator<ConnectivityCubit>()),
       ],
       child: const MyApp(),
     ),
@@ -39,6 +43,20 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SkillSwap',
       theme: AppTheme.dark(),
+      builder: (context, child) {
+        return Column(
+          children: [
+            BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
+              builder: (context, state) {
+                return ConnectivityBanner(
+                  isVisible: state == ConnectivityStatus.disconnected,
+                );
+              },
+            ),
+            Expanded(child: child!),
+          ],
+        );
+      },
       home: const SplashPage(),
     );
   }
