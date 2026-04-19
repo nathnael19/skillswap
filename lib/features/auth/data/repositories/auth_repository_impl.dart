@@ -120,4 +120,18 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      final response = await _apiClient.delete(ApiConstants.deleteUser);
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        await _firebaseAuth.signOut();
+        return right(null);
+      }
+      return left(ServerFailure('Failed to delete account from server: ${response.body}'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }
