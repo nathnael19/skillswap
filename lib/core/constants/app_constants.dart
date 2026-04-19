@@ -25,4 +25,8 @@ class AppConstants {
 
   // Firebase RTDB URL
   static const String firebaseRtdbUrl = 'https://skillswap-887cc-default-rtdb.firebaseio.com';
+
+  // Firebase Messaging — Web VAPID key
+  // Get this from Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
+  static const String fcmWebVapidKey = 'YOUR_VAPID_KEY_HERE';
 }
