@@ -6,6 +6,7 @@ class ProfileInputField extends StatelessWidget {
   final TextEditingController controller;
   final IconData? icon;
   final int maxLines;
+  final TextInputType keyboardType;
 
   const ProfileInputField({
     super.key,
@@ -13,6 +14,7 @@ class ProfileInputField extends StatelessWidget {
     required this.controller,
     this.icon,
     this.maxLines = 1,
+    this.keyboardType = TextInputType.text,
   });
 
   static const Color kAccent = AppColors.primary;
@@ -57,6 +59,7 @@ class ProfileInputField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   maxLines: maxLines,
+                  keyboardType: keyboardType,
                   cursorColor: kAccent,
                   style: AppTextStyles.bodyMedium,
                   decoration: const InputDecoration(
