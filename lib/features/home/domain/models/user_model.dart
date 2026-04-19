@@ -73,8 +73,10 @@ class PortfolioItem extends Equatable {
 class User extends Equatable {
   final String id;
   final String name;
+  final String email;
   final int age;
   final double rating;
+  final int ratingCount;
   final String imageUrl;
   final Skill? teaching;
   final Skill? learning;
@@ -88,12 +90,19 @@ class User extends Equatable {
   final String? matchPayerId;
   final String? primaryCategory;
   final String? expertiseLevel;
+  final List<String> fcmTokens;
+  final DateTime? createdAt;
+  final int creditsBalanceMinor;
+  final bool isOnline;
+  final DateTime? lastActive;
 
   const User({
     required this.id,
     required this.name,
+    this.email = '',
     this.age = 0,
     this.rating = 0.0,
+    this.ratingCount = 0,
     required this.imageUrl,
     this.teaching,
     this.learning,
@@ -107,6 +116,11 @@ class User extends Equatable {
     this.matchPayerId,
     this.primaryCategory,
     this.expertiseLevel,
+    this.fcmTokens = const [],
+    this.createdAt,
+    this.creditsBalanceMinor = 0,
+    this.isOnline = false,
+    this.lastActive,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -128,11 +142,24 @@ class User extends Equatable {
       learningSkill = skills.firstWhere((s) => s.type == 'learn');
     } catch (_) {}
 
+    // Handle Firestore Timestamps
+    DateTime? parseDate(dynamic value) {
+      if (value == null) return null;
+      if (value is DateTime) return value;
+      // If it's a string, try to parse it
+      if (value is String) return DateTime.tryParse(value);
+      // In a real Flutter/Firebase app, we would use (value as Timestamp).toDate()
+      // But since this model is also used for JSON/REST, we'll keep it flexible
+      return null;
+    }
+
     return User(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
+      email: map['email'] ?? '',
       age: map['age'] ?? 0,
       rating: (map['rating'] ?? 0.0).toDouble(),
+      ratingCount: map['rating_count'] ?? 0,
       imageUrl: map['profile_image'] ?? 'assets/home.png',
       teaching: teachingSkill,
       learning: learningSkill,
@@ -146,6 +173,65 @@ class User extends Equatable {
       matchPayerId: map['match_payer_id'],
       primaryCategory: map['primary_category'],
       expertiseLevel: map['expertise_level'] ?? 'beginner',
+      fcmTokens: List<String>.from(map['fcm_tokens'] ?? []),
+      createdAt: parseDate(map['created_at']),
+      creditsBalanceMinor: map['credits_balance_minor'] ?? 0,
+      isOnline: map['is_online'] ?? false,
+      lastActive: parseDate(map['last_active']),
+    );
+  }
+
+  User copyWith({
+    String? id,
+    String? name,
+    String? email,
+    int? age,
+    double? rating,
+    int? ratingCount,
+    String? imageUrl,
+    Skill? teaching,
+    Skill? learning,
+    List<Skill>? allSkills,
+    String? bio,
+    String? location,
+    String? profession,
+    List<PortfolioItem>? portfolio,
+    String? matchId,
+    String? matchStatus,
+    String? matchPayerId,
+    String? primaryCategory,
+    String? expertiseLevel,
+    List<String>? fcmTokens,
+    DateTime? createdAt,
+    int? creditsBalanceMinor,
+    bool? isOnline,
+    DateTime? lastActive,
+  }) {
+    return User(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      age: age ?? this.age,
+      rating: rating ?? this.rating,
+      ratingCount: ratingCount ?? this.ratingCount,
+      imageUrl: imageUrl ?? this.imageUrl,
+      teaching: teaching ?? this.teaching,
+      learning: learning ?? this.learning,
+      allSkills: allSkills ?? this.allSkills,
+      bio: bio ?? this.bio,
+      location: location ?? this.location,
+      profession: profession ?? this.profession,
+      portfolio: portfolio ?? this.portfolio,
+      matchId: matchId ?? this.matchId,
+      matchStatus: matchStatus ?? this.matchStatus,
+      matchPayerId: matchPayerId ?? this.matchPayerId,
+      primaryCategory: primaryCategory ?? this.primaryCategory,
+      expertiseLevel: expertiseLevel ?? this.expertiseLevel,
+      fcmTokens: fcmTokens ?? this.fcmTokens,
+      createdAt: createdAt ?? this.createdAt,
+      creditsBalanceMinor: creditsBalanceMinor ?? this.creditsBalanceMinor,
+      isOnline: isOnline ?? this.isOnline,
+      lastActive: lastActive ?? this.lastActive,
     );
   }
 
@@ -153,8 +239,10 @@ class User extends Equatable {
     return {
       'id': id,
       'name': name,
+      'email': email,
       'age': age,
       'rating': rating,
+      'rating_count': ratingCount,
       'profile_image': imageUrl,
       'bio': bio,
       'location': location,
@@ -166,6 +254,11 @@ class User extends Equatable {
       'match_id': matchId,
       'match_status': matchStatus,
       'match_payer_id': matchPayerId,
+      'fcm_tokens': fcmTokens,
+      if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+      'credits_balance_minor': creditsBalanceMinor,
+      'is_online': isOnline,
+      if (lastActive != null) 'last_active': lastActive!.toIso8601String(),
     };
   }
 
@@ -173,8 +266,10 @@ class User extends Equatable {
   List<Object?> get props => [
     id,
     name,
+    email,
     age,
     rating,
+    ratingCount,
     imageUrl,
     teaching,
     learning,
@@ -188,6 +283,11 @@ class User extends Equatable {
     matchPayerId,
     primaryCategory,
     expertiseLevel,
+    fcmTokens,
+    createdAt,
+    creditsBalanceMinor,
+    isOnline,
+    lastActive,
   ];
 }
 
