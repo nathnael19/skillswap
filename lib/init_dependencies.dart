@@ -10,6 +10,10 @@ import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/storage/firebase_storage_service.dart';
 import 'package:skillswap/core/storage/storage_service.dart';
 import 'package:skillswap/core/services/presence_service.dart';
+import 'package:skillswap/core/network/connection_checker.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:skillswap/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:skillswap/features/auth/domain/repositories/auth_repository.dart';
 import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
@@ -60,6 +64,15 @@ Future<void> initDependencies() async {
   );
 
   serviceLocator.registerLazySingleton(() => PresenceService.instance);
+
+  serviceLocator.registerLazySingleton<ConnectionChecker>(
+    () => ConnectionCheckerImpl(Connectivity()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => ConnectivityCubit(serviceLocator<ConnectionChecker>()),
+  );
+
 
   _initAuth();
   _initHome();
