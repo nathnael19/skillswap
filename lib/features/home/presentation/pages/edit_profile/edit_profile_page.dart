@@ -32,6 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   static const Color kTextSecondary = AppColors.textSecondary;
 
   late final TextEditingController _nameController;
+  late final TextEditingController _ageController;
   late final TextEditingController _locationController;
   late final TextEditingController _professionController;
   late final TextEditingController _bioController;
@@ -46,16 +47,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.user.name);
+    _ageController = TextEditingController(text: widget.user.age.toString());
     _locationController = TextEditingController(text: widget.user.location);
+    _professionController = TextEditingController(text: widget.user.profession);
     _bioController = TextEditingController(text: widget.user.bio);
     _userSkills = List.from(widget.user.allSkills);
-    _selectedCategory = widget.user.primaryCategory ?? AppCategories.categories.first;
-    _selectedExpertise = widget.user.expertiseLevel ?? AppCategories.expertiseLevels[1];
+    _selectedCategory =
+        widget.user.primaryCategory ?? AppCategories.categories.first;
+    _selectedExpertise =
+        widget.user.expertiseLevel ?? AppCategories.expertiseLevels[1];
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _ageController.dispose();
     _locationController.dispose();
     _professionController.dispose();
     _bioController.dispose();
@@ -64,7 +70,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   void _addSkill(String name, String type) {
     setState(() {
-      _userSkills.add(Skill(name: name, type: type, category: AppConstants.defaultSkillCategory));
+      _userSkills.add(
+        Skill(
+          name: name,
+          type: type,
+          category: AppConstants.defaultSkillCategory,
+        ),
+      );
     });
   }
 
@@ -163,7 +175,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final updatedUser = User(
       id: widget.user.id,
       name: _nameController.text,
-      age: widget.user.age,
+      age: int.tryParse(_ageController.text) ?? widget.user.age,
       rating: widget.user.rating,
       imageUrl: _pickedAvatar?.path ?? widget.user.imageUrl,
       bio: _bioController.text,
@@ -220,6 +232,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  void _showDeleteAccountConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(
+          'Delete Account',
+          style: AppTextStyles.h4.copyWith(color: AppColors.error),
+        ),
+
+        content: Text(
+          'Are you absolutely sure you want to delete your account? This action cannot be undone. All your matches, messages, and profile data will be permanently erased.',
+          style: AppTextStyles.bodyMedium.copyWith(color: kTextSecondary),
+        ),
+
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AuthCubit>().deleteAccount();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
@@ -228,6 +278,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Navigator.of(
             context,
           ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+        } else if (state is AuthFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Auth Error: ${state.message}')),
+          );
         }
       },
       child: BlocConsumer<ProfileCubit, ProfileState>(
@@ -244,7 +298,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is ProfileLoading;
+          final isLoading = state is ProfileLoading || context.watch<AuthCubit>().state is AuthLoading;
 
           return Scaffold(
             backgroundColor: kBackground,
@@ -323,6 +377,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   const SizedBox(height: 20),
                   ProfileInputField(
+                    label: 'Age',
+                    controller: _ageController,
+                    icon: Icons.calendar_today_outlined,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 20),
+                  ProfileInputField(
                     label: 'Profession',
                     controller: _professionController,
                     icon: Icons.work_outline_rounded,
@@ -345,15 +406,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   const SizedBox(height: 40),
                   ExpertiseEditorSection(
                     title: 'Teaching',
-                    tags: _userSkills.where((s) => s.type == AppConstants.skillTypeTeach).toList(),
-                    onAdd: () => _showAddSkillDialog(AppConstants.skillTypeTeach),
+                    tags: _userSkills
+                        .where((s) => s.type == AppConstants.skillTypeTeach)
+                        .toList(),
+                    onAdd: () =>
+                        _showAddSkillDialog(AppConstants.skillTypeTeach),
                     onRemove: _removeSkill,
                   ),
                   const SizedBox(height: 32),
                   ExpertiseEditorSection(
                     title: 'Learning',
-                    tags: _userSkills.where((s) => s.type == AppConstants.skillTypeLearn).toList(),
-                    onAdd: () => _showAddSkillDialog(AppConstants.skillTypeLearn),
+                    tags: _userSkills
+                        .where((s) => s.type == AppConstants.skillTypeLearn)
+                        .toList(),
+                    onAdd: () =>
+                        _showAddSkillDialog(AppConstants.skillTypeLearn),
                     onRemove: _removeSkill,
                   ),
                   const SizedBox(height: 48),
@@ -368,6 +435,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       );
                     },
                     onLogoutTap: _showLogoutConfirmation,
+                    onDeleteAccountTap: _showDeleteAccountConfirmation,
                   ),
                   const SizedBox(height: 60),
                 ],
@@ -392,13 +460,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-          value: _selectedCategory,
+          initialValue: _selectedCategory,
           dropdownColor: AppColors.surface,
           style: AppTextStyles.bodyMedium.copyWith(color: kText),
           decoration: InputDecoration(
             labelText: 'Primary Category',
             labelStyle: AppTextStyles.labelSmall.copyWith(color: kAccent),
-            prefixIcon: const Icon(Icons.category_outlined, color: kTextSecondary),
+            prefixIcon: const Icon(
+              Icons.category_outlined,
+              color: kTextSecondary,
+            ),
             filled: true,
             fillColor: AppColors.overlay05,
             border: OutlineInputBorder(
@@ -406,18 +477,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
               borderSide: const BorderSide(color: AppColors.borderSubtle),
             ),
           ),
-          items: AppCategories.categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+          items: AppCategories.categories
+              .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+              .toList(),
           onChanged: (val) => setState(() => _selectedCategory = val),
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-          value: _selectedExpertise,
+          initialValue: _selectedExpertise,
           dropdownColor: AppColors.surface,
           style: AppTextStyles.bodyMedium.copyWith(color: kText),
           decoration: InputDecoration(
             labelText: 'Expertise Level',
             labelStyle: AppTextStyles.labelSmall.copyWith(color: kAccent),
-            prefixIcon: const Icon(Icons.show_chart_rounded, color: kTextSecondary),
+            prefixIcon: const Icon(
+              Icons.show_chart_rounded,
+              color: kTextSecondary,
+            ),
             filled: true,
             fillColor: AppColors.overlay05,
             border: OutlineInputBorder(
@@ -425,7 +501,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
               borderSide: const BorderSide(color: AppColors.borderSubtle),
             ),
           ),
-          items: AppCategories.expertiseLevels.where((e) => e != 'All').map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          items: AppCategories.expertiseLevels
+              .where((e) => e != 'All')
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
           onChanged: (val) => setState(() => _selectedExpertise = val),
         ),
       ],
