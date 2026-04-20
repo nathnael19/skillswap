@@ -256,12 +256,14 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                   ),
                 );
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Failed to schedule session.'),
-                    backgroundColor: AppColors.error,
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(cubit.state.error ?? 'Failed to schedule session.'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
               }
             },
       child: AnimatedOpacity(
