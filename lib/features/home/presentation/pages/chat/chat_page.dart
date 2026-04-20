@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
+import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
@@ -62,6 +65,11 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _refreshData(BuildContext context) {
+    context.read<ChatCubit>().loadMessages(widget.matchId);
+    context.read<ProfileCubit>().fetchUserProfile();
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -78,8 +86,7 @@ class _ChatPageState extends State<ChatPage> {
       providers: [
         BlocProvider(
           create: (context) =>
-              serviceLocator<ChatCubit>()
-                ..loadMessages(widget.matchId),
+              serviceLocator<ChatCubit>()..loadMessages(widget.matchId),
         ),
         BlocProvider(
           create: (context) =>
@@ -90,128 +97,162 @@ class _ChatPageState extends State<ChatPage> {
               PresenceCubit()..watchPeer(widget.userId, widget.matchId),
         ),
       ],
-      child: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, profileState) {
-          final currentUser = profileState is ProfileLoaded
-              ? profileState.user
-              : null;
+      child: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
+        builder: (context, connectivity) {
+          return BlocBuilder<ProfileCubit, ProfileState>(
+            builder: (context, profileState) {
+              final currentUser =
+                  profileState is ProfileLoaded ? profileState.user : null;
 
-          return Scaffold(
-            backgroundColor: primaryBgColor,
-            extendBodyBehindAppBar: true,
-            appBar: ChatAppBar(
-              userName: widget.userName,
-              userImageUrl: widget.userImageUrl,
-              userTitle: widget.userTitle,
-              matchId: widget.matchId,
-              userId: widget.userId,
-              currentUserId: widget.currentUserId,
-              currentUser: currentUser,
-            ),
-            body: BlocConsumer<ChatCubit, ChatState>(
-              listener: (context, state) {
-                if (state is ChatMessagesLoaded) {
-                  WidgetsBinding.instance.addPostFrameCallback(
-                    (_) => _scrollToBottom(),
-                  );
-                }
-                if (state is ChatSendError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.redAccent,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              },
-              builder: (context, state) {
-                return Stack(
-                  children: [
-                    Column(
-                      children: [
-                        if (_currentStatus == 'pending' &&
-                            widget.payerId != null &&
-                            widget.currentUserId != widget.payerId)
-                          ConnectionBanner(
-                            userName: widget.userName,
-                            onAccept: () async {
-                              final result =
-                                  await serviceLocator<HomeRepository>()
-                                      .acceptMatch(widget.matchId);
-                              result.fold(
-                                (failure) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(failure.message),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  );
-                                },
-                                (_) {
-                                  setState(() {
-                                    _currentStatus = 'mutual';
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Connection accepted!"),
-                                      backgroundColor: accentColor,
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+              return MultiBlocListener(
+                listeners: [
+                  BlocListener<ConnectivityCubit, ConnectivityStatus>(
+                    listenWhen: (prev, curr) =>
+                        prev == ConnectivityStatus.disconnected &&
+                        curr == ConnectivityStatus.connected,
+                    listener: (context, _) => _refreshData(context),
+                  ),
+                  BlocListener<ChatCubit, ChatState>(
+                    listener: (context, state) {
+                      if (state is ChatMessagesLoaded) {
+                        WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => _scrollToBottom(),
+                        );
+                      }
+                      if (state is ChatSendError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.message),
+                            backgroundColor: AppColors.error,
+                            behavior: SnackBarBehavior.floating,
                           ),
-                        Expanded(
-                          child: ChatMessageList(
-                            state: state,
-                            scrollController: _scrollController,
-                            currentUserId: widget.currentUserId,
-                            matchId: widget.matchId,
-                            userId: widget.userId,
-                            onRefresh: () async {
-                              context.read<ChatCubit>().loadMessages(
-                                widget.matchId,
-                              );
-                            },
+                        );
+                      }
+                    },
+                  ),
+                ],
+                child: Scaffold(
+                  backgroundColor: primaryBgColor,
+                  extendBodyBehindAppBar: true,
+                  appBar: ChatAppBar(
+                    userName: widget.userName,
+                    userImageUrl: widget.userImageUrl,
+                    userTitle: widget.userTitle,
+                    matchId: widget.matchId,
+                    userId: widget.userId,
+                    currentUserId: widget.currentUserId,
+                    currentUser: currentUser,
+                  ),
+                  body: BlocBuilder<ChatCubit, ChatState>(
+                    builder: (context, state) {
+                      if (state is ChatError &&
+                          connectivity == ConnectivityStatus.disconnected) {
+                        return OfflineScreen(
+                          onRetry: () => _refreshData(context),
+                        );
+                      }
+
+                      return Stack(
+                        children: [
+                          Column(
+                            children: [
+                              if (_currentStatus == 'pending' &&
+                                  widget.payerId != null &&
+                                  widget.currentUserId != widget.payerId)
+                                ConnectivityGuard(
+                                  child: ConnectionBanner(
+                                    userName: widget.userName,
+                                    onAccept: () async {
+                                      final result =
+                                          await serviceLocator<HomeRepository>()
+                                              .acceptMatch(widget.matchId);
+                                      result.fold(
+                                        (failure) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(failure.message),
+                                              backgroundColor: AppColors.error,
+                                            ),
+                                          );
+                                        },
+                                        (_) {
+                                          setState(() {
+                                            _currentStatus = 'mutual';
+                                          });
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                "Connection accepted!",
+                                              ),
+                                              backgroundColor: accentColor,
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              Expanded(
+                                child: ChatMessageList(
+                                  state: state,
+                                  scrollController: _scrollController,
+                                  currentUserId: widget.currentUserId,
+                                  matchId: widget.matchId,
+                                  userId: widget.userId,
+                                  onRefresh: () async {
+                                    context.read<ChatCubit>().loadMessages(
+                                      widget.matchId,
+                                    );
+                                  },
+                                ),
+                              ),
+                              ConnectivityGuard(
+                                child: ChatQuickActions(
+                                  matchId: widget.matchId,
+                                  peerName: widget.userName,
+                                  peerImageUrl: widget.userImageUrl,
+                                  currentUserId: widget.currentUserId,
+                                  peerId: widget.userId,
+                                  currentUserName: currentUser?.name,
+                                  currentUserImageUrl: currentUser?.imageUrl,
+                                ),
+                              ),
+                              ConnectivityGuard(
+                                child: ChatInputBar(
+                                  controller: _messageController,
+                                  onTypingChanged: (isTyping) {
+                                    if (context.mounted) {
+                                      context.read<PresenceCubit>().setTyping(
+                                        widget.matchId,
+                                        isTyping,
+                                      );
+                                    }
+                                  },
+                                  onSendTap: () {
+                                    final content = _messageController.text;
+                                    if (content.isNotEmpty) {
+                                      context.read<ChatCubit>().sendMessage(
+                                        widget.matchId,
+                                        content,
+                                      );
+                                      _messageController.clear();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        ChatQuickActions(
-                          matchId: widget.matchId,
-                          peerName: widget.userName,
-                          peerImageUrl: widget.userImageUrl,
-                          currentUserId: widget.currentUserId,
-                          peerId: widget.userId,
-                          currentUserName: currentUser?.name,
-                          currentUserImageUrl: currentUser?.imageUrl,
-                        ),
-                        ChatInputBar(
-                          controller: _messageController,
-                          onTypingChanged: (isTyping) {
-                            if (context.mounted) {
-                              context.read<PresenceCubit>().setTyping(
-                                widget.matchId,
-                                isTyping,
-                              );
-                            }
-                          },
-                          onSendTap: () {
-                            final content = _messageController.text;
-                            if (content.isNotEmpty) {
-                              context.read<ChatCubit>().sendMessage(
-                                widget.matchId,
-                                content,
-                              );
-                              _messageController.clear();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
