@@ -2,6 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
+import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
@@ -68,98 +71,127 @@ class WalletPage extends StatelessWidget {
           );
         }
 
-        return Scaffold(
-          backgroundColor: primaryBgColor,
-          extendBodyBehindAppBar: true,
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(70),
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: AppBar(
-                  backgroundColor: primaryBgColor.withValues(alpha: 0.8),
-                  elevation: 0,
-                  leading: Center(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        height: 48,
-                        width: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.overlay05,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.overlay10),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.textPrimary,
-                          size: 20,
+        return MultiBlocListener(
+          listeners: [
+            BlocListener<ConnectivityCubit, ConnectivityStatus>(
+              listenWhen: (prev, curr) =>
+                  prev == ConnectivityStatus.disconnected &&
+                  curr == ConnectivityStatus.connected,
+              listener: (context, _) {
+                context.read<CreditsCubit>().fetchCredits();
+              },
+            ),
+          ],
+          child: Scaffold(
+            backgroundColor: primaryBgColor,
+            extendBodyBehindAppBar: true,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(70),
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: AppBar(
+                    backgroundColor: primaryBgColor.withValues(alpha: 0.8),
+                    elevation: 0,
+                    leading: Center(
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.overlay05,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.overlay10),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: AppColors.textPrimary,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  title: Text(
-                    'Wallet',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary,
-                      letterSpacing: 2.0,
+                    title: Text(
+                      'Wallet',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textPrimary,
+                        letterSpacing: 2.0,
+                      ),
                     ),
-                  ),
-                  centerTitle: true,
-                  shape: Border(
-                    bottom: BorderSide(color: AppColors.overlay05, width: 1),
+                    centerTitle: true,
+                    shape: Border(
+                      bottom: BorderSide(color: AppColors.overlay05, width: 1),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          body: BlocBuilder<CreditsCubit, CreditsState>(
-            builder: (context, state) {
-              if (state is CreditsLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(color: accentColor),
-                );
-              }
+            body: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
+              builder: (context, connectivity) {
+                return BlocBuilder<CreditsCubit, CreditsState>(
+                  builder: (context, state) {
+                    if (state is CreditsLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: accentColor),
+                      );
+                    }
 
-              if (state is CreditsError) {
-                return AppErrorWidget(
-                  message: state.message,
-                  onRetry: () => context.read<CreditsCubit>().fetchCredits(),
-                );
-              }
+                    if (state is CreditsError) {
+                      if (connectivity == ConnectivityStatus.disconnected) {
+                        return OfflineScreen(
+                          onRetry: () => context.read<CreditsCubit>().fetchCredits(),
+                        );
+                      }
+                      return AppErrorWidget(
+                        message: state.message,
+                        onRetry: () => context.read<CreditsCubit>().fetchCredits(),
+                      );
+                    }
 
-              if (state is CreditsLoaded) {
-                return RefreshIndicator(
-                  onRefresh: () => context.read<CreditsCubit>().fetchCredits(),
-                  color: accentColor,
-                  backgroundColor: AppColors.surface,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 120),
-                        BalanceHeader(
-                          balance: state.balance,
-                          progressCapCredits: AppConstants.walletProgressCap,
-                          onBuyCredits: () => _openCheckout(context),
+                    if (state is CreditsLoaded) {
+                      return RefreshIndicator(
+                        onRefresh: () => context.read<CreditsCubit>().fetchCredits(),
+                        color: accentColor,
+                        backgroundColor: AppColors.surface,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 120),
+                              ConnectivityGuard(
+                                child: BalanceHeader(
+                                  balance: state.balance,
+                                  progressCapCredits: AppConstants.walletProgressCap,
+                                  onBuyCredits: () => _openCheckout(context),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              RecentTransactionsSection(
+                                transactions: state.transactions,
+                              ),
+                              const SizedBox(height: 100),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 24),
-                        RecentTransactionsSection(
-                          transactions: state.transactions,
-                        ),
-                        const SizedBox(height: 100),
-                      ],
-                    ),
-                  ),
-                );
-              }
+                      );
+                    }
 
-              return const SizedBox.shrink();
-            },
+                    if (connectivity == ConnectivityStatus.disconnected) {
+                      return OfflineScreen(
+                        onRetry: () => context.read<CreditsCubit>().fetchCredits(),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                );
+              },
+            ),
           ),
         );
       },
