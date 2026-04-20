@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
-import 'package:skillswap/core/common/widgets/connectivity_banner.dart';
+import 'package:skillswap/core/common/widgets/offline_toast.dart';
 
 
 void main() async {
@@ -44,16 +44,10 @@ class MyApp extends StatelessWidget {
       title: 'SkillSwap',
       theme: AppTheme.dark(),
       builder: (context, child) {
-        return Column(
+        return Stack(
           children: [
-            BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
-              builder: (context, state) {
-                return ConnectivityBanner(
-                  isVisible: state == ConnectivityStatus.disconnected,
-                );
-              },
-            ),
-            Expanded(child: child!),
+            if (child != null) child,
+            const OfflineToast(),
           ],
         );
       },
