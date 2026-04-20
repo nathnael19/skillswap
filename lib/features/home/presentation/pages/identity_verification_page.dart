@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class IdentityVerificationPage extends StatefulWidget {
@@ -54,9 +55,7 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
 
   Future<void> _pickImage(String type) async {
     try {
-      final source = type == 'selfie'
-          ? ImageSource.camera
-          : ImageSource.gallery;
+      final source = type == 'selfie' ? ImageSource.camera : ImageSource.gallery;
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
         maxWidth: 1000,
@@ -133,30 +132,36 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
             ),
             const SizedBox(height: 48),
 
-            _buildUploadCard(
-              title: 'Front of ID',
-              description: 'Upload the front of your government-issued ID',
-              icon: Icons.badge_outlined,
-              file: _frontIdFile,
-              onTap: () => _pickImage('front'),
+            ConnectivityGuard(
+              child: _buildUploadCard(
+                title: 'Front of ID',
+                description: 'Upload the front of your government-issued ID',
+                icon: Icons.badge_outlined,
+                file: _frontIdFile,
+                onTap: () => _pickImage('front'),
+              ),
             ),
             const SizedBox(height: 20),
 
-            _buildUploadCard(
-              title: 'Back of ID',
-              description: 'Upload the back of your government-issued ID',
-              icon: Icons.credit_card_outlined,
-              file: _backIdFile,
-              onTap: () => _pickImage('back'),
+            ConnectivityGuard(
+              child: _buildUploadCard(
+                title: 'Back of ID',
+                description: 'Upload the back of your government-issued ID',
+                icon: Icons.credit_card_outlined,
+                file: _backIdFile,
+                onTap: () => _pickImage('back'),
+              ),
             ),
             const SizedBox(height: 20),
 
-            _buildUploadCard(
-              title: 'Selfie',
-              description: 'Take a clear selfie to match your ID',
-              icon: Icons.face_rounded,
-              file: _selfieFile,
-              onTap: () => _pickImage('selfie'),
+            ConnectivityGuard(
+              child: _buildUploadCard(
+                title: 'Selfie',
+                description: 'Take a clear selfie to match your ID',
+                icon: Icons.face_rounded,
+                file: _selfieFile,
+                onTap: () => _pickImage('selfie'),
+              ),
             ),
 
             const SizedBox(height: 48),
@@ -164,34 +169,35 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
             SizedBox(
               width: double.infinity,
               height: 60,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [kAccent, AppColors.primaryDark],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: kAccent.withValues(alpha: 0.25),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+              child: ConnectivityGuard(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [kAccent, AppColors.primaryDark],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitVerification,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: AppColors.textPrimary,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: kAccent.withValues(alpha: 0.25),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
-                  child: _isSubmitting
-                      ? const SizedBox(
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : _submitVerification,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.textPrimary,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: _isSubmitting
+                        ? const SizedBox(
                           height: 24,
                           width: 24,
                           child: CircularProgressIndicator(
@@ -199,13 +205,14 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                             strokeWidth: 2,
                           ),
                         )
-                      : Text(
+                        : Text(
                           'Submit Verification',
                           style: GoogleFonts.dmSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+                  ),
                 ),
               ),
             ),
@@ -230,14 +237,16 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isUploaded
-              ? kAccent.withValues(alpha: 0.05)
-              : AppColors.textPrimary.withValues(alpha: 0.02),
+          color:
+              isUploaded
+                  ? kAccent.withValues(alpha: 0.05)
+                  : AppColors.textPrimary.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isUploaded
-                ? kAccent.withValues(alpha: 0.3)
-                : AppColors.overlay05,
+            color:
+                isUploaded
+                    ? kAccent.withValues(alpha: 0.3)
+                    : AppColors.overlay05,
           ),
         ),
         child: Row(
@@ -248,20 +257,23 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: isUploaded
-                        ? kAccent.withValues(alpha: 0.1)
-                        : AppColors.overlay05,
+                    color:
+                        isUploaded
+                            ? kAccent.withValues(alpha: 0.1)
+                            : AppColors.overlay05,
                     borderRadius: BorderRadius.circular(16),
-                    image: isUploaded
-                        ? DecorationImage(
-                            image: FileImage(File(file.path)),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+                    image:
+                        isUploaded
+                            ? DecorationImage(
+                              image: FileImage(File(file.path)),
+                              fit: BoxFit.cover,
+                            )
+                            : null,
                   ),
-                  child: !isUploaded
-                      ? Icon(icon, color: AppColors.overlay50, size: 24)
-                      : null,
+                  child:
+                      !isUploaded
+                          ? Icon(icon, color: AppColors.overlay50, size: 24)
+                          : null,
                 ),
                 if (isUploaded)
                   Positioned(
@@ -300,9 +312,10 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                     isUploaded ? 'Document selected' : description,
                     style: GoogleFonts.dmSans(
                       fontSize: 13,
-                      color: isUploaded
-                          ? kAccent.withValues(alpha: 0.7)
-                          : AppColors.overlay40,
+                      color:
+                          isUploaded
+                              ? kAccent.withValues(alpha: 0.7)
+                              : AppColors.overlay40,
                       height: 1.4,
                     ),
                   ),
