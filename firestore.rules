@@ -1,0 +1,72 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSessionParticipant(sessionId) {
+      return request.auth.uid in get(/databases/$(database)/documents/sessions/$(sessionId)).data.participants;
+    }
+
+    // Group live sessions metadata.
+    // All writes are backend-only (Cloud Functions/Admin SDK) to enforce:
+    // - capacity checks
+    // - host-only status transitions
+    // - role assignment integrity
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+
+      // In-session chat for group sessions.
+      match /chat/{messageId} {
+        allow read: if isAuthenticated() && isSessionParticipant(sessionId);
+        allow create: if isAuthenticated() &&
+          isSessionParticipant(sessionId) &&
+          request.resource.data.senderId == request.auth.uid &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() > 0 &&
+          request.resource.data.createdAt != null;
+        allow update, delete: if false;
+      }
+
+      // Participant signals managed in Firestore to sync UI (e.g. raise hand).
+      match /participantSignals/{uid} {
+        allow read: if isAuthenticated() && isSessionParticipant(sessionId);
+        allow create, update: if isAuthenticated() &&
+          request.auth.uid == uid &&
+          isSessionParticipant(sessionId);
+        allow delete: if false;
+      }
+    }
+
+    // 1-to-1 Sessions (Chat/Video calls)
+    match /legacy_sessions/{sessionId} {
+      // Only participants of the session can read it
+      allow read: if isAuthenticated() && request.auth.uid in resource.data.users;
+      
+      // Updates are handled by the backend to process credits
+      allow write: if false;
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Matches
+    match /matches/{matchId} {
+      allow read: if isAuthenticated() && request.auth.uid in resource.data.users;
+      allow write: if false; // Matches are created by the matching algorithm backend
+    }
+
+    // Messages
+    match /messages/{matchId}/chat/{messageId} {
+      allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+      allow write: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+    }
+  }
+}
