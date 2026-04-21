@@ -42,6 +42,7 @@ class ApiConstants {
   
   // Sessions
   static const String sessions = '/sessions';
+  static const String liveSessions = '/live-sessions';
   
   // Ratings
   static const String ratings = '/ratings';
