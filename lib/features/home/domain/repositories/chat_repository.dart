@@ -10,5 +10,4 @@ abstract interface class ChatRepository {
     required String content,
   });
   Future<Either<Failure, Unit>> markMessagesAsRead(String matchId);
-  void sendSignalingMessage(Map<String, dynamic> payload);
 }
