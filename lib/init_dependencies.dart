@@ -31,6 +31,10 @@ import 'package:skillswap/features/home/domain/repositories/chat_repository.dart
 import 'package:skillswap/features/home/data/repositories/chat_repository_impl.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/firebase_options.dart';
+import 'package:skillswap/features/live_sessions/data/services/live_session_backend_service.dart';
+import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
+import 'package:skillswap/features/live_sessions/data/services/live_session_service.dart';
+import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -60,6 +64,7 @@ Future<void> initDependencies() async {
   _initAuth();
   _initHome();
   _initChat();
+  _initLiveSessions();
 }
 
 void _initAuth() {
@@ -152,5 +157,26 @@ void _initChat() {
   // Cubits
   serviceLocator.registerFactory(
     () => ChatCubit(chatRepository: serviceLocator<ChatRepository>()),
+  );
+}
+
+void _initLiveSessions() {
+  serviceLocator.registerLazySingleton(() => LiveSessionService());
+  serviceLocator.registerLazySingleton(
+    () => LiveSessionBackendService(serviceLocator<ApiClient>()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => LiveSessionFirestoreService(
+      serviceLocator<FirebaseFirestore>(),
+      serviceLocator<FirebaseAuth>(),
+    ),
+  );
+
+  serviceLocator.registerFactory(
+    () => LiveSessionCubit(
+      liveService: serviceLocator<LiveSessionService>(),
+      backendService: serviceLocator<LiveSessionBackendService>(),
+      firestoreService: serviceLocator<LiveSessionFirestoreService>(),
+    ),
   );
 }
