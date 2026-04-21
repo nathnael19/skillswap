@@ -46,3 +46,4 @@ app.*.map.json
 .agent/
 .agents/
 skills-lock.json
+functions/node_modules/
