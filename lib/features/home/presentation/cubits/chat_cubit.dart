@@ -9,14 +9,11 @@ class ChatCubit extends Cubit<ChatState> {
   StreamSubscription<dynamic>? _messageSubscription;
   List<Message> _messages = [];
 
-  String? _currentPeerId;
-
   ChatCubit({required ChatRepository chatRepository})
     : _chatRepository = chatRepository,
       super(ChatInitial());
 
-  Future<void> loadMessages(String matchId, String peerId) async {
-    _currentPeerId = peerId;
+  Future<void> loadMessages(String matchId) async {
     emit(ChatLoading());
 
     // 1. Fetch historical messages
@@ -29,7 +26,7 @@ class ChatCubit extends Cubit<ChatState> {
       // Mark as read after loading historical ones
       markAsRead(matchId);
 
-      // 2. Subscribe to real-time updates (Messages + Signaling)
+      // 2. Subscribe to real-time message updates
       _messageSubscription?.cancel();
       _messageSubscription = _chatRepository
           .getMessagesStream(matchId)
@@ -48,23 +45,6 @@ class ChatCubit extends Cubit<ChatState> {
                   markAsRead(matchId);
                 }
                 emit(ChatMessagesLoaded(List.from(_messages)));
-              } else if (event is Map<String, dynamic> &&
-                  event['type'] == 'webrtc_signaling') {
-                // Handle signaling events
-                final action = event['action'];
-                if (action == 'call_request') {
-                  if (event['sender_id'] != _currentPeerId) return;
-
-                  final data = event['data'] ?? {};
-                  emit(
-                    ChatIncomingCall(
-                      messages: List.from(_messages),
-                      peerId: event['sender_id'] ?? '',
-                      peerName: data['caller_name'] ?? 'Peer',
-                      peerImageUrl: data['caller_image'] ?? '',
-                    ),
-                  );
-                }
               }
             },
             onError: (e) {
@@ -99,20 +79,6 @@ class ChatCubit extends Cubit<ChatState> {
         }
       },
     );
-  }
-
-  Future<void> rejectCall({required String targetId}) async {
-    _chatRepository.sendSignalingMessage({
-      'type': 'webrtc_signaling',
-      'target_uid': targetId,
-      'action': 'call_rejected',
-      'data': {},
-    });
-    emit(ChatMessagesLoaded(List.from(_messages)));
-  }
-
-  void sendSignalingMessage(Map<String, dynamic> payload) {
-    _chatRepository.sendSignalingMessage(payload);
   }
 
   @override
