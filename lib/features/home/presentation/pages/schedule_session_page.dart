@@ -2,8 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
-import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
+import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
+import 'package:skillswap/features/live_sessions/presentation/pages/session_detail_page.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/calendar_slot_picker.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/meeting_hub_section.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/session_progress_header.dart';
@@ -44,12 +44,36 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
   bool _creatingSession = false;
 
   bool get _isValid =>
-      manifestations.isNotEmpty && _combinedSchedule().isAfter(DateTime.now());
+      manifestations.isNotEmpty &&
+      (() {
+        try {
+          return _combinedSchedule().isAfter(DateTime.now());
+        } catch (_) {
+          return false;
+        }
+      })();
 
   DateTime _combinedSchedule() {
     final d = selectedDate!;
     final slot = selectedTime ?? AppConstants.defaultScheduleTime;
-    final timePart = DateFormat.jm().parse(slot);
+    final normalized = slot
+        .replaceAll('\u202f', ' ')
+        .replaceAll('\u00a0', ' ')
+        .trim();
+    DateTime? timePart;
+    for (final format in [
+      DateFormat.jm(),
+      DateFormat('hh:mm a'),
+      DateFormat('h:mm a'),
+    ]) {
+      try {
+        timePart = format.parseLoose(normalized);
+        break;
+      } catch (_) {}
+    }
+    if (timePart == null) {
+      throw const FormatException('Invalid selected schedule time');
+    }
     return DateTime(d.year, d.month, d.day, timePart.hour, timePart.minute);
   }
 
@@ -213,49 +237,34 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
             }
           : () async {
               setState(() => _creatingSession = true);
-              final repo = serviceLocator<HomeRepository>();
-              final result = await repo.createSession(
-                matchId: widget.matchId,
-                scheduledTime: _combinedSchedule(),
+              final cubit = serviceLocator<LiveSessionCubit>();
+
+              final resultId = await cubit.createSession(
+                title: '1-to-1 Swap with ${widget.peerName}',
+                scheduledAt: _combinedSchedule(),
+                type: 'one-on-one',
+                participantId: widget.peerId,
               );
+
               if (!mounted) return;
               setState(() => _creatingSession = false);
-              result.fold(
-                (failure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(failure.message),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                },
-                (data) {
-                  final id = data['id'] as String? ?? '';
-                  if (id.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Session created but missing id.'),
-                      ),
-                    );
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LiveSessionPage(
-                        agenda: manifestations,
-                        sessionId: id,
-                        peerName: widget.peerName,
-                        peerImageUrl: widget.peerImageUrl,
-                        currentUserId: widget.currentUserId,
-                        peerId: widget.peerId,
-                        currentUserName: widget.currentUserName,
-                        currentUserImageUrl: widget.currentUserImageUrl,
-                      ),
-                    ),
-                  );
-                },
-              );
+
+              if (resultId != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        SessionDetailPage(sessionId: resultId),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Failed to schedule session.'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
             },
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 300),
