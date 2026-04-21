@@ -10,7 +10,6 @@ import 'components/chat_app_bar.dart';
 import 'components/chat_input_bar.dart';
 import 'components/chat_quick_actions.dart';
 import 'components/connection_banner.dart';
-import 'components/incoming_call_overlay.dart';
 import 'components/chat_message_list.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
@@ -80,7 +79,7 @@ class _ChatPageState extends State<ChatPage> {
         BlocProvider(
           create: (context) =>
               serviceLocator<ChatCubit>()
-                ..loadMessages(widget.matchId, widget.userId),
+                ..loadMessages(widget.matchId),
         ),
         BlocProvider(
           create: (context) =>
@@ -173,7 +172,6 @@ class _ChatPageState extends State<ChatPage> {
                             onRefresh: () async {
                               context.read<ChatCubit>().loadMessages(
                                 widget.matchId,
-                                widget.userId,
                               );
                             },
                           ),
@@ -210,17 +208,6 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ],
                     ),
-                    if (state is ChatIncomingCall)
-                      IncomingCallOverlay(
-                        state: state,
-                        currentUserName: currentUser?.name,
-                        currentUserImageUrl: currentUser?.imageUrl,
-                        matchId: widget.matchId,
-                        userId: widget.userId,
-                        currentUserId: widget.currentUserId,
-                        userName: widget.userName,
-                        userImageUrl: widget.userImageUrl,
-                      ),
                   ],
                 );
               },
