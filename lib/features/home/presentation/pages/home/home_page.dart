@@ -15,6 +15,7 @@ import 'package:skillswap/features/home/presentation/pages/likes/likes_page.dart
 import 'package:skillswap/features/home/presentation/pages/profile/profile_page.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'package:skillswap/features/home/presentation/pages/discovery/discovery_page.dart';
+import 'package:skillswap/features/live_sessions/presentation/pages/session_list_page.dart';
 import 'package:skillswap/init_dependencies.dart';
 import '../../shared/filter_bottom_sheet.dart';
 import 'components/midnight_navigation_bar.dart';
@@ -107,6 +108,20 @@ class _HomePageState extends State<HomePage> {
               },
             );
             actions = [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: HomeAppBarAction(
+                  icon: Icons.video_camera_front_rounded,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SessionListPage(),
+                      ),
+                    );
+                  },
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: HomeAppBarAction(
