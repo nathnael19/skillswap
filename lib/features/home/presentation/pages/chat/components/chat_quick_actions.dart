@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
 import 'package:skillswap/features/home/presentation/pages/schedule_session_page.dart';
-import 'package:skillswap/init_dependencies.dart';
-import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class ChatQuickActions extends StatefulWidget {
@@ -31,52 +28,6 @@ class ChatQuickActions extends StatefulWidget {
 }
 
 class _ChatQuickActionsState extends State<ChatQuickActions> {
-  bool _isCreatingSession = false;
-
-  Future<void> _createInstantSession() async {
-    setState(() => _isCreatingSession = true);
-    final repo = serviceLocator<HomeRepository>();
-
-    // We pass peerId as payerId because the Caller (Expert) initiates the call, but the other person (Learner) pays.
-    final result = await repo.createSession(
-      matchId: widget.matchId,
-      scheduledTime: DateTime.now(),
-      payerId: widget.peerId,
-    );
-
-    if (!mounted) return;
-    setState(() => _isCreatingSession = false);
-
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(failure.message)));
-      },
-      (data) {
-        final id = data['id'] as String?;
-        if (id == null) return;
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LiveSessionPage(
-              agenda: const ['Quick Call'],
-              sessionId: id,
-              peerName: widget.peerName,
-              peerImageUrl: widget.peerImageUrl,
-              currentUserId: widget.currentUserId,
-              peerId: widget.peerId,
-              currentUserName: widget.currentUserName,
-              currentUserImageUrl: widget.currentUserImageUrl,
-              isCaller: true,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
@@ -111,13 +62,7 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
               ],
             ),
             const SizedBox(width: 16),
-            _buildActionButton(
-              context,
-              _isCreatingSession ? 'Starting...' : 'Call now',
-              _isCreatingSession ? null : _createInstantSession,
-            ),
-            const SizedBox(width: 12),
-            _buildActionButton(context, 'Schedule a Swap', () {
+            _buildActionButton(context, 'Schedule 1-to-1 Session', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -127,6 +72,8 @@ class _ChatQuickActionsState extends State<ChatQuickActions> {
                     peerImageUrl: widget.peerImageUrl,
                     currentUserId: widget.currentUserId,
                     peerId: widget.peerId,
+                    currentUserName: widget.currentUserName,
+                    currentUserImageUrl: widget.currentUserImageUrl,
                   ),
                 ),
               );
