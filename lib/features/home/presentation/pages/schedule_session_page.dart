@@ -107,8 +107,8 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
     if (selectedDate != null && selectedTime != null) subProgress += 0.5;
     if (manifestations.isNotEmpty) subProgress += 0.5;
 
-    // Total progress logic: Discovery (1.0) + Logistics (0.0 to 1.0)
-    final totalProgress = (1.0 + subProgress) / 3.0;
+    // Total progress logic: Time (0.5) + Topics (0.5)
+    final totalProgress = subProgress;
 
     return Scaffold(
       backgroundColor: primaryBgColor,
@@ -167,7 +167,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
             SessionProgressHeader(
               progress: totalProgress,
               currentStep: 2,
-              totalSteps: 3,
+              totalSteps: 2,
               label: 'Session Details',
               title: 'Schedule Your Session',
               quote: 'Pick a time that works for both of you.',
@@ -186,8 +186,6 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
               onAdd: _addManifestation,
               onRemove: _removeManifestation,
             ),
-            const SizedBox(height: 48),
-            const MeetingHubSection(),
             const SizedBox(height: 56),
             _buildConfirmButton(context),
             const SizedBox(height: 24),
@@ -244,6 +242,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 scheduledAt: _combinedSchedule(),
                 type: 'one-on-one',
                 participantId: widget.peerId,
+                topics: manifestations,
               );
 
               if (!mounted) return;
