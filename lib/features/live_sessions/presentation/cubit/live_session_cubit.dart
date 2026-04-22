@@ -143,6 +143,28 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
     }
   }
 
+  Future<bool> updateSession({
+    required String sessionId,
+    String? title,
+    DateTime? scheduledAt,
+    List<String>? topics,
+  }) async {
+    try {
+      emit(state.copyWith(loading: true, error: null));
+      await _backendService.updateSession(
+        sessionId: sessionId,
+        title: title,
+        scheduledAt: scheduledAt,
+        topics: topics,
+      );
+      emit(state.copyWith(loading: false));
+      return true;
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: _readableError(e)));
+      return false;
+    }
+  }
+
   Future<void> startSession(String sessionId) async {
     await _backendService.startSession(sessionId);
   }
