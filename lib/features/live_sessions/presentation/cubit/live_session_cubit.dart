@@ -123,6 +123,7 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
     int maxParticipants = 20,
     String type = 'group',
     String? participantId,
+    List<String>? topics,
   }) async {
     try {
       emit(state.copyWith(loading: true, error: null));
@@ -132,6 +133,7 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
         maxParticipants: maxParticipants,
         type: type,
         participantId: participantId,
+        topics: topics,
       );
       emit(state.copyWith(loading: false));
       return sessionId;
