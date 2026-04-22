@@ -58,6 +58,30 @@ class LiveSessionBackendService {
     }
   }
 
+  Future<void> updateSession({
+    required String sessionId,
+    String? title,
+    DateTime? scheduledAt,
+    List<String>? topics,
+  }) async {
+    final body = <String, dynamic>{};
+    if (title != null) body['title'] = title;
+    if (scheduledAt != null) body['scheduled_at'] = scheduledAt.toUtc().toIso8601String();
+    if (topics != null) body['topics'] = topics;
+
+    final response = await _apiClient.patch(
+      '${ApiConstants.liveSessions}/$sessionId',
+      body: body,
+    );
+    if (response.statusCode != 200) {
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to update session',
+      );
+    }
+  }
+
   Future<String> createSession({
     required String title,
     required DateTime scheduledAt,
