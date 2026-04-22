@@ -178,92 +178,146 @@ class _SessionListView extends StatelessWidget {
   Future<void> _showCreateDialog(BuildContext context) async {
     final cubit = context.read<LiveSessionCubit>();
     final titleController = TextEditingController();
+    final topicController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     DateTime scheduledAt = DateTime.now().add(const Duration(minutes: 5));
+    final topics = <String>[];
 
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogContext, setState) {
+            void addTopic() {
+              final text = topicController.text.trim();
+              if (text.isNotEmpty && !topics.contains(text)) {
+                setState(() {
+                  topics.add(text);
+                  topicController.clear();
+                });
+              }
+            }
+
             return AlertDialog(
               title: const Text('Create a Room'),
               content: Form(
                 key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Room title',
-                        hintText: 'e.g. Flutter Q&A Session',
-                      ),
-                      textCapitalization: TextCapitalization.sentences,
-                      validator: (v) {
-                        if (v == null || v.trim().length < 3) {
-                          return 'Title must be at least 3 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.monetization_on_rounded,
-                          size: 18,
-                          color: Colors.amber.shade700,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: titleController,
+                        decoration: const InputDecoration(
+                          labelText: 'Room title',
+                          hintText: 'e.g. Flutter Q&A Session',
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Join Cost: 2 coins',
-                          style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber.shade900,
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: (v) {
+                          if (v == null || v.trim().length < 3) {
+                            return 'Title must be at least 3 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.monetization_on_rounded,
+                            size: 18,
+                            color: Colors.amber.shade700,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Join Cost: 2 coins',
+                            style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber.shade900,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Starts at',
+                        style: Theme.of(dialogContext).textTheme.labelMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.schedule_rounded, size: 18),
+                        label: Text(
+                          '${scheduledAt.hour.toString().padLeft(2, '0')}:${scheduledAt.minute.toString().padLeft(2, '0')} — ${scheduledAt.day}/${scheduledAt.month}/${scheduledAt.year}',
+                        ),
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: dialogContext,
+                            initialDate: scheduledAt,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 30)),
+                          );
+                          if (date == null) return;
+                          if (!dialogContext.mounted) return;
+                          final time = await showTimePicker(
+                            context: dialogContext,
+                            initialTime: TimeOfDay.fromDateTime(scheduledAt),
+                          );
+                          if (time == null) return;
+                          setState(() {
+                            scheduledAt = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              time.hour,
+                              time.minute,
+                            );
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Topics',
+                        style: Theme.of(dialogContext).textTheme.labelMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: topicController,
+                              textCapitalization: TextCapitalization.sentences,
+                              decoration: const InputDecoration(
+                                hintText: 'Add a topic...',
+                                isDense: true,
                               ),
+                              onSubmitted: (_) => addTopic(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: addTopic,
+                            icon: const Icon(Icons.add_circle_outline_rounded),
+                          ),
+                        ],
+                      ),
+                      if (topics.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: topics.asMap().entries.map((entry) {
+                            return Chip(
+                              label: Text(entry.value),
+                              onDeleted: () => setState(() => topics.removeAt(entry.key)),
+                              deleteIcon: const Icon(Icons.close_rounded, size: 14),
+                              visualDensity: VisualDensity.compact,
+                            );
+                          }).toList(),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Starts at',
-                      style: Theme.of(dialogContext).textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.schedule_rounded, size: 18),
-                      label: Text(
-                        '${scheduledAt.hour.toString().padLeft(2, '0')}:${scheduledAt.minute.toString().padLeft(2, '0')} — ${scheduledAt.day}/${scheduledAt.month}/${scheduledAt.year}',
-                      ),
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: dialogContext,
-                          initialDate: scheduledAt,
-                          firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 30)),
-                        );
-                        if (date == null) return;
-                        if (!dialogContext.mounted) return;
-                        final time = await showTimePicker(
-                          context: dialogContext,
-                          initialTime: TimeOfDay.fromDateTime(scheduledAt),
-                        );
-                        if (time == null) return;
-                        setState(() {
-                          scheduledAt = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                        });
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -279,13 +333,13 @@ class _SessionListView extends StatelessWidget {
                       title: titleController.text.trim(),
                       scheduledAt: scheduledAt,
                       type: 'group',
+                      topics: List<String>.from(topics),
                     );
                     if (sessionId != null && context.mounted) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              SessionDetailPage(sessionId: sessionId),
+                          builder: (_) => SessionDetailPage(sessionId: sessionId),
                         ),
                       );
                     }
