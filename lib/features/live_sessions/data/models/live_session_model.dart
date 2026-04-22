@@ -11,6 +11,7 @@ class LiveSession {
   final int maxParticipants;
   final List<String> participants;
   final List<String> allowedParticipants;
+  final List<String> topics;
   final DateTime createdAt;
   final DateTime scheduledAt;
   final DateTime? startedAt;
@@ -27,6 +28,7 @@ class LiveSession {
     required this.maxParticipants,
     required this.participants,
     required this.allowedParticipants,
+    this.topics = const [],
     required this.createdAt,
     required this.scheduledAt,
     this.startedAt,
@@ -50,6 +52,7 @@ class LiveSession {
       maxParticipants: (data['maxParticipants'] as num?)?.toInt() ?? 20,
       participants: List<String>.from(data['participants'] ?? []),
       allowedParticipants: List<String>.from(data['allowed_participants'] ?? []),
+      topics: List<String>.from(data['topics'] ?? []),
       createdAt: fallbackTime,
       scheduledAt: scheduledAtTs?.toDate() ?? fallbackTime,
       startedAt: (data['startedAt'] as Timestamp?)?.toDate(),
@@ -68,6 +71,7 @@ class LiveSession {
       'maxParticipants': maxParticipants,
       'participants': participants,
       'allowed_participants': allowedParticipants,
+      'topics': topics,
       'createdAt': Timestamp.fromDate(createdAt),
       'scheduledAt': Timestamp.fromDate(scheduledAt),
       'startedAt': startedAt != null ? Timestamp.fromDate(startedAt!) : null,
