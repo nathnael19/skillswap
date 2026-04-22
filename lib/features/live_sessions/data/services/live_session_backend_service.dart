@@ -64,6 +64,7 @@ class LiveSessionBackendService {
     int maxParticipants = 20,
     String type = 'group',
     String? participantId,
+    List<String>? topics,
   }) async {
     final response = await _apiClient.post(
       ApiConstants.liveSessions,
@@ -72,7 +73,8 @@ class LiveSessionBackendService {
         'scheduled_at': scheduledAt.toUtc().toIso8601String(),
         'max_participants': maxParticipants,
         'type': type,
-        'participant_id': ?participantId,
+        'participant_id': participantId,
+        'topics': topics ?? [],
       },
     );
     if (response.statusCode != 200) {
