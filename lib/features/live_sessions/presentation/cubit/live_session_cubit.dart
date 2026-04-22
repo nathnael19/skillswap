@@ -193,9 +193,6 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
   String _readableError(Object error) {
     final raw = error is Failure ? error.message : error.toString();
     final normalized = raw.toLowerCase();
-    if (normalized.contains('already stated')) {
-      return 'This session is already started.';
-    }
     if (normalized.contains('already started')) {
       return 'This session is already started.';
     }
