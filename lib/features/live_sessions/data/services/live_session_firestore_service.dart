@@ -41,15 +41,39 @@ class LiveSessionFirestoreService {
   String? get currentUserId => _auth.currentUser?.uid;
 
   Stream<List<LiveSession>> watchSessions() {
+    final uid = currentUserId;
     return _sessions
         .snapshots()
         .map((event) {
           final sessions = event.docs.map(LiveSession.fromFirestore).where((session) {
-            return session.status == 'scheduled' || session.status == 'live';
+            final isStatusOk = session.status == 'scheduled' || session.status == 'live';
+            if (!isStatusOk) return false;
+
+            if (session.type == 'one-on-one') {
+              if (uid == null) return false;
+              return session.allowedParticipants.contains(uid);
+            }
+            return true;
           }).toList();
           sessions.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
           return sessions;
         });
+  }
+
+  Stream<List<LiveSession>> watchOneOnOneSessions(String userId1, String userId2) {
+    return _sessions
+        .where('type', isEqualTo: 'one-on-one')
+        .where('allowed_participants', arrayContains: userId1)
+        .snapshots()
+        .map((event) {
+      return event.docs
+          .map(LiveSession.fromFirestore)
+          .where((session) =>
+              session.allowedParticipants.contains(userId2))
+          .where((session) =>
+              session.status == 'scheduled' || session.status == 'live')
+          .toList();
+    });
   }
 
   Stream<LiveSession> watchSessionById(String sessionId) {
