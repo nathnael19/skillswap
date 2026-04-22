@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/pages/session_detail_page.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/calendar_slot_picker.dart';
-import 'package:skillswap/features/home/presentation/shared/schedule/meeting_hub_section.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/session_progress_header.dart';
 import 'package:skillswap/features/home/presentation/shared/schedule/teaching_points_section.dart';
 import 'package:skillswap/init_dependencies.dart';
