@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class SwipeActionButtons extends StatelessWidget {
@@ -23,26 +24,32 @@ class SwipeActionButtons extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildGlassButton(
-            icon: Icons.close_rounded,
-            onTap: onDislike,
-            enabled: enabled,
-            size: 64,
+          ConnectivityGuard(
+            child: _buildGlassButton(
+              icon: Icons.close_rounded,
+              onTap: onDislike,
+              enabled: enabled,
+              size: 64,
+            ),
           ),
           const SizedBox(width: 24),
-          _buildPrimaryButton(
-            icon: Icons.favorite_rounded,
-            onTap: onLike,
-            enabled: enabled,
-            size: 88,
+          ConnectivityGuard(
+            child: _buildPrimaryButton(
+              icon: Icons.favorite_rounded,
+              onTap: onLike,
+              enabled: enabled,
+              size: 88,
+            ),
           ),
           const SizedBox(width: 24),
-          _buildGlassButton(
-            icon: Icons.chat_bubble_outline_rounded,
-            onTap: onChat,
-            enabled: enabled,
-            size: 64,
-            isSecondary: true,
+          ConnectivityGuard(
+            child: _buildGlassButton(
+              icon: Icons.chat_bubble_outline_rounded,
+              onTap: onChat,
+              enabled: enabled,
+              size: 64,
+              isSecondary: true,
+            ),
           ),
         ],
       ),
