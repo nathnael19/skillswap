@@ -25,7 +25,6 @@ class ApiClient {
       return {'Content-Type': 'application/json'};
     }
 
-    // Fallback if the stream hasn't populated it yet
     _cachedToken ??= await user.getIdToken();
 
     return {
@@ -49,13 +48,29 @@ class ApiClient {
   Future<http.Response> post(String endpoint, {dynamic body}) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-    // POST + application/json + zero-length body breaks some browsers (Failed to fetch).
+    
+    // ignore: avoid_print
+    print('POST: $uri');
+    if (body != null) {
+      // ignore: avoid_print
+      print('Body: ${jsonEncode(body)}');
+    }
+
+    http.Response response;
     if (body == null) {
       final withoutContentType = Map<String, String>.from(headers)
         ..remove('Content-Type');
-      return await _client.post(uri, headers: withoutContentType);
+      response = await _client.post(uri, headers: withoutContentType);
+    } else {
+      response = await _client.post(uri, headers: headers, body: jsonEncode(body));
     }
-    return await _client.post(uri, headers: headers, body: jsonEncode(body));
+
+    // ignore: avoid_print
+    print('Response status: ${response.statusCode}');
+    // ignore: avoid_print
+    print('Response body: ${response.body}');
+    
+    return response;
   }
 
   Future<http.Response> put(String endpoint, {dynamic body}) async {
