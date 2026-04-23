@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/features/home/presentation/cubits/likes_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import '../../../domain/models/user_model.dart';
@@ -24,105 +26,128 @@ class LikesPage extends StatelessWidget {
           return const GuestWall();
         }
 
-        return DefaultTabController(
-          length: 3,
-          child: BlocBuilder<LikesCubit, LikesState>(
-            builder: (context, state) {
-              if (state is LikesLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: accentColor,
-                    strokeWidth: 2,
-                  ),
-                );
-              }
-
-              if (state is LikesError) {
-                return AppErrorWidget(
-                  message: state.message,
-                  onRetry: () => context.read<LikesCubit>().fetchLikes(),
-                );
-              }
-
-              if (state is LikesLoaded) {
-                return SafeArea(
-                  bottom: false,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                        child: _buildHeader(),
-                      ),
-                      // Premium Glassy TabBar
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.cardBackground,
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(color: AppColors.borderSubtle),
+        return MultiBlocListener(
+          listeners: [
+            BlocListener<ConnectivityCubit, ConnectivityStatus>(
+              listenWhen: (prev, curr) =>
+                  prev == ConnectivityStatus.disconnected &&
+                  curr == ConnectivityStatus.connected,
+              listener: (context, _) {
+                context.read<LikesCubit>().fetchLikes();
+              },
+            ),
+          ],
+          child: DefaultTabController(
+            length: 3,
+            child: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
+              builder: (context, connectivity) {
+                return BlocBuilder<LikesCubit, LikesState>(
+                  builder: (context, state) {
+                    if (state is LikesLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: accentColor,
+                          strokeWidth: 2,
                         ),
+                      );
+                    }
 
-                        child: TabBar(
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          indicator: BoxDecoration(
-                            color: AppColors.borderSubtle,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(color: AppColors.borderDefault),
-                          ),
+                    if (state is LikesError) {
+                      if (connectivity == ConnectivityStatus.disconnected) {
+                        return OfflineScreen(
+                          onRetry: () => context.read<LikesCubit>().fetchLikes(),
+                        );
+                      }
+                      return AppErrorWidget(
+                        message: state.message,
+                        onRetry: () => context.read<LikesCubit>().fetchLikes(),
+                      );
+                    }
 
-                          dividerColor: Colors.transparent,
-                          labelColor: accentColor,
-                          unselectedLabelColor: AppColors.textPrimary
-                              .withValues(alpha: 0.3),
-                          labelStyle: AppTextStyles.labelSmall.copyWith(
-                            letterSpacing: 1.2,
-                          ),
-
-                          labelPadding: EdgeInsets.zero,
-                          tabs: const [
-                            Tab(text: 'Interests'),
-                            Tab(text: 'Likes'),
-                            Tab(text: 'History'),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: TabBarView(
+                    if (state is LikesLoaded) {
+                      return SafeArea(
+                        bottom: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildLikesList(
-                              context,
-                              state.receivedLikes,
-                              'No interests yet',
-                              'When people show interest in your skills, they\'ll appear here.',
-                              isReceived: true,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                              child: _buildHeader(),
                             ),
-                            _buildLikesList(
-                              context,
-                              state.sentLikes,
-                              'No likes sent yet',
-                              'Start exploring and liking expert profiles to connect.',
-                              isSent: true,
+                            // Premium Glassy TabBar
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(color: AppColors.borderSubtle),
+                              ),
+                              child: TabBar(
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: BoxDecoration(
+                                  color: AppColors.borderSubtle,
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(color: AppColors.borderDefault),
+                                ),
+                                dividerColor: Colors.transparent,
+                                labelColor: accentColor,
+                                unselectedLabelColor: AppColors.textPrimary.withValues(alpha: 0.3),
+                                labelStyle: AppTextStyles.labelSmall.copyWith(
+                                  letterSpacing: 1.2,
+                                ),
+                                labelPadding: EdgeInsets.zero,
+                                tabs: const [
+                                  Tab(text: 'Interests'),
+                                  Tab(text: 'Likes'),
+                                  Tab(text: 'History'),
+                                ],
+                              ),
                             ),
-                            _buildLikesList(
-                              context,
-                              state.passedUsers,
-                              'No history',
-                              'Your passed profiles and past activity will show up here.',
-                              isPassed: true,
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  _buildLikesList(
+                                    context,
+                                    state.receivedLikes,
+                                    'No interests yet',
+                                    'When people show interest in your skills, they\'ll appear here.',
+                                    isReceived: true,
+                                  ),
+                                  _buildLikesList(
+                                    context,
+                                    state.sentLikes,
+                                    'No likes sent yet',
+                                    'Start exploring and liking expert profiles to connect.',
+                                    isSent: true,
+                                  ),
+                                  _buildLikesList(
+                                    context,
+                                    state.passedUsers,
+                                    'No history',
+                                    'Your passed profiles and past activity will show up here.',
+                                    isPassed: true,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }
+                      );
+                    }
 
-              return const SizedBox.shrink();
-            },
+                    if (connectivity == ConnectivityStatus.disconnected) {
+                      return OfflineScreen(
+                        onRetry: () => context.read<LikesCubit>().fetchLikes(),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                );
+              },
+            ),
           ),
         );
       },
