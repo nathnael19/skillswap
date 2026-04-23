@@ -90,26 +90,40 @@ class LiveSessionBackendService {
     String? participantId,
     List<String>? topics,
   }) async {
+    final body = <String, dynamic>{
+      'title': title,
+      'scheduled_at': scheduledAt.toUtc().toIso8601String(),
+      'max_participants': maxParticipants,
+      'type': type,
+      'topics': topics ?? [],
+    };
+    if (participantId != null) {
+      body['participant_id'] = participantId;
+    }
+
     final response = await _apiClient.post(
-      ApiConstants.liveSessions,
-      body: {
-        'title': title,
-        'scheduled_at': scheduledAt.toUtc().toIso8601String(),
-        'max_participants': maxParticipants,
-        'type': type,
-        'participant_id': participantId,
-        'topics': topics ?? [],
-      },
+      '${ApiConstants.liveSessions}/',
+      body: body,
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw ServerFailure.fromResponse(
         response.statusCode,
         response.body,
-        fallbackMessage: 'Failed to create live session',
       );
     }
-    final data = Map<String, dynamic>.from(jsonDecode(response.body) as Map);
-    return data['id'] as String;
+    try {
+      final data = jsonDecode(response.body);
+      if (data is Map) {
+        final id = data['id'] ?? data['session_id'] ?? data['room_id'];
+        if (id != null) {
+          return id.toString();
+        }
+      }
+      throw ServerFailure('Server returned an invalid response format.');
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw ServerFailure('Failed to parse server response: ${response.body}');
+    }
   }
 
   Future<void> endSession(String sessionId) async {
