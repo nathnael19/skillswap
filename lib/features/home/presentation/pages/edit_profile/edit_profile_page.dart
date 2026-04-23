@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/constants/app_categories.dart';
@@ -219,13 +220,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<AuthCubit>().signOut();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Sign Out'),
+          ConnectivityGuard(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.read<AuthCubit>().signOut();
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+              child: const Text('Sign Out'),
+            ),
           ),
         ],
       ),
@@ -257,13 +260,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<AuthCubit>().deleteAccount();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete'),
+          ConnectivityGuard(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.read<AuthCubit>().deleteAccount();
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+              child: const Text('Delete'),
+            ),
           ),
         ],
       ),
@@ -298,7 +303,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is ProfileLoading || context.watch<AuthCubit>().state is AuthLoading;
+          final isLoading =
+              state is ProfileLoading ||
+              context.watch<AuthCubit>().state is AuthLoading;
 
           return Scaffold(
             backgroundColor: kBackground,
@@ -341,17 +348,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 else
                   Padding(
                     padding: const EdgeInsets.only(right: 8.0),
-                    child: TextButton(
-                      onPressed: _onSave,
-                      style: TextButton.styleFrom(
-                        foregroundColor: kAccent,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      child: Text(
-                        'Save',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: kAccent,
-                          letterSpacing: 1.0,
+                    child: ConnectivityGuard(
+                      child: TextButton(
+                        onPressed: _onSave,
+                        style: TextButton.styleFrom(
+                          foregroundColor: kAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        child: Text(
+                          'Save',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: kAccent,
+                            letterSpacing: 1.0,
+                          ),
                         ),
                       ),
                     ),
@@ -364,10 +373,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  AvatarEditorSection(
-                    imageUrl: widget.user.imageUrl,
-                    localImage: _pickedAvatar,
-                    onTap: _pickAvatar,
+                  ConnectivityGuard(
+                    child: AvatarEditorSection(
+                      imageUrl: widget.user.imageUrl,
+                      localImage: _pickedAvatar,
+                      onTap: _pickAvatar,
+                    ),
                   ),
                   const SizedBox(height: 48),
                   ProfileInputField(
@@ -460,7 +471,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-          initialValue: _selectedCategory,
+          value: _selectedCategory,
           dropdownColor: AppColors.surface,
           style: AppTextStyles.bodyMedium.copyWith(color: kText),
           decoration: InputDecoration(
@@ -484,7 +495,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-          initialValue: _selectedExpertise,
+          value: _selectedExpertise,
           dropdownColor: AppColors.surface,
           style: AppTextStyles.bodyMedium.copyWith(color: kText),
           decoration: InputDecoration(
