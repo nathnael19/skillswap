@@ -14,6 +14,8 @@ import '../../shared/premium_dialogs.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/common/widgets/offline_screen.dart';
 
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({super.key});
@@ -147,69 +149,93 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<DiscoveryCubit, DiscoveryState>(
-      listener: (context, state) {
-        if (state is DiscoverySwipeError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        } else if (state is DiscoveryLoaded) {
-          setState(() {
-            _currentIndex = 0;
-          });
-        }
-      },
-      child: BlocBuilder<DiscoveryCubit, DiscoveryState>(
-        builder: (context, state) {
-          if (state is DiscoveryLoading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-                strokeWidth: 2,
-              ),
-            );
-          }
-
-          if (state is DiscoveryError) {
-            return AppErrorWidget(
-              message: state.message,
-              onRetry: () =>
-                  context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-            );
-          }
-
-          if (state is DiscoveryLoaded) {
-            final users = state.users;
-            final hasMoreUsers = _currentIndex < users.length;
-
-            if (!hasMoreUsers) {
-              return RefreshIndicator(
-                onRefresh: () =>
-                    context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-                color: AppColors.primary,
-                backgroundColor: AppColors.surface,
-                child: const EmptyDiscoveryState(),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ConnectivityCubit, ConnectivityStatus>(
+          listenWhen: (prev, curr) =>
+              prev == ConnectivityStatus.disconnected &&
+              curr == ConnectivityStatus.connected,
+          listener: (context, _) {
+            context.read<DiscoveryCubit>().fetchDiscoveryUsers();
+          },
+        ),
+        BlocListener<DiscoveryCubit, DiscoveryState>(
+          listener: (context, state) {
+            if (state is DiscoverySwipeError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage),
+                  backgroundColor: AppColors.error,
+                ),
               );
+            } else if (state is DiscoveryLoaded) {
+              setState(() {
+                _currentIndex = 0;
+              });
             }
+          },
+        ),
+      ],
+      child: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
+        builder: (context, connectivity) {
+          return BlocBuilder<DiscoveryCubit, DiscoveryState>(
+            builder: (context, state) {
+              if (state is DiscoveryLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 2,
+                  ),
+                );
+              }
 
-            return RefreshIndicator(
-              onRefresh: () =>
-                  context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
-              color: AppColors.primary,
-              backgroundColor: AppColors.surface,
-              child: SwipeableCardStack(
-                users: users,
-                currentIndex: _currentIndex,
-                onSwiped: _nextCard,
-                onChat: _handleChat,
-              ),
-            );
-          }
+              if (state is DiscoveryError) {
+                if (connectivity == ConnectivityStatus.disconnected) {
+                  return OfflineScreen(
+                    onRetry: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                  );
+                }
+                return AppErrorWidget(
+                  message: state.message,
+                  onRetry: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                );
+              }
 
-          return const SizedBox.shrink();
+              if (state is DiscoveryLoaded) {
+                final users = state.users;
+                final hasMoreUsers = _currentIndex < users.length;
+
+                if (!hasMoreUsers) {
+                  return RefreshIndicator(
+                    onRefresh: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                    color: AppColors.primary,
+                    backgroundColor: AppColors.surface,
+                    child: const EmptyDiscoveryState(),
+                  );
+                }
+
+                return RefreshIndicator(
+                  onRefresh: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.surface,
+                  child: SwipeableCardStack(
+                    users: users,
+                    currentIndex: _currentIndex,
+                    onSwiped: _nextCard,
+                    onChat: _handleChat,
+                  ),
+                );
+              }
+
+              if (connectivity == ConnectivityStatus.disconnected) {
+                return OfflineScreen(
+                  onRetry: () => context.read<DiscoveryCubit>().fetchDiscoveryUsers(),
+                );
+              }
+
+              return const SizedBox.shrink();
+            },
+          );
         },
       ),
     );
