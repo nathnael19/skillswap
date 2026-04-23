@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
+import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_state.dart';
@@ -41,131 +44,150 @@ class _SessionListView extends StatelessWidget {
           title: const Text('Live Sessions'),
           centerTitle: false,
         ),
-        floatingActionButton: BlocBuilder<LiveSessionCubit, LiveSessionState>(
-          builder: (context, state) {
-            return FloatingActionButton.extended(
-              onPressed: state.loading
-                  ? null
-                  : () => _showCreateDialog(context),
-              icon: state.loading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.video_call_rounded),
-              label: const Text('Create Room'),
-            );
-          },
+        floatingActionButton: ConnectivityGuard(
+          child: BlocBuilder<LiveSessionCubit, LiveSessionState>(
+            builder: (context, state) {
+              return FloatingActionButton.extended(
+                onPressed: state.loading ? null : () => _showCreateDialog(context),
+                icon: state.loading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.video_call_rounded),
+                label: const Text('Create Room'),
+              );
+            },
+          ),
         ),
-        body: StreamBuilder(
-          stream: firestoreService.watchSessions(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('Something went wrong: ${snapshot.error}'),
-              );
-            }
-            final sessions = snapshot.data ?? [];
-            if (sessions.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.video_camera_back_outlined,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.outline,
+        body: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
+          builder: (context, connectivity) {
+            return StreamBuilder(
+              stream: firestoreService.watchSessions(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                if (snapshot.hasError) {
+                  if (connectivity == ConnectivityStatus.disconnected) {
+                    return OfflineScreen(
+                      onRetry: () {
+                        // Re-triggering build
+                      },
+                    );
+                  }
+                  return Center(
+                    child: Text('Something went wrong: ${snapshot.error}'),
+                  );
+                }
+
+                final sessions = snapshot.data ?? [];
+                
+                if (sessions.isEmpty && connectivity == ConnectivityStatus.disconnected) {
+                   return OfflineScreen(onRetry: () {});
+                }
+
+                if (sessions.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.video_camera_back_outlined,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No sessions yet',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap "Create Room" to start one.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No sessions yet',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap "Create Room" to start one.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
+                  );
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                  itemCount: sessions.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final session = sessions[index];
+                    final isLive = session.status == 'live';
+                    return Card(
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: isLive
+                              ? Colors.red.withValues(alpha: 0.15)
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer
+                                  .withValues(alpha: 0.5),
+                          child: Icon(
+                            isLive
+                                ? Icons.fiber_manual_record
+                                : Icons.schedule_rounded,
+                            color: isLive
+                                ? Colors.red
+                                : Theme.of(context).colorScheme.primary,
+                            size: 20,
                           ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-              itemCount: sessions.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final session = sessions[index];
-                final isLive = session.status == 'live';
-                return Card(
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    leading: CircleAvatar(
-                      backgroundColor: isLive
-                          ? Colors.red.withValues(alpha: 0.15)
-                          : Theme.of(context)
-                              .colorScheme
-                              .primaryContainer
-                              .withValues(alpha: 0.5),
-                      child: Icon(
-                        isLive
-                            ? Icons.fiber_manual_record
-                            : Icons.schedule_rounded,
-                        color: isLive
-                            ? Colors.red
-                            : Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
-                    ),
-                    title: Text(
-                      session.title,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Row(
-                        children: [
-                          _StatusChip(status: session.status),
-                          const SizedBox(width: 8),
-                          _TypeChip(type: session.type),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.people_outline,
-                            size: 14,
-                            color: Theme.of(context).colorScheme.outline,
+                        ),
+                        title: Text(
+                          session.title,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              _StatusChip(status: session.status),
+                              const SizedBox(width: 8),
+                              _TypeChip(type: session.type),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.people_outline,
+                                size: 14,
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${session.participants.length}/${session.maxParticipants}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.outline,
+                                    ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${session.participants.length}/${session.maxParticipants}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.outline,
-                                ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                SessionDetailPage(sessionId: session.id),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            SessionDetailPage(sessionId: session.id),
-                      ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             );
@@ -340,6 +362,13 @@ class _SessionListView extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => SessionDetailPage(sessionId: sessionId),
+                        ),
+                      );
+                    } else if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(cubit.state.error ?? 'Failed to create session'),
+                          backgroundColor: Theme.of(context).colorScheme.error,
                         ),
                       );
                     }
