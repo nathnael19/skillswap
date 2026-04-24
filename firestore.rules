@@ -11,6 +11,10 @@ service cloud.firestore {
       return request.auth.uid in get(/databases/$(database)/documents/sessions/$(sessionId)).data.participants;
     }
 
+    function isMatchParticipant(matchId) {
+      return request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+    }
+
     // Group live sessions metadata.
     // All writes are backend-only (Cloud Functions/Admin SDK) to enforce:
     // - capacity checks
@@ -53,8 +57,11 @@ service cloud.firestore {
 
     // User Profiles
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow create, update: if isAuthenticated() &&
+        request.auth.uid == userId &&
+        request.resource.data.id == userId;
+      allow delete: if false;
     }
 
     // Matches
@@ -65,8 +72,18 @@ service cloud.firestore {
 
     // Messages
     match /messages/{matchId}/chat/{messageId} {
-      allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
-      allow write: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+      allow read: if isAuthenticated() && isMatchParticipant(matchId);
+      allow create: if isAuthenticated() &&
+        isMatchParticipant(matchId) &&
+        request.resource.data.keys().hasOnly(["match_id", "sender_id", "content", "timestamp", "is_read"]) &&
+        request.resource.data.match_id == matchId &&
+        request.resource.data.sender_id == request.auth.uid &&
+        request.resource.data.content is string &&
+        request.resource.data.content.size() > 0 &&
+        request.resource.data.content.size() <= 2000 &&
+        request.resource.data.timestamp != null &&
+        request.resource.data.is_read == false;
+      allow update, delete: if false;
     }
   }
 }
