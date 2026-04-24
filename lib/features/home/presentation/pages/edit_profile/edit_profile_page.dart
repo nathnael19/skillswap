@@ -471,7 +471,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-          value: _selectedCategory,
+          initialValue: _selectedCategory,
           dropdownColor: AppColors.surface,
           style: AppTextStyles.bodyMedium.copyWith(color: kText),
           decoration: InputDecoration(
@@ -495,7 +495,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-          value: _selectedExpertise,
+          initialValue: _selectedExpertise,
           dropdownColor: AppColors.surface,
           style: AppTextStyles.bodyMedium.copyWith(color: kText),
           decoration: InputDecoration(
