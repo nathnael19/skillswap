@@ -11,13 +11,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/core/common/widgets/offline_toast.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorageDirectory.web
-        : HydratedStorageDirectory((await getApplicationDocumentsDirectory()).path),
+        : HydratedStorageDirectory(
+            (await getApplicationDocumentsDirectory()).path,
+          ),
   );
   await initDependencies();
   runApp(
@@ -44,15 +45,9 @@ class MyApp extends StatelessWidget {
       title: 'SkillSwap',
       theme: AppTheme.dark(),
       builder: (context, child) {
-        return Stack(
-          children: [
-            if (child != null) child,
-            const OfflineToast(),
-          ],
-        );
+        return Stack(children: [?child, const OfflineToast()]);
       },
       home: const SplashPage(),
     );
   }
 }
-
