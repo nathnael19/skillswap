@@ -11,6 +11,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/core/common/widgets/offline_toast.dart';
 
+import 'package:skillswap/core/services/notification_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HydratedBloc.storage = await HydratedStorage.build(
@@ -21,6 +24,13 @@ void main() async {
           ),
   );
   await initDependencies();
+  
+  // Set up Firebase Messaging background handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  
+  // Initialize Notification Service for foreground messages
+  await NotificationService.instance.init();
+  
   runApp(
     MultiBlocProvider(
       providers: [
