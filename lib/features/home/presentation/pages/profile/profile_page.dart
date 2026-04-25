@@ -8,6 +8,7 @@ import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/home/components/home_app_bar_action.dart';
 import 'package:skillswap/features/home/presentation/pages/notifications/notifications_page.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
+import 'package:skillswap/features/home/presentation/pages/profile/settings_page.dart';
 import 'components/expertise_portfolio.dart';
 import 'components/profile_header.dart';
 import 'components/recent_activity_section.dart';
@@ -198,6 +199,20 @@ class ProfilePage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => const WalletPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: HomeAppBarAction(
+                      icon: Icons.settings_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingsPage(),
                           ),
                         );
                       },
