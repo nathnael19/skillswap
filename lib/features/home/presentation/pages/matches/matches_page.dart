@@ -42,7 +42,7 @@ class MatchesPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
-                  padding: EdgeInsets.fromLTRB(24, 32, 24, 12),
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 12),
                   child: MatchesHeader(),
                 ),
                 Expanded(

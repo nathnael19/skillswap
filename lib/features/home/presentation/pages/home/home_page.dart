@@ -17,6 +17,7 @@ import 'package:skillswap/features/home/presentation/pages/profile/profile_page.
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'package:skillswap/features/home/presentation/pages/discovery/discovery_page.dart';
 import 'package:skillswap/features/live_sessions/presentation/pages/session_list_page.dart';
+import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:skillswap/features/home/presentation/pages/notifications/notifications_page.dart';
 import '../../shared/filter_bottom_sheet.dart';
@@ -120,14 +121,25 @@ class _HomePageState extends State<HomePage> {
             actions = [
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: HomeAppBarAction(
-                  icon: Icons.video_camera_front_rounded,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SessionListPage(),
-                      ),
+                child: StreamBuilder(
+                  stream: serviceLocator<LiveSessionFirestoreService>()
+                      .watchSessions(),
+                  builder: (context, snapshot) {
+                    final sessions = snapshot.data ?? [];
+                    final publicCount = sessions
+                        .where((s) => s.type != 'one-on-one')
+                        .length;
+                    return HomeAppBarAction(
+                      icon: Icons.video_camera_front_rounded,
+                      badgeCount: publicCount > 0 ? publicCount : null,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SessionListPage(),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
