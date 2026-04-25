@@ -91,94 +91,106 @@ class NotificationsPage extends StatelessWidget {
                 ).format(createdAt.toDate());
               }
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isRead ? AppColors.surface : AppColors.surfaceAlt,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: priority
-                        ? AppColors.primary.withValues(alpha: 0.5)
-                        : AppColors.overlay05,
-                    width: priority ? 1 : 1,
+              return GestureDetector(
+                onTap: () {
+                  if (!isRead) {
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(currentUser.uid)
+                        .collection('notifications')
+                        .doc(docs[index].id)
+                        .update({'is_read': true});
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isRead ? AppColors.surface : AppColors.surfaceAlt,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: priority
+                          ? AppColors.primary.withValues(alpha: 0.5)
+                          : AppColors.overlay05,
+                      width: priority ? 1 : 1,
+                    ),
                   ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: priority
-                            ? AppColors.primary.withValues(alpha: 0.2)
-                            : AppColors.overlay05,
-                        shape: BoxShape.circle,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: priority
+                              ? AppColors.primary.withValues(alpha: 0.2)
+                              : AppColors.overlay05,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          priority
+                              ? Icons.priority_high_rounded
+                              : Icons.notifications_rounded,
+                          color: priority
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                          size: 20,
+                        ),
                       ),
-                      child: Icon(
-                        priority
-                            ? Icons.priority_high_rounded
-                            : Icons.notifications_rounded,
-                        color: priority
-                            ? AppColors.primary
-                            : AppColors.textPrimary,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  title,
-                                  style: GoogleFonts.dmSans(
-                                    fontWeight: isRead
-                                        ? FontWeight.w500
-                                        : FontWeight.bold,
-                                    fontSize: 16,
-                                    color: AppColors.textPrimary,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: GoogleFonts.dmSans(
+                                      fontWeight: isRead
+                                          ? FontWeight.w500
+                                          : FontWeight.bold,
+                                      fontSize: 16,
+                                      color: AppColors.textPrimary,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (!isRead)
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
+                                if (!isRead)
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            body,
-                            style: GoogleFonts.dmSans(
-                              color: AppColors.textSecondary,
-                              fontSize: 14,
-                              height: 1.4,
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            timeString,
-                            style: GoogleFonts.dmSans(
-                              color: AppColors.textSecondary.withValues(
-                                alpha: 0.5,
+                            const SizedBox(height: 6),
+                            Text(
+                              body,
+                              style: GoogleFonts.dmSans(
+                                color: AppColors.textSecondary,
+                                fontSize: 14,
+                                height: 1.4,
                               ),
-                              fontSize: 12,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 10),
+                            Text(
+                              timeString,
+                              style: GoogleFonts.dmSans(
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.5,
+                                ),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
