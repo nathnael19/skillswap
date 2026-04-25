@@ -9,7 +9,6 @@ import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
 import 'components/matches_header.dart';
 import 'components/matches_empty_state.dart';
-import 'components/new_connections_section.dart';
 import 'components/chat_messages_section.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
@@ -61,14 +60,17 @@ class MatchesPage extends StatelessWidget {
                           }
 
                           if (state is MatchesError) {
-                            if (connectivity == ConnectivityStatus.disconnected) {
+                            if (connectivity ==
+                                ConnectivityStatus.disconnected) {
                               return OfflineScreen(
-                                onRetry: () => context.read<MatchesCubit>().fetchMatches(),
+                                onRetry: () =>
+                                    context.read<MatchesCubit>().fetchMatches(),
                               );
                             }
                             return AppErrorWidget(
                               message: state.message,
-                              onRetry: () => context.read<MatchesCubit>().fetchMatches(),
+                              onRetry: () =>
+                                  context.read<MatchesCubit>().fetchMatches(),
                             );
                           }
 
@@ -79,27 +81,13 @@ class MatchesPage extends StatelessWidget {
                             }
 
                             return RefreshIndicator(
-                              onRefresh: () => context.read<MatchesCubit>().fetchMatches(),
+                              onRefresh: () =>
+                                  context.read<MatchesCubit>().fetchMatches(),
                               color: accentColor,
                               backgroundColor: AppColors.surface,
                               child: CustomScrollView(
-                                physics: const AlwaysScrollableScrollPhysics(
-                                  parent: BouncingScrollPhysics(),
-                                ),
+                                physics: const AlwaysScrollableScrollPhysics(),
                                 slivers: [
-                                  const SliverToBoxAdapter(
-                                    child: SizedBox(height: 12),
-                                  ),
-                                  SliverToBoxAdapter(
-                                    child: NewConnectionsSection(
-                                      matches: matches,
-                                      currentUserId: authState.uid,
-                                      onlineStatuses: state.onlineStatuses,
-                                    ),
-                                  ),
-                                  const SliverToBoxAdapter(
-                                    child: SizedBox(height: 30),
-                                  ),
                                   SliverToBoxAdapter(
                                     child: ChatMessagesSection(
                                       matches: matches,
@@ -117,7 +105,8 @@ class MatchesPage extends StatelessWidget {
 
                           if (connectivity == ConnectivityStatus.disconnected) {
                             return OfflineScreen(
-                              onRetry: () => context.read<MatchesCubit>().fetchMatches(),
+                              onRetry: () =>
+                                  context.read<MatchesCubit>().fetchMatches(),
                             );
                           }
 
