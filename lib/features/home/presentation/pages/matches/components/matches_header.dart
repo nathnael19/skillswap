@@ -61,8 +61,6 @@ class MatchesHeader extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
-        Text('Find Synergy', style: AppTextStyles.h1),
       ],
     );
   }
