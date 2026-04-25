@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/chat/chat_page.dart';
 import 'conversation_item.dart';
-import 'package:skillswap/core/theme/theme.dart';
 
 class ChatMessagesSection extends StatelessWidget {
   final List<dynamic> matches;
@@ -22,7 +21,6 @@ class ChatMessagesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Chat Messages'),
         const SizedBox(height: 24),
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
@@ -67,31 +65,6 @@ class ChatMessagesSection extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    const accentColor = AppColors.primary;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 16,
-            decoration: BoxDecoration(
-              color: accentColor,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: AppTextStyles.labelSmall.copyWith(color: accentColor),
-          ),
-        ],
-      ),
     );
   }
 
