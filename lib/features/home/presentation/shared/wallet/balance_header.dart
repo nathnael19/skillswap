@@ -143,6 +143,15 @@ class BalanceHeader extends StatelessWidget {
                     label: 'Withdraw',
                     isPrimary: false,
                     onTap: () {
+                      if (balance < 50) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('You need at least 50 credits to withdraw.'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                        return;
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(
