@@ -12,8 +12,8 @@ class ExpertisePortfolio extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('PORTFOLIO', 'Growth Journey'),
-        const SizedBox(height: 20),
+        _buildSectionTitle('MY JOURNEY'),
+        SizedBox(height: 10),
         // Added Portfolio Projects Section
         Container(
           width: double.infinity,
@@ -259,7 +259,7 @@ class ExpertisePortfolio extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String label, String title) {
+  Widget _buildSectionTitle(String label) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -282,8 +282,6 @@ class ExpertisePortfolio extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Text(title, style: AppTextStyles.h3),
       ],
     );
   }
