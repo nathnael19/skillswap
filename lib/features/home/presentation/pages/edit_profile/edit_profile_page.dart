@@ -12,7 +12,6 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 import 'package:skillswap/features/home/presentation/pages/identity_verification_page.dart';
-import 'components/account_settings_section.dart';
 import 'components/avatar_editor_section.dart';
 import 'components/expertise_editor_section.dart';
 import 'components/profile_input_field.dart';
@@ -210,117 +209,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
     context.read<ProfileCubit>().updateUserProfile(updatedUser);
   }
 
-  void _showLogoutConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          'Sign Out',
-          style: AppTextStyles.h4.copyWith(color: AppColors.error),
-        ),
-
-        content: Text(
-          'Are you sure you want to sign out of your account?',
-          style: AppTextStyles.bodyMedium.copyWith(color: kTextSecondary),
-        ),
-
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
-            ),
-          ),
-          ConnectivityGuard(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                context.read<AuthCubit>().signOut();
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              child: const Text('Sign Out'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteAccountConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          'Delete Account',
-          style: AppTextStyles.h4.copyWith(color: AppColors.error),
-        ),
-
-        content: Text(
-          'Are you absolutely sure you want to delete your account? This action cannot be undone. All your matches, messages, and profile data will be permanently erased.',
-          style: AppTextStyles.bodyMedium.copyWith(color: kTextSecondary),
-        ),
-
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: AppTextStyles.labelLarge.copyWith(color: kTextSecondary),
-            ),
-          ),
-          ConnectivityGuard(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                context.read<AuthCubit>().deleteAccount();
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              child: const Text('Delete'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
+    return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
-        if (state is AuthInitial) {
-          Navigator.of(
-            context,
-          ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
-        } else if (state is AuthFailure) {
+        if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Auth Error: ${state.message}')),
+            const SnackBar(content: Text('Profile updated successfully!')),
           );
+          Navigator.pop(context);
+        } else if (state is ProfileError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
         }
       },
-      child: BlocConsumer<ProfileCubit, ProfileState>(
-        listener: (context, state) {
-          if (state is ProfileUpdateSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile updated successfully!')),
-            );
-            Navigator.pop(context);
-          } else if (state is ProfileError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
-          }
-        },
-        builder: (context, state) {
-          final isLoading =
-              state is ProfileLoading ||
-              context.watch<AuthCubit>().state is AuthLoading;
+      builder: (context, state) {
+        final isLoading =
+            state is ProfileLoading ||
+            context.watch<AuthCubit>().state is AuthLoading;
 
           return Scaffold(
             backgroundColor: kBackground,
@@ -449,28 +356,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         _showAddSkillDialog(AppConstants.skillTypeLearn),
                     onRemove: _removeSkill,
                   ),
-                  const SizedBox(height: 48),
-                  AccountSettingsSection(
-                    onIdentityVerificationTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const IdentityVerificationPage(),
-                        ),
-                      );
-                    },
-                    onLogoutTap: _showLogoutConfirmation,
-                    onDeleteAccountTap: _showDeleteAccountConfirmation,
-                  ),
-                  const SizedBox(height: 60),
                 ],
               ),
             ),
           );
         },
-      ),
-    );
+      );
   }
 
   Widget _buildSelectionSection() {
