@@ -53,10 +53,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _professionController = TextEditingController(text: widget.user.profession);
     _bioController = TextEditingController(text: widget.user.bio);
     _userSkills = List.from(widget.user.allSkills);
-    _selectedCategory =
-        widget.user.primaryCategory ?? AppCategories.categories.first;
-    _selectedExpertise =
-        widget.user.expertiseLevel ?? AppCategories.expertiseLevels[1];
+    final initialCategory = widget.user.primaryCategory;
+    if (initialCategory != null) {
+      final match = AppCategories.categories
+          .where((c) => c.toLowerCase() == initialCategory.toLowerCase())
+          .firstOrNull;
+      _selectedCategory = match ?? AppCategories.categories.first;
+    } else {
+      _selectedCategory = AppCategories.categories.first;
+    }
+
+    final initialExpertise = widget.user.expertiseLevel;
+    if (initialExpertise != null) {
+      final match = AppCategories.expertiseLevels
+          .where((e) => e.toLowerCase() == initialExpertise.toLowerCase())
+          .firstOrNull;
+      _selectedExpertise = match ?? AppCategories.expertiseLevels[1];
+    } else {
+      _selectedExpertise = AppCategories.expertiseLevels[1];
+    }
   }
 
   @override
