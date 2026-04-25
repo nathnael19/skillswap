@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -48,7 +50,37 @@ class NotificationService {
       ),
     );
 
-    await _plugin.initialize(initSettings);
+    await _plugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (details) {
+        if (details.payload != null) {
+          try {
+            final data = json.decode(details.payload!);
+            final notificationId = data['notification_id'];
+            if (notificationId != null) {
+              _markAsRead(notificationId);
+            }
+          } catch (_) {}
+        }
+      },
+    );
+
+    // ── Background FCM messages (System Tray) ────────────────────────────────
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      final notificationId = message.data['notification_id'];
+      if (notificationId != null) {
+        _markAsRead(notificationId);
+      }
+    });
+
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        final notificationId = message.data['notification_id'];
+        if (notificationId != null) {
+          _markAsRead(notificationId);
+        }
+      }
+    });
 
     // ── Foreground FCM messages ──────────────────────────────────────────────
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -115,6 +147,18 @@ class NotificationService {
         ),
       ),
     );
+  }
+
+  void _markAsRead(String notificationId) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('notifications')
+          .doc(notificationId)
+          .update({'is_read': true}).catchError((_) {});
+    }
   }
 }
 
