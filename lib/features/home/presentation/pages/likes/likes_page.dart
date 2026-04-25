@@ -55,7 +55,8 @@ class LikesPage extends StatelessWidget {
                     if (state is LikesError) {
                       if (connectivity == ConnectivityStatus.disconnected) {
                         return OfflineScreen(
-                          onRetry: () => context.read<LikesCubit>().fetchLikes(),
+                          onRetry: () =>
+                              context.read<LikesCubit>().fetchLikes(),
                         );
                       }
                       return AppErrorWidget(
@@ -71,28 +72,40 @@ class LikesPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                              padding: const EdgeInsets.fromLTRB(
+                                24,
+                                32,
+                                24,
+                                24,
+                              ),
                               child: _buildHeader(),
                             ),
                             // Premium Glassy TabBar
                             Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 24),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 color: AppColors.cardBackground,
                                 borderRadius: BorderRadius.circular(100),
-                                border: Border.all(color: AppColors.borderSubtle),
+                                border: Border.all(
+                                  color: AppColors.borderSubtle,
+                                ),
                               ),
                               child: TabBar(
                                 indicatorSize: TabBarIndicatorSize.tab,
                                 indicator: BoxDecoration(
                                   color: AppColors.borderSubtle,
                                   borderRadius: BorderRadius.circular(100),
-                                  border: Border.all(color: AppColors.borderDefault),
+                                  border: Border.all(
+                                    color: AppColors.borderDefault,
+                                  ),
                                 ),
                                 dividerColor: Colors.transparent,
                                 labelColor: accentColor,
-                                unselectedLabelColor: AppColors.textPrimary.withValues(alpha: 0.3),
+                                unselectedLabelColor: AppColors.textPrimary
+                                    .withValues(alpha: 0.3),
                                 labelStyle: AppTextStyles.labelSmall.copyWith(
                                   letterSpacing: 1.2,
                                 ),
@@ -177,8 +190,6 @@ class LikesPage extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
-        Text('Discover Experts', style: AppTextStyles.h1),
       ],
     );
   }
