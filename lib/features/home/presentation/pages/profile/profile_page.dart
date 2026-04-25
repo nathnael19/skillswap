@@ -5,6 +5,8 @@ import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
+import 'package:skillswap/features/home/presentation/pages/home/components/home_app_bar_action.dart';
+import 'package:skillswap/features/home/presentation/pages/notifications/notifications_page.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'components/expertise_portfolio.dart';
 import 'components/profile_header.dart';
@@ -59,26 +61,35 @@ class ProfilePage extends StatelessWidget {
                           }
 
                           if (state is ProfileError) {
-                            if (connectivity == ConnectivityStatus.disconnected) {
+                            if (connectivity ==
+                                ConnectivityStatus.disconnected) {
                               return OfflineScreen(
-                                onRetry: () => context.read<ProfileCubit>().fetchUserProfile(),
+                                onRetry: () => context
+                                    .read<ProfileCubit>()
+                                    .fetchUserProfile(),
                               );
                             }
                             return AppErrorWidget(
                               message: state.message,
-                              onRetry: () => context.read<ProfileCubit>().fetchUserProfile(),
+                              onRetry: () => context
+                                  .read<ProfileCubit>()
+                                  .fetchUserProfile(),
                             );
                           }
 
                           if (state is ProfileLoaded) {
                             final user = state.user;
                             return RefreshIndicator(
-                              onRefresh: () => context.read<ProfileCubit>().fetchUserProfile(),
+                              onRefresh: () => context
+                                  .read<ProfileCubit>()
+                                  .fetchUserProfile(),
                               color: AppColors.primary,
                               backgroundColor: AppColors.surface,
                               child: SingleChildScrollView(
                                 physics: const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                ),
                                 child: Column(
                                   children: [
                                     ProfileHeader(user: user),
@@ -95,7 +106,9 @@ class ProfilePage extends StatelessWidget {
 
                           if (connectivity == ConnectivityStatus.disconnected) {
                             return OfflineScreen(
-                              onRetry: () => context.read<ProfileCubit>().fetchUserProfile(),
+                              onRetry: () => context
+                                  .read<ProfileCubit>()
+                                  .fetchUserProfile(),
                             );
                           }
 
@@ -134,41 +147,47 @@ class ProfilePage extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'PORTFOLIO',
+                  'PROFILE',
                   style: AppTextStyles.labelSmall.copyWith(color: accentColor),
                 ),
               ],
             ),
+
             if (isLoggedIn)
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const WalletPage()),
-                  );
-                },
-                child: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.borderSubtle,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.borderDefault,
-                      width: 1,
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: HomeAppBarAction(
+                      icon: Icons.notifications_rounded,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsPage(),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  child: const Icon(
-                    Icons.account_balance_wallet_outlined,
-                    color: AppColors.textPrimary,
-                    size: 18,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: HomeAppBarAction(
+                      icon: Icons.account_balance_wallet_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WalletPage(),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
+                ],
               ),
           ],
         ),
-        const SizedBox(height: 14),
-        Text('Your Profile', style: AppTextStyles.h1),
       ],
     );
   }
