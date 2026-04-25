@@ -14,6 +14,8 @@ import 'components/recent_activity_section.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
 import 'package:skillswap/core/theme/theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -158,14 +160,31 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 8.0),
-                    child: HomeAppBarAction(
-                      icon: Icons.notifications_rounded,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NotificationsPage(),
-                          ),
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseAuth.instance.currentUser != null
+                          ? FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(FirebaseAuth.instance.currentUser!.uid)
+                                .collection('notifications')
+                                .where('is_read', isEqualTo: false)
+                                .snapshots()
+                          : const Stream.empty(),
+                      builder: (context, snapshot) {
+                        int unreadCount = 0;
+                        if (snapshot.hasData) {
+                          unreadCount = snapshot.data!.docs.length;
+                        }
+                        return HomeAppBarAction(
+                          icon: Icons.notifications_rounded,
+                          badgeCount: unreadCount,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationsPage(),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
