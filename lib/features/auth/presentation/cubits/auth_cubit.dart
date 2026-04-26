@@ -7,6 +7,9 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in_with_google.dart';
 import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
+import 'package:skillswap/features/auth/domain/usecases/send_password_reset_email.dart';
+import 'package:skillswap/features/auth/domain/usecases/send_email_verification.dart';
+import 'package:skillswap/features/auth/domain/usecases/check_email_verified.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/core/services/presence_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
@@ -22,6 +25,9 @@ class AuthCubit extends Cubit<AuthState> {
   final UserSignOut _userSignOut;
   final SyncFcmToken _syncFcmToken;
   final DeleteAccount _deleteAccount;
+  final SendPasswordResetEmail _sendPasswordResetEmail;
+  final SendEmailVerification _sendEmailVerification;
+  final CheckEmailVerified _checkEmailVerified;
 
   AuthCubit({
     required UserSignUp userSignUp,
@@ -31,6 +37,9 @@ class AuthCubit extends Cubit<AuthState> {
     required UserSignOut userSignOut,
     required SyncFcmToken syncFcmToken,
     required DeleteAccount deleteAccount,
+    required SendPasswordResetEmail sendPasswordResetEmail,
+    required SendEmailVerification sendEmailVerification,
+    required CheckEmailVerified checkEmailVerified,
   }) : _userSignUp = userSignUp,
        _userSignIn = userSignIn,
        _userSignInWithGoogle = userSignInWithGoogle,
@@ -38,6 +47,9 @@ class AuthCubit extends Cubit<AuthState> {
        _userSignOut = userSignOut,
        _syncFcmToken = syncFcmToken,
        _deleteAccount = deleteAccount,
+       _sendPasswordResetEmail = sendPasswordResetEmail,
+       _sendEmailVerification = sendEmailVerification,
+       _checkEmailVerified = checkEmailVerified,
        super(AuthInitial());
 
   Future<void> _handleFcmToken() async {
@@ -72,9 +84,14 @@ class AuthCubit extends Cubit<AuthState> {
     final res = await _getCurrentUser();
 
     res.fold((l) => emit(AuthInitial()), (r) {
-      PresenceService.instance.goOnline(r);
-      _handleFcmToken();
-      emit(AuthSuccess(r));
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        emit(AuthEmailUnverified());
+      } else {
+        PresenceService.instance.goOnline(r);
+        _handleFcmToken();
+        emit(AuthSuccess(r));
+      }
     });
   }
 
@@ -104,10 +121,30 @@ class AuthCubit extends Cubit<AuthState> {
       ),
     );
 
-    res.fold((l) => emit(AuthFailure(l.message)), (r) {
-      PresenceService.instance.goOnline(r);
-      _handleFcmToken();
-      emit(AuthSuccess(r));
+    res.fold((l) => emit(AuthFailure(l.message)), (r) async {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        // We await the verification email sending to ensure it's triggered
+        // before we move to the verification page.
+        final verificationRes = await _sendEmailVerification(NoParams());
+        verificationRes.fold(
+          (failure) {
+            // If it fails to send, we show the failure but still allow them 
+            // to go to the verification page so they can try resending.
+            print('[AuthCubit] Failed to send verification email: ${failure.message}');
+            emit(AuthFailure('Account created, but failed to send verification email: ${failure.message}'));
+            // After a short delay, we can still move them to the unverified page
+            Future.delayed(const Duration(seconds: 2), () {
+              if (state is AuthFailure) emit(AuthEmailUnverified());
+            });
+          },
+          (_) => emit(AuthEmailUnverified()),
+        );
+      } else {
+        PresenceService.instance.goOnline(r);
+        _handleFcmToken();
+        emit(AuthSuccess(r));
+      }
     });
   }
 
@@ -118,9 +155,14 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     res.fold((l) => emit(AuthFailure(l.message)), (r) {
-      PresenceService.instance.goOnline(r);
-      _handleFcmToken();
-      emit(AuthSuccess(r));
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        emit(AuthEmailUnverified());
+      } else {
+        PresenceService.instance.goOnline(r);
+        _handleFcmToken();
+        emit(AuthSuccess(r));
+      }
     });
   }
 
@@ -158,6 +200,39 @@ class AuthCubit extends Cubit<AuthState> {
     res.fold(
       (l) => emit(AuthFailure(l.message)),
       (r) => emit(AuthInitial()),
+    );
+  }
+
+  void sendPasswordResetEmail(String email) async {
+    emit(AuthLoading());
+    final res = await _sendPasswordResetEmail(email);
+
+    res.fold(
+      (l) => emit(AuthFailure(l.message)),
+      (r) => emit(AuthPasswordResetSent()),
+    );
+  }
+
+  void sendEmailVerification() async {
+    emit(AuthLoading());
+    final res = await _sendEmailVerification(NoParams());
+    res.fold(
+      (l) => emit(AuthFailure(l.message)),
+      (_) => emit(AuthEmailUnverified()), // Explicitly restore state
+    );
+  }
+
+  void checkEmailVerificationStatus() async {
+    final res = await _checkEmailVerified(NoParams());
+    res.fold(
+      (l) => emit(AuthFailure(l.message)),
+      (isVerified) {
+        if (isVerified) {
+          getUserData();
+        } else {
+          emit(AuthEmailUnverified());
+        }
+      },
     );
   }
 }
