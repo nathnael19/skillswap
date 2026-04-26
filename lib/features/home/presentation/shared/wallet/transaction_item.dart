@@ -12,7 +12,7 @@ class TransactionItem extends StatelessWidget {
     const accentColor = AppColors.primary;
 
     final String type = data['type'] ?? 'earn';
-    final bool isPositive = const {'earn', 'grant', 'purchase'}.contains(type);
+    final bool isPositive = const {'earn', 'grant', 'purchase', 'refund'}.contains(type);
     final String title =
         data['description'] ??
         (isPositive ? 'Revenue Inflow' : 'Credit Expenditure');
@@ -26,12 +26,14 @@ class TransactionItem extends StatelessWidget {
     final String subtitle = _formatSubtitle(rawTimestamp);
 
     IconData icon;
-    if (type == 'earn' || type == 'grant') {
-      icon = Icons.add_chart_rounded;
+    if (type == 'earn' || type == 'grant' || type == 'refund') {
+      icon = type == 'refund' ? Icons.history_rounded : Icons.add_chart_rounded;
     } else if (type == 'spend') {
       icon = Icons.shopping_basket_rounded;
     } else if (type == 'purchase') {
       icon = Icons.payments_outlined;
+    } else if (type == 'escrow') {
+      icon = Icons.lock_clock_rounded;
     } else {
       icon = Icons.auto_awesome_rounded;
     }
