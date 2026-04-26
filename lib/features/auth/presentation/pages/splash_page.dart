@@ -5,6 +5,8 @@ import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/verify_email_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -56,13 +58,13 @@ class _SplashPageState extends State<SplashPage>
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        // Minimum display time for the splash screen
-        Timer(const Duration(seconds: 2), () {
-          if (!mounted) return;
-          Navigator.of(
-            context,
-          ).pushAndRemoveUntil(HomePage.route(), (route) => false);
-        });
+        if (state is AuthSuccess) {
+          Navigator.of(context).pushAndRemoveUntil(HomePage.route(), (route) => false);
+        } else if (state is AuthInitial || state is AuthFailure) {
+          Navigator.of(context).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+        } else if (state is AuthEmailUnverified) {
+          Navigator.of(context).pushAndRemoveUntil(VerifyEmailPage.route(), (route) => false);
+        }
       },
       child: Scaffold(
         backgroundColor: primaryBgColor,
