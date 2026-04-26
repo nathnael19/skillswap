@@ -173,6 +173,18 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
     await _backendService.endSession(sessionId);
   }
 
+  Future<bool> deleteSession(String sessionId) async {
+    try {
+      emit(state.copyWith(loading: true, error: null));
+      await _backendService.deleteSession(sessionId);
+      emit(state.copyWith(loading: false));
+      return true;
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: _readableError(e)));
+      return false;
+    }
+  }
+
   Future<void> toggleMic() async {
     await _liveService.toggleMic();
     emit(state.copyWith(isMicMuted: !state.isMicMuted));
