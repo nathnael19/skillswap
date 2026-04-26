@@ -76,6 +76,8 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>skillswap</string>
+				<!-- TODO: Replace with the REVERSED_CLIENT_ID from ios/Runner/GoogleService-Info.plist -->
+				<string>REVERSED_CLIENT_ID</string>
 			</array>
 		</dict>
 	</array>
