@@ -5,6 +5,7 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
+import 'package:skillswap/features/auth/domain/usecases/user_sign_in_with_google.dart';
 import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/core/services/presence_service.dart';
@@ -16,6 +17,7 @@ import 'package:skillswap/core/usecase/usecase.dart';
 class AuthCubit extends Cubit<AuthState> {
   final UserSignUp _userSignUp;
   final UserSignIn _userSignIn;
+  final UserSignInWithGoogle _userSignInWithGoogle;
   final GetCurrentUser _getCurrentUser;
   final UserSignOut _userSignOut;
   final SyncFcmToken _syncFcmToken;
@@ -24,12 +26,14 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
     required UserSignUp userSignUp,
     required UserSignIn userSignIn,
+    required UserSignInWithGoogle userSignInWithGoogle,
     required GetCurrentUser getCurrentUser,
     required UserSignOut userSignOut,
     required SyncFcmToken syncFcmToken,
     required DeleteAccount deleteAccount,
   }) : _userSignUp = userSignUp,
        _userSignIn = userSignIn,
+       _userSignInWithGoogle = userSignInWithGoogle,
        _getCurrentUser = getCurrentUser,
        _userSignOut = userSignOut,
        _syncFcmToken = syncFcmToken,
@@ -112,6 +116,17 @@ class AuthCubit extends Cubit<AuthState> {
     final res = await _userSignIn(
       UserSignInParams(email: email, password: password),
     );
+
+    res.fold((l) => emit(AuthFailure(l.message)), (r) {
+      PresenceService.instance.goOnline(r);
+      _handleFcmToken();
+      emit(AuthSuccess(r));
+    });
+  }
+
+  void signInWithGoogle() async {
+    emit(AuthLoading());
+    final res = await _userSignInWithGoogle(NoParams());
 
     res.fold((l) => emit(AuthFailure(l.message)), (r) {
       PresenceService.instance.goOnline(r);
