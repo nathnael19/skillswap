@@ -245,14 +245,9 @@ class _LoginPageState extends State<LoginPage> {
                                   label: 'Google',
                                   icon: Icons.g_mobiledata_rounded,
                                   onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: const Text(
-                                          'Google Sign-In coming soon!',
-                                        ),
-                                        backgroundColor: AppColors.googleBlue,
-                                      ),
-                                    );
+                                    context
+                                        .read<AuthCubit>()
+                                        .signInWithGoogle();
                                   },
                                 ),
                               ),
