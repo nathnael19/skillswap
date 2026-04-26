@@ -18,6 +18,7 @@ import 'package:skillswap/features/home/presentation/pages/likes/likes_page.dart
 import 'package:skillswap/features/home/presentation/pages/profile/profile_page.dart';
 import 'package:skillswap/features/home/presentation/pages/wallet_page.dart';
 import 'package:skillswap/features/home/presentation/pages/discovery/discovery_page.dart';
+import 'package:skillswap/features/hubs/presentation/pages/hub_list_page.dart';
 import 'package:skillswap/features/live_sessions/presentation/pages/session_list_page.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/init_dependencies.dart';
@@ -212,6 +213,10 @@ class _HomePageState extends State<HomePage> {
             bodyContent = const LikesPage();
             break;
           case 3:
+            title = "Skill Hubs";
+            bodyContent = const HubListPage();
+            break;
+          case 4:
             title = "Profile";
             bodyContent = const ProfilePage();
             actions = [
@@ -253,7 +258,7 @@ class _HomePageState extends State<HomePage> {
             extendBody: true,
             backgroundColor: primaryBgColor,
             appBar:
-                (activeIndex == 1 || activeIndex == 2 || activeIndex == 3)
+                (activeIndex == 1 || activeIndex == 2 || activeIndex == 3 || activeIndex == 4)
                 ? null
                 : PreferredSize(
                     preferredSize: const Size.fromHeight(70),
