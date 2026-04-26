@@ -6,6 +6,7 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
 import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/verify_email_page.dart';
 import 'package:skillswap/core/constants/app_categories.dart';
 
 import '../widgets/onboarding/about_you_step.dart';
@@ -174,17 +175,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 backgroundColor: AppColors.error,
               ),
             );
-          } else if (state is AuthSuccess) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => RegistrationSuccessOverlay(
-                onAnimationComplete: () {
-                  Navigator.of(
-                    context,
-                  ).pushAndRemoveUntil(HomePage.route(), (route) => false);
-                },
-              ),
+          } else if (state is AuthEmailUnverified) {
+            Navigator.of(context).pushAndRemoveUntil(
+              VerifyEmailPage.route(),
+              (route) => false,
             );
           }
         },
