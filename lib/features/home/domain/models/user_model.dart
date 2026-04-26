@@ -95,6 +95,10 @@ class User extends Equatable {
   final int creditsBalanceMinor;
   final bool isOnline;
   final DateTime? lastActive;
+  final int teachingSeconds;
+  final int learningStreak;
+  final int highestLearningStreak;
+  final Map<String, dynamic>? levelInfo;
 
   const User({
     required this.id,
@@ -121,6 +125,10 @@ class User extends Equatable {
     this.creditsBalanceMinor = 0,
     this.isOnline = false,
     this.lastActive,
+    this.teachingSeconds = 0,
+    this.learningStreak = 0,
+    this.highestLearningStreak = 0,
+    this.levelInfo,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -178,6 +186,10 @@ class User extends Equatable {
       creditsBalanceMinor: map['credits_balance_minor'] ?? 0,
       isOnline: map['is_online'] ?? false,
       lastActive: parseDate(map['last_active']),
+      teachingSeconds: map['teaching_seconds'] ?? 0,
+      learningStreak: map['learning_streak'] ?? 0,
+      highestLearningStreak: map['highest_learning_streak'] ?? 0,
+      levelInfo: map['level_info'],
     );
   }
 
@@ -206,6 +218,10 @@ class User extends Equatable {
     int? creditsBalanceMinor,
     bool? isOnline,
     DateTime? lastActive,
+    int? teachingSeconds,
+    int? learningStreak,
+    int? highestLearningStreak,
+    Map<String, dynamic>? levelInfo,
   }) {
     return User(
       id: id ?? this.id,
@@ -232,6 +248,10 @@ class User extends Equatable {
       creditsBalanceMinor: creditsBalanceMinor ?? this.creditsBalanceMinor,
       isOnline: isOnline ?? this.isOnline,
       lastActive: lastActive ?? this.lastActive,
+      teachingSeconds: teachingSeconds ?? this.teachingSeconds,
+      learningStreak: learningStreak ?? this.learningStreak,
+      highestLearningStreak: highestLearningStreak ?? this.highestLearningStreak,
+      levelInfo: levelInfo ?? this.levelInfo,
     );
   }
 
@@ -259,6 +279,10 @@ class User extends Equatable {
       'credits_balance_minor': creditsBalanceMinor,
       'is_online': isOnline,
       if (lastActive != null) 'last_active': lastActive!.toIso8601String(),
+      'teaching_seconds': teachingSeconds,
+      'learning_streak': learningStreak,
+      'highest_learning_streak': highestLearningStreak,
+      'level_info': levelInfo,
     };
   }
 
@@ -288,6 +312,10 @@ class User extends Equatable {
     creditsBalanceMinor,
     isOnline,
     lastActive,
+    teachingSeconds,
+    learningStreak,
+    highestLearningStreak,
+    levelInfo,
   ];
 }
 
