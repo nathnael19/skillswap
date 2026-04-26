@@ -17,12 +17,26 @@ class CreditsLoaded extends CreditsState {
   /// Stored in centi-credits (1 credit = 100 minor units).
   final int balanceMinor;
   final double balance;
+  final int escrowBalanceMinor;
+  final double escrowBalance;
   final List<dynamic> transactions;
 
-  const CreditsLoaded(this.balanceMinor, this.balance, this.transactions);
+  const CreditsLoaded({
+    required this.balanceMinor,
+    required this.balance,
+    required this.escrowBalanceMinor,
+    required this.escrowBalance,
+    required this.transactions,
+  });
 
   @override
-  List<Object?> get props => [balanceMinor, balance, transactions];
+  List<Object?> get props => [
+        balanceMinor,
+        balance,
+        escrowBalanceMinor,
+        escrowBalance,
+        transactions,
+      ];
 }
 
 class CreditsError extends CreditsState {
@@ -42,13 +56,19 @@ class CreditsCubit extends Cubit<CreditsState> {
     final result = await _homeRepository.getCredits();
     result.fold((failure) => emit(CreditsError(failure.message)), (data) {
       final balanceMinor = (data['balance_minor'] as num?)?.toInt() ?? 0;
-      final balance =
-          (data['balance'] as num?)?.toDouble() ?? (balanceMinor / AppConstants.minorScale.toDouble());
+      final balance = (data['balance'] as num?)?.toDouble() ??
+          (balanceMinor / AppConstants.minorScale.toDouble());
+      final escrowBalanceMinor = (data['escrow_balance_minor'] as num?)?.toInt() ?? 0;
+      final escrowBalance = (data['escrow_balance'] as num?)?.toDouble() ??
+          (escrowBalanceMinor / AppConstants.minorScale.toDouble());
+
       emit(
         CreditsLoaded(
-          balanceMinor,
-          balance,
-          List<dynamic>.from(data['transactions'] ?? []),
+          balanceMinor: balanceMinor,
+          balance: balance,
+          escrowBalanceMinor: escrowBalanceMinor,
+          escrowBalance: escrowBalance,
+          transactions: List<dynamic>.from(data['transactions'] ?? []),
         ),
       );
     });
