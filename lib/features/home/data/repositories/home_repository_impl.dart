@@ -88,6 +88,7 @@ class HomeRepositoryImpl implements HomeRepository {
       final queryParams = <String, String>{};
       if (category != null) queryParams['category'] = category;
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
+      queryParams['mode'] = 'perfect_match';
 
       final response = await _apiClient.get(
         ApiConstants.discover,
