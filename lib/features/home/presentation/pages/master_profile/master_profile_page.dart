@@ -9,6 +9,7 @@ import 'components/profile_header_section.dart';
 import 'components/profile_stats_section.dart';
 import 'components/profile_sticky_footer.dart';
 import 'components/reviews_section.dart';
+import '../profile/components/gamification_stats.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class MasterProfilePage extends StatelessWidget {
@@ -94,6 +95,10 @@ class MasterProfilePage extends StatelessWidget {
                       children: [
                         ProfileHeaderSection(user: user),
                         ProfileStatsSection(user: user),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          child: GamificationStats(user: user),
+                        ),
                         ProfileBadgesSection(user: user),
                         const SizedBox(height: 32),
                         FeaturedGallerySection(portfolio: user.portfolio),
