@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:skillswap/core/constants/app_constants.dart';
@@ -20,6 +21,7 @@ import 'package:skillswap/features/auth/domain/usecases/get_current_user.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
+import 'package:skillswap/features/auth/domain/usecases/user_sign_in_with_google.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
 import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
@@ -44,13 +46,12 @@ import 'package:skillswap/features/hubs/data/services/hub_backend_service.dart';
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   serviceLocator.registerLazySingleton(() => FirebaseAuth.instance);
   serviceLocator.registerLazySingleton(() => FirebaseFirestore.instance);
   serviceLocator.registerLazySingleton(() => FirebaseStorage.instance);
+  serviceLocator.registerLazySingleton(() => GoogleSignIn());
   serviceLocator.registerLazySingleton(() => http.Client());
 
   serviceLocator.registerLazySingleton(
@@ -74,7 +75,6 @@ Future<void> initDependencies() async {
     () => ConnectivityCubit(serviceLocator<ConnectionChecker>()),
   );
 
-
   _initAuth();
   _initHome();
   _initChat();
@@ -87,35 +87,30 @@ void _initAuth() {
   serviceLocator.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       serviceLocator<FirebaseAuth>(),
+      serviceLocator<GoogleSignIn>(),
       serviceLocator<ApiClient>(),
     ),
   );
 
   // Usecases
-  serviceLocator.registerFactory(
-    () => UserSignUp(serviceLocator()),
-  );
+  serviceLocator.registerFactory(() => UserSignUp(serviceLocator()));
   serviceLocator.registerFactory(
     () => UserSignIn(serviceLocator()),
   );
   serviceLocator.registerFactory(
-    () => GetCurrentUser(serviceLocator()),
+    () => UserSignInWithGoogle(serviceLocator()),
   );
-  serviceLocator.registerFactory(
-    () => UserSignOut(serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => SyncFcmToken(serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => DeleteAccount(serviceLocator()),
-  );
+  serviceLocator.registerFactory(() => GetCurrentUser(serviceLocator()));
+  serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
+  serviceLocator.registerFactory(() => SyncFcmToken(serviceLocator()));
+  serviceLocator.registerFactory(() => DeleteAccount(serviceLocator()));
 
   // Cubits
   serviceLocator.registerLazySingleton(
     () => AuthCubit(
       userSignUp: serviceLocator(),
       userSignIn: serviceLocator(),
+      userSignInWithGoogle: serviceLocator(),
       getCurrentUser: serviceLocator(),
       userSignOut: serviceLocator(),
       syncFcmToken: serviceLocator(),
