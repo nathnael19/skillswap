@@ -12,6 +12,7 @@ import 'package:skillswap/features/home/presentation/pages/profile/settings_page
 import 'components/expertise_portfolio.dart';
 import 'components/profile_header.dart';
 import 'components/recent_activity_section.dart';
+import 'components/gamification_stats.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
 import 'package:skillswap/core/theme/theme.dart';
@@ -96,9 +97,11 @@ class ProfilePage extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     ProfileHeader(user: user),
-                                    const SizedBox(height: 40),
+                                    const SizedBox(height: 32),
+                                    GamificationStats(user: user),
+                                    const SizedBox(height: 32),
                                     ExpertisePortfolio(user: user),
-                                    const SizedBox(height: 40),
+                                    const SizedBox(height: 32),
                                     const RecentActivitySection(),
                                     const SizedBox(height: 120),
                                   ],
