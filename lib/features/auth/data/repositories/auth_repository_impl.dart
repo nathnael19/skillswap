@@ -1,3 +1,4 @@
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:skillswap/core/error/failures.dart';
@@ -7,9 +8,14 @@ import 'package:skillswap/features/auth/domain/repositories/auth_repository.dart
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
   final ApiClient _apiClient;
 
-  const AuthRepositoryImpl(this._firebaseAuth, this._apiClient);
+  const AuthRepositoryImpl(
+    this._firebaseAuth,
+    this._googleSignIn,
+    this._apiClient,
+  );
 
   @override
   Future<Either<Failure, String>> signUpWithEmailPassword({
@@ -81,9 +87,61 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, String>> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return left(ServerFailure('Google sign in cancelled.'));
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user == null) {
+        return left(ServerFailure('User is null!'));
+      }
+
+      // If new user, initialize in backend
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        final response = await _apiClient.post(
+          ApiConstants.initUser,
+          body: {
+            'name': user.displayName ?? '',
+            'email': user.email ?? '',
+          },
+        );
+
+        if (response.statusCode != 200 && response.statusCode != 201) {
+          return left(ServerFailure(
+              'Failed to initialize user in backend: ${response.body}'));
+        }
+      }
+
+      return right(user.uid);
+    } on FirebaseAuthException catch (e) {
+      return left(ServerFailure(e.message ?? 'Unknown error.'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> logout() async {
     try {
-      await _firebaseAuth.signOut();
+      // Sign out from the provider too, otherwise Android can "auto-pick"
+      // the last account on the next sign-in.
+      await Future.wait([
+        _firebaseAuth.signOut(),
+        _googleSignIn.signOut(),
+      ]);
       return right(null);
     } catch (e) {
       return left(ServerFailure(e.toString()));
