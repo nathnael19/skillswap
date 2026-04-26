@@ -52,6 +52,34 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
     );
   }
 
+  Future<void> _confirmDelete(BuildContext context, String sessionId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Session?'),
+        content: const Text('This will permanently delete the session and notify all participants.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      final ok = await context.read<LiveSessionCubit>().deleteSession(sessionId);
+      if (ok && context.mounted) {
+        Navigator.pop(context); // Go back after deletion
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final firestore = serviceLocator<LiveSessionFirestoreService>();
@@ -91,13 +119,21 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
               appBar: AppBar(
                 title: const Text('Session Details'),
                 actions: [
-                  if (isHost && isScheduled)
+                  if (isHost && (isScheduled || isEnded)) ...[
                     ConnectivityGuard(
                       child: IconButton(
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => _showEditSheet(context, session),
+                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                        onPressed: () => _confirmDelete(context, session.id),
                       ),
                     ),
+                    if (isScheduled)
+                      ConnectivityGuard(
+                        child: IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => _showEditSheet(context, session),
+                        ),
+                      ),
+                  ],
                 ],
               ),
               body: SingleChildScrollView(
