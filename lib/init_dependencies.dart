@@ -39,6 +39,7 @@ import 'package:skillswap/features/live_sessions/data/services/live_session_back
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_service.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
+import 'package:skillswap/features/hubs/data/services/hub_backend_service.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -78,6 +79,7 @@ Future<void> initDependencies() async {
   _initHome();
   _initChat();
   _initLiveSessions();
+  _initHubs();
 }
 
 void _initAuth() {
@@ -191,5 +193,11 @@ void _initLiveSessions() {
       backendService: serviceLocator<LiveSessionBackendService>(),
       firestoreService: serviceLocator<LiveSessionFirestoreService>(),
     ),
+  );
+}
+
+void _initHubs() {
+  serviceLocator.registerLazySingleton(
+    () => HubBackendService(serviceLocator<ApiClient>()),
   );
 }
