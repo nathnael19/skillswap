@@ -1,10 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
+import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/discovery_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
@@ -27,21 +29,41 @@ import 'package:skillswap/core/theme/theme.dart';
 class HomePage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() => MaterialPageRoute(
     builder: (context) => MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) =>
-              serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
-        ),
-        BlocProvider(
-          create: (_) => serviceLocator<MatchesCubit>()..fetchMatches(),
-        ),
-        BlocProvider(
-          create: (_) => serviceLocator<ProfileCubit>()..fetchUserProfile(),
-        ),
-        BlocProvider(
-          create: (_) => serviceLocator<LikesCubit>()..fetchLikesReceived(),
-        ),
-      ],
+      providers: () {
+        final isAuthenticated = FirebaseAuth.instance.currentUser != null;
+        return [
+          BlocProvider(
+            create: (_) => serviceLocator<DiscoveryCubit>()..fetchDiscoveryUsers(),
+          ),
+          BlocProvider(
+            create: (_) {
+              final cubit = serviceLocator<MatchesCubit>();
+              if (isAuthenticated) {
+                cubit.fetchMatches();
+              }
+              return cubit;
+            },
+          ),
+          BlocProvider(
+            create: (_) {
+              final cubit = serviceLocator<ProfileCubit>();
+              if (isAuthenticated) {
+                cubit.fetchUserProfile();
+              }
+              return cubit;
+            },
+          ),
+          BlocProvider(
+            create: (_) {
+              final cubit = serviceLocator<LikesCubit>();
+              if (isAuthenticated) {
+                cubit.fetchLikesReceived();
+              }
+              return cubit;
+            },
+          ),
+        ];
+      }(),
       child: const HomePage(),
     ),
   );
@@ -96,17 +118,19 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     const primaryBgColor = AppColors.background;
+    final isGuest = context.watch<AuthCubit>().state is! AuthSuccess;
 
     return Builder(
       builder: (context) {
-        String title = "SkillSwap";
+        String title = isGuest ? "Discover" : "SkillSwap";
         Widget bodyContent = const DiscoveryPage();
         List<Widget>? actions;
         Widget? leading;
 
-        switch (_selectedIndex) {
+        final activeIndex = isGuest ? 0 : _selectedIndex;
+        switch (activeIndex) {
           case 0:
-            title = "SkillSwap";
+            title = isGuest ? "Discover" : "SkillSwap";
             bodyContent = const DiscoveryPage();
             leading = HomeAppBarAction(
               icon: Icons.search_rounded,
@@ -118,31 +142,40 @@ class _HomePageState extends State<HomePage> {
               },
             );
             actions = [
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: StreamBuilder(
-                  stream: serviceLocator<LiveSessionFirestoreService>()
-                      .watchSessions(),
-                  builder: (context, snapshot) {
-                    final sessions = snapshot.data ?? [];
-                    final publicCount = sessions
-                        .where((s) => s.type != 'one-on-one')
-                        .length;
-                    return HomeAppBarAction(
-                      icon: Icons.video_camera_front_rounded,
-                      badgeCount: publicCount > 0 ? publicCount : null,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SessionListPage(),
-                          ),
-                        );
-                      },
-                    );
-                  },
+              if (isGuest)
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).push(LoginPage.route()),
+                    child: const Text('Sign In'),
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: StreamBuilder(
+                    stream: serviceLocator<LiveSessionFirestoreService>()
+                        .watchSessions(),
+                    builder: (context, snapshot) {
+                      final sessions = snapshot.data ?? [];
+                      final publicCount = sessions
+                          .where((s) => s.type != 'one-on-one')
+                          .length;
+                      return HomeAppBarAction(
+                        icon: Icons.video_camera_front_rounded,
+                        badgeCount: publicCount > 0 ? publicCount : null,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SessionListPage(),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: HomeAppBarAction(
@@ -220,9 +253,7 @@ class _HomePageState extends State<HomePage> {
             extendBody: true,
             backgroundColor: primaryBgColor,
             appBar:
-                (_selectedIndex == 1 ||
-                    _selectedIndex == 2 ||
-                    _selectedIndex == 3)
+                (activeIndex == 1 || activeIndex == 2 || activeIndex == 3)
                 ? null
                 : PreferredSize(
                     preferredSize: const Size.fromHeight(70),
@@ -258,10 +289,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
             body: bodyContent,
-            bottomNavigationBar: MidnightNavigationBar(
-              selectedIndex: _selectedIndex,
-              onItemSelected: (index) => setState(() => _selectedIndex = index),
-            ),
+            bottomNavigationBar: isGuest
+                ? null
+                : MidnightNavigationBar(
+                    selectedIndex: _selectedIndex,
+                    onItemSelected: (index) => setState(() => _selectedIndex = index),
+                  ),
           ),
         );
       },
