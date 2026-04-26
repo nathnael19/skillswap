@@ -24,6 +24,9 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in_with_google.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
 import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
+import 'package:skillswap/features/auth/domain/usecases/send_password_reset_email.dart';
+import 'package:skillswap/features/auth/domain/usecases/send_email_verification.dart';
+import 'package:skillswap/features/auth/domain/usecases/check_email_verified.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/home/data/repositories/home_repository_impl.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
@@ -104,6 +107,9 @@ void _initAuth() {
   serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
   serviceLocator.registerFactory(() => SyncFcmToken(serviceLocator()));
   serviceLocator.registerFactory(() => DeleteAccount(serviceLocator()));
+  serviceLocator.registerFactory(() => SendPasswordResetEmail(serviceLocator()));
+  serviceLocator.registerFactory(() => SendEmailVerification(serviceLocator()));
+  serviceLocator.registerFactory(() => CheckEmailVerified(serviceLocator()));
 
   // Cubits
   serviceLocator.registerLazySingleton(
@@ -115,6 +121,9 @@ void _initAuth() {
       userSignOut: serviceLocator(),
       syncFcmToken: serviceLocator(),
       deleteAccount: serviceLocator(),
+      sendPasswordResetEmail: serviceLocator(),
+      sendEmailVerification: serviceLocator(),
+      checkEmailVerified: serviceLocator(),
     ),
   );
 }
