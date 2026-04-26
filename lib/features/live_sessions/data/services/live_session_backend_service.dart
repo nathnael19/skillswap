@@ -153,4 +153,17 @@ class LiveSessionBackendService {
       );
     }
   }
+
+  Future<void> deleteSession(String sessionId) async {
+    final response = await _apiClient.delete(
+      '${ApiConstants.liveSessions}/$sessionId',
+    );
+    if (response.statusCode != 200) {
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to delete session',
+      );
+    }
+  }
 }
