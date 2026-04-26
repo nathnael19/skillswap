@@ -192,4 +192,52 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      return right(null);
+    } on FirebaseAuthException catch (e) {
+      return left(ServerFailure(e.message ?? 'Unknown error.'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendEmailVerification() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        return left(ServerFailure('User not logged in.'));
+      }
+      // Reloading ensures we have the latest state and the user is properly signed in
+      await user.reload();
+      await _firebaseAuth.currentUser?.sendEmailVerification();
+      return right(null);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'too-many-requests') {
+        return left(ServerFailure('We sent too many emails recently. Please wait a moment and try again.'));
+      }
+      return left(ServerFailure(e.message ?? 'Unknown error.'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> checkEmailVerified() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        return left(ServerFailure('User not logged in.'));
+      }
+      await user.reload();
+      final updatedUser = _firebaseAuth.currentUser;
+      return right(updatedUser?.emailVerified ?? false);
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }
