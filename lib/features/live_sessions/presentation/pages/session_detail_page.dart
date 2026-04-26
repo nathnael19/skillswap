@@ -7,10 +7,13 @@ import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
 import 'package:skillswap/features/live_sessions/data/models/live_session_model.dart';
+import 'package:skillswap/features/live_sessions/data/models/session_resource_model.dart';
+import 'package:skillswap/features/live_sessions/data/services/live_session_backend_service.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_state.dart';
 import 'package:skillswap/init_dependencies.dart';
+import 'package:flutter/services.dart';
 
 class SessionDetailPage extends StatelessWidget {
   final String sessionId;
@@ -34,10 +37,76 @@ class _SessionDetailView extends StatefulWidget {
 }
 
 class _SessionDetailViewState extends State<_SessionDetailView> {
+  final LiveSessionBackendService _backend = serviceLocator<LiveSessionBackendService>();
+  List<SessionResource> _resources = const [];
+  bool _resourcesLoading = false;
+  String? _resourcesError;
+
   @override
   void initState() {
     super.initState();
     context.read<LiveSessionCubit>().watchSession(widget.sessionId);
+    _loadResources();
+  }
+
+  Future<void> _loadResources() async {
+    setState(() {
+      _resourcesLoading = true;
+      _resourcesError = null;
+    });
+    try {
+      final resources = await _backend.listResources(widget.sessionId);
+      if (!mounted) return;
+      setState(() {
+        _resources = resources;
+        _resourcesLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _resourcesLoading = false;
+        _resourcesError = e.toString();
+      });
+    }
+  }
+
+  Future<void> _showAddResourceDialog() async {
+    final result = await showDialog<_ResourceFormResult>(
+      context: context,
+      builder: (_) => const _AddResourceDialog(),
+    );
+    if (result == null) return;
+
+    try {
+      await _backend.createResource(
+        sessionId: widget.sessionId,
+        type: result.type,
+        title: result.title,
+        description: result.description,
+        url: result.url,
+        snippetText: result.snippetText,
+      );
+      if (!mounted) return;
+      await _loadResources();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+      );
+    }
+  }
+
+  Future<void> _deleteResource(String resourceId) async {
+    try {
+      await _backend.deleteResource(sessionId: widget.sessionId, resourceId: resourceId);
+      if (!mounted) return;
+      await _loadResources();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+      );
+    }
   }
 
   void _showEditSheet(BuildContext context, LiveSession session) {
@@ -251,6 +320,123 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
                             .toList(),
                       ),
                     ],
+
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Text(
+                          'Resource Hub',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const Spacer(),
+                        if (isHost)
+                          TextButton.icon(
+                            onPressed: _showAddResourceDialog,
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add'),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (_resourcesLoading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (_resourcesError != null)
+                      Text(
+                        _resourcesError!,
+                        style: const TextStyle(color: AppColors.error),
+                      )
+                    else if (_resources.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'No materials yet. Hosts can add PDFs, links, or snippets after sessions.',
+                        ),
+                      )
+                    else
+                      Column(
+                        children: _resources.map((resource) {
+                          return Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      resource.type.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.textMuted,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        resource.title,
+                                        style: const TextStyle(fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                    if (isHost)
+                                      IconButton(
+                                        onPressed: () => _deleteResource(resource.id),
+                                        icon: const Icon(Icons.delete_outline, size: 18),
+                                      ),
+                                  ],
+                                ),
+                                if ((resource.description ?? '').isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(resource.description!),
+                                  ),
+                                if ((resource.url ?? '').isNotEmpty)
+                                  TextButton.icon(
+                                    onPressed: () async {
+                                      await Clipboard.setData(ClipboardData(text: resource.url!));
+                                      if (!mounted) return;
+                                      ScaffoldMessenger.of(this.context).showSnackBar(
+                                        const SnackBar(content: Text('Link copied to clipboard')),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.link_rounded),
+                                    label: const Text('Copy Link'),
+                                  ),
+                                if ((resource.snippetText ?? '').isNotEmpty)
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.only(top: 8),
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      resource.snippetText!,
+                                      style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
 
                     const SizedBox(height: 40),
 
@@ -628,6 +814,113 @@ class _EditSessionSheetState extends State<_EditSessionSheet> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ResourceFormResult {
+  final String type;
+  final String title;
+  final String? description;
+  final String? url;
+  final String? snippetText;
+
+  const _ResourceFormResult({
+    required this.type,
+    required this.title,
+    this.description,
+    this.url,
+    this.snippetText,
+  });
+}
+
+class _AddResourceDialog extends StatefulWidget {
+  const _AddResourceDialog();
+
+  @override
+  State<_AddResourceDialog> createState() => _AddResourceDialogState();
+}
+
+class _AddResourceDialogState extends State<_AddResourceDialog> {
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _urlController = TextEditingController();
+  final _snippetController = TextEditingController();
+  String _type = 'link';
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _urlController.dispose();
+    _snippetController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final title = _titleController.text.trim();
+    if (title.length < 2) return;
+    final result = _ResourceFormResult(
+      type: _type,
+      title: title,
+      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+      url: _urlController.text.trim().isEmpty ? null : _urlController.text.trim(),
+      snippetText: _snippetController.text.trim().isEmpty ? null : _snippetController.text.trim(),
+    );
+    Navigator.pop(context, result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add Session Material'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButtonFormField<String>(
+              initialValue: _type,
+              items: const [
+                DropdownMenuItem(value: 'pdf', child: Text('PDF')),
+                DropdownMenuItem(value: 'link', child: Text('Link')),
+                DropdownMenuItem(value: 'snippet', child: Text('Snippet')),
+              ],
+              onChanged: (value) => setState(() => _type = value ?? 'link'),
+              decoration: const InputDecoration(labelText: 'Type'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: 'Description (optional)'),
+            ),
+            if (_type == 'pdf' || _type == 'link') ...[
+              const SizedBox(height: 10),
+              TextField(
+                controller: _urlController,
+                decoration: const InputDecoration(labelText: 'URL'),
+              ),
+            ],
+            if (_type == 'snippet') ...[
+              const SizedBox(height: 10),
+              TextField(
+                controller: _snippetController,
+                minLines: 4,
+                maxLines: 8,
+                decoration: const InputDecoration(labelText: 'Code Snippet'),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        FilledButton(onPressed: _submit, child: const Text('Save')),
+      ],
     );
   }
 }
