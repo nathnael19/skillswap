@@ -25,5 +25,13 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "SkillSwap",
+        "supportEmail": "nathnaelnigussie19@gmail.com"
+      }
+    }
   }
 }
