@@ -26,3 +26,7 @@ final class AuthFailure extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+final class AuthEmailUnverified extends AuthState {}
+
+final class AuthPasswordResetSent extends AuthState {}
