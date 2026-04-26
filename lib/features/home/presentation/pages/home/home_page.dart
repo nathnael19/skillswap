@@ -19,7 +19,6 @@ import 'package:skillswap/features/home/presentation/pages/discovery/discovery_p
 import 'package:skillswap/features/live_sessions/presentation/pages/session_list_page.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/init_dependencies.dart';
-import 'package:skillswap/features/home/presentation/pages/notifications/notifications_page.dart';
 import '../../shared/filter_bottom_sheet.dart';
 import 'components/midnight_navigation_bar.dart';
 import 'components/home_app_bar_action.dart';
