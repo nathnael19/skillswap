@@ -166,6 +166,7 @@ class WalletPage extends StatelessWidget {
                               ConnectivityGuard(
                                 child: BalanceHeader(
                                   balance: state.balance,
+                                  escrowBalance: state.escrowBalance,
                                   progressCapCredits: AppConstants.walletProgressCap,
                                   onBuyCredits: () => _openCheckout(context),
                                 ),
