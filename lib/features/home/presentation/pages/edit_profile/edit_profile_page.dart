@@ -10,8 +10,6 @@ import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
-import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
-import 'package:skillswap/features/home/presentation/pages/identity_verification_page.dart';
 import 'components/avatar_editor_section.dart';
 import 'components/expertise_editor_section.dart';
 import 'components/profile_input_field.dart';
@@ -229,139 +227,137 @@ class _EditProfilePageState extends State<EditProfilePage> {
             state is ProfileLoading ||
             context.watch<AuthCubit>().state is AuthLoading;
 
-          return Scaffold(
-            backgroundColor: kBackground,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              leading: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: kText,
-                  size: 20,
-                ),
-                onPressed: () => Navigator.pop(context),
+        return Scaffold(
+          backgroundColor: kBackground,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: kText,
+                size: 20,
               ),
-              title: Text(
-                'Edit Profile',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: kAccent,
-                  letterSpacing: 2.0,
-                ),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Edit Profile',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: kAccent,
+                letterSpacing: 2.0,
               ),
+            ),
 
-              centerTitle: true,
-              actions: [
-                if (isLoading)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: kAccent,
-                        ),
+            centerTitle: true,
+            actions: [
+              if (isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: kAccent,
                       ),
                     ),
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: ConnectivityGuard(
-                      child: TextButton(
-                        onPressed: _onSave,
-                        style: TextButton.styleFrom(
-                          foregroundColor: kAccent,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: Text(
-                          'Save',
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: kAccent,
-                            letterSpacing: 1.0,
-                          ),
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ConnectivityGuard(
+                    child: TextButton(
+                      onPressed: _onSave,
+                      style: TextButton.styleFrom(
+                        foregroundColor: kAccent,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                      child: Text(
+                        'Save',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: kAccent,
+                          letterSpacing: 1.0,
                         ),
                       ),
                     ),
                   ),
+                ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                ConnectivityGuard(
+                  child: AvatarEditorSection(
+                    imageUrl: widget.user.imageUrl,
+                    localImage: _pickedAvatar,
+                    onTap: _pickAvatar,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                ProfileInputField(
+                  label: 'Full Name',
+                  controller: _nameController,
+                  icon: Icons.person_outline_rounded,
+                ),
+                const SizedBox(height: 20),
+                ProfileInputField(
+                  label: 'Age',
+                  controller: _ageController,
+                  icon: Icons.calendar_today_outlined,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 20),
+                ProfileInputField(
+                  label: 'Profession',
+                  controller: _professionController,
+                  icon: Icons.work_outline_rounded,
+                ),
+                const SizedBox(height: 20),
+                ProfileInputField(
+                  label: 'Location',
+                  controller: _locationController,
+                  icon: Icons.location_on_outlined,
+                ),
+                const SizedBox(height: 20),
+                ProfileInputField(
+                  label: 'Bio',
+                  controller: _bioController,
+                  maxLines: 4,
+                  icon: Icons.description_outlined,
+                ),
+                const SizedBox(height: 32),
+                _buildSelectionSection(),
+                const SizedBox(height: 40),
+                ExpertiseEditorSection(
+                  title: 'Teaching',
+                  tags: _userSkills
+                      .where((s) => s.type == AppConstants.skillTypeTeach)
+                      .toList(),
+                  onAdd: () => _showAddSkillDialog(AppConstants.skillTypeTeach),
+                  onRemove: _removeSkill,
+                ),
+                const SizedBox(height: 32),
+                ExpertiseEditorSection(
+                  title: 'Learning',
+                  tags: _userSkills
+                      .where((s) => s.type == AppConstants.skillTypeLearn)
+                      .toList(),
+                  onAdd: () => _showAddSkillDialog(AppConstants.skillTypeLearn),
+                  onRemove: _removeSkill,
+                ),
               ],
             ),
-            body: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  ConnectivityGuard(
-                    child: AvatarEditorSection(
-                      imageUrl: widget.user.imageUrl,
-                      localImage: _pickedAvatar,
-                      onTap: _pickAvatar,
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-                  ProfileInputField(
-                    label: 'Full Name',
-                    controller: _nameController,
-                    icon: Icons.person_outline_rounded,
-                  ),
-                  const SizedBox(height: 20),
-                  ProfileInputField(
-                    label: 'Age',
-                    controller: _ageController,
-                    icon: Icons.calendar_today_outlined,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 20),
-                  ProfileInputField(
-                    label: 'Profession',
-                    controller: _professionController,
-                    icon: Icons.work_outline_rounded,
-                  ),
-                  const SizedBox(height: 20),
-                  ProfileInputField(
-                    label: 'Location',
-                    controller: _locationController,
-                    icon: Icons.location_on_outlined,
-                  ),
-                  const SizedBox(height: 20),
-                  ProfileInputField(
-                    label: 'Bio',
-                    controller: _bioController,
-                    maxLines: 4,
-                    icon: Icons.description_outlined,
-                  ),
-                  const SizedBox(height: 32),
-                  _buildSelectionSection(),
-                  const SizedBox(height: 40),
-                  ExpertiseEditorSection(
-                    title: 'Teaching',
-                    tags: _userSkills
-                        .where((s) => s.type == AppConstants.skillTypeTeach)
-                        .toList(),
-                    onAdd: () =>
-                        _showAddSkillDialog(AppConstants.skillTypeTeach),
-                    onRemove: _removeSkill,
-                  ),
-                  const SizedBox(height: 32),
-                  ExpertiseEditorSection(
-                    title: 'Learning',
-                    tags: _userSkills
-                        .where((s) => s.type == AppConstants.skillTypeLearn)
-                        .toList(),
-                    onAdd: () =>
-                        _showAddSkillDialog(AppConstants.skillTypeLearn),
-                    onRemove: _removeSkill,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildSelectionSection() {
