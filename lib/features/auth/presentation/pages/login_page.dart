@@ -8,6 +8,8 @@ import 'package:skillswap/features/auth/presentation/widgets/auth_social_button.
 import 'package:skillswap/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/forgot_password_page.dart';
+import 'package:skillswap/features/auth/presentation/pages/verify_email_page.dart';
 
 class LoginPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -50,6 +52,8 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.of(
               context,
             ).pushAndRemoveUntil(HomePage.route(), (route) => false);
+          } else if (state is AuthEmailUnverified) {
+            Navigator.of(context).push(VerifyEmailPage.route());
           }
         },
         builder: (context, state) {
@@ -174,14 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                             alignment: Alignment.centerRight,
                             child: GestureDetector(
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text(
-                                      'Password reset link will be sent to your email.',
-                                    ),
-                                    backgroundColor: accentColor,
-                                  ),
-                                );
+                                Navigator.of(context).push(ForgotPasswordPage.route());
                               },
                               child: Text(
                                 'Forgot Password?',
