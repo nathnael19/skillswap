@@ -7,6 +7,7 @@ import 'package:skillswap/core/theme/theme.dart';
 
 class BalanceHeader extends StatelessWidget {
   final double balance;
+  final double escrowBalance;
   final VoidCallback? onBuyCredits;
 
   /// Progress bar target in display credits (purely visual).
@@ -15,6 +16,7 @@ class BalanceHeader extends StatelessWidget {
   const BalanceHeader({
     super.key,
     required this.balance,
+    required this.escrowBalance,
     this.onBuyCredits,
     this.progressCapCredits = AppConstants.walletProgressCap,
   });
@@ -72,6 +74,36 @@ class BalanceHeader extends StatelessWidget {
                 ),
               ],
             ),
+            if (escrowBalance > 0) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.overlay05,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.overlay10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.lock_clock_rounded,
+                      size: 14,
+                      color: AppColors.overlay40,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${fmt.format(escrowBalance)} Locked in Escrow',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.overlay40,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 48),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
