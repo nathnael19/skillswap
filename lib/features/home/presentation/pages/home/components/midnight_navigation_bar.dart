@@ -17,7 +17,7 @@ class MidnightNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 80,
-      margin: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
+      margin: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
       decoration: BoxDecoration(
         color: AppColors.background.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(30),
@@ -58,10 +58,16 @@ class MidnightNavigationBar extends StatelessWidget {
                   onTap: () => onItemSelected(2),
                 ),
                 _NavItem(
-                  icon: Icons.person_rounded,
-                  label: 'Profile',
+                  icon: Icons.groups_2_rounded,
+                  label: 'Hubs',
                   isSelected: selectedIndex == 3,
                   onTap: () => onItemSelected(3),
+                ),
+                _NavItem(
+                  icon: Icons.person_rounded,
+                  label: 'Profile',
+                  isSelected: selectedIndex == 4,
+                  onTap: () => onItemSelected(4),
                 ),
               ],
             ),
@@ -93,7 +99,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
