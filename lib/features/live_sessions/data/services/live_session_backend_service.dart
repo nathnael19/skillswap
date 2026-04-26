@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/network/api_constants.dart';
+import 'package:skillswap/features/live_sessions/data/models/session_resource_model.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_service.dart';
 
 class JoinTokenResponse {
@@ -163,6 +164,67 @@ class LiveSessionBackendService {
         response.statusCode,
         response.body,
         fallbackMessage: 'Failed to delete session',
+      );
+    }
+  }
+
+  Future<List<SessionResource>> listResources(String sessionId) async {
+    final response = await _apiClient.get(
+      '${ApiConstants.liveSessions}/$sessionId/resources',
+    );
+    if (response.statusCode != 200) {
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch resources',
+      );
+    }
+    final data = jsonDecode(response.body) as List<dynamic>;
+    return data
+        .map((item) => SessionResource.fromMap(Map<String, dynamic>.from(item as Map)))
+        .toList();
+  }
+
+  Future<void> createResource({
+    required String sessionId,
+    required String type,
+    required String title,
+    String? description,
+    String? url,
+    String? snippetText,
+  }) async {
+    final body = <String, dynamic>{
+      'type': type,
+      'title': title,
+      if (description != null && description.isNotEmpty) 'description': description,
+      if (url != null && url.isNotEmpty) 'url': url,
+      if (snippetText != null && snippetText.isNotEmpty) 'snippet_text': snippetText,
+    };
+    final response = await _apiClient.post(
+      '${ApiConstants.liveSessions}/$sessionId/resources',
+      body: body,
+    );
+    if (response.statusCode != 200) {
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to create resource',
+      );
+    }
+  }
+
+  Future<void> deleteResource({
+    required String sessionId,
+    required String resourceId,
+  }) async {
+    final response = await _apiClient.delete(
+      '${ApiConstants.liveSessions}/$sessionId/resources/$resourceId',
+    );
+    if (response.statusCode != 200) {
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to delete resource',
       );
     }
   }
