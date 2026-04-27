@@ -15,6 +15,7 @@ import 'components/recent_activity_section.dart';
 import 'components/gamification_stats.dart';
 import 'package:skillswap/core/common/widgets/app_error_widget.dart';
 import 'package:skillswap/core/common/widgets/guest_wall.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,7 +48,12 @@ class ProfilePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  padding: EdgeInsets.fromLTRB(
+                    Responsive.contentHorizontalPadding(context),
+                    0,
+                    Responsive.contentHorizontalPadding(context),
+                    24,
+                  ),
                   child: _buildHeader(context, true),
                 ),
                 Expanded(
@@ -83,6 +89,9 @@ class ProfilePage extends StatelessWidget {
 
                           if (state is ProfileLoaded) {
                             final user = state.user;
+                            final horizontalPadding =
+                                Responsive.contentHorizontalPadding(context);
+                            final isTwoPane = Responsive.isTwoPane(context);
                             return RefreshIndicator(
                               onRefresh: () => context
                                   .read<ProfileCubit>()
@@ -91,20 +100,53 @@ class ProfilePage extends StatelessWidget {
                               backgroundColor: AppColors.surface,
                               child: SingleChildScrollView(
                                 physics: const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: horizontalPadding,
                                 ),
-                                child: Column(
-                                  children: [
-                                    ProfileHeader(user: user),
-                                    const SizedBox(height: 32),
-                                    GamificationStats(user: user),
-                                    const SizedBox(height: 32),
-                                    ExpertisePortfolio(user: user),
-                                    const SizedBox(height: 32),
-                                    const RecentActivitySection(),
-                                    const SizedBox(height: 120),
-                                  ],
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: Responsive.contentMaxWidthFor(context),
+                                    ),
+                                    child: isTwoPane
+                                        ? Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    ProfileHeader(user: user),
+                                                    const SizedBox(height: 24),
+                                                    GamificationStats(user: user),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 20),
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    ExpertisePortfolio(user: user),
+                                                    const SizedBox(height: 24),
+                                                    const RecentActivitySection(),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Column(
+                                            children: [
+                                              ProfileHeader(user: user),
+                                              const SizedBox(height: 32),
+                                              GamificationStats(user: user),
+                                              const SizedBox(height: 32),
+                                              ExpertisePortfolio(user: user),
+                                              const SizedBox(height: 32),
+                                              const RecentActivitySection(),
+                                            ],
+                                          ),
+                                  ),
                                 ),
                               ),
                             );

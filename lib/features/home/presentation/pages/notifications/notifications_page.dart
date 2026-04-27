@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:intl/intl.dart';
 
@@ -57,15 +58,38 @@ class NotificationsPage extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.notifications_off_rounded,
-                    size: 64,
+                    size: Responsive.valueFor<double>(
+                      context,
+                      compact: 48,
+                      mobile: 56,
+                      tablet: 60,
+                      tabletWide: 64,
+                      desktop: 64,
+                    ),
                     color: AppColors.overlay10,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 12,
+                      mobile: 14,
+                      tablet: 16,
+                      tabletWide: 16,
+                      desktop: 16,
+                    ),
+                  ),
                   Text(
                     "No notifications yet",
                     style: GoogleFonts.dmSans(
                       color: AppColors.textSecondary,
-                      fontSize: 16,
+                      fontSize: Responsive.valueFor<double>(
+                        context,
+                        compact: 14,
+                        mobile: 15,
+                        tablet: 16,
+                        tabletWide: 16,
+                        desktop: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -73,8 +97,25 @@ class NotificationsPage extends StatelessWidget {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          final hPad = Responsive.contentHorizontalPadding(context);
+          final vPad = Responsive.valueFor<double>(
+            context,
+            compact: 12,
+            mobile: 16,
+            tablet: 18,
+            tabletWide: 20,
+            desktop: 20,
+          );
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                    ? Responsive.contentMaxWidthFor(context)
+                    : double.infinity,
+              ),
+              child: ListView.builder(
+            padding: EdgeInsets.fromLTRB(hPad, vPad, hPad, vPad),
             itemCount: docs.length,
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
@@ -103,8 +144,26 @@ class NotificationsPage extends StatelessWidget {
                   }
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                  margin: EdgeInsets.only(
+                    bottom: Responsive.valueFor<double>(
+                      context,
+                      compact: 8,
+                      mobile: 10,
+                      tablet: 12,
+                      tabletWide: 12,
+                      desktop: 12,
+                    ),
+                  ),
+                  padding: EdgeInsets.all(
+                    Responsive.valueFor<double>(
+                      context,
+                      compact: 12,
+                      mobile: 14,
+                      tablet: 15,
+                      tabletWide: 16,
+                      desktop: 16,
+                    ),
+                  ),
                   decoration: BoxDecoration(
                     color: isRead ? AppColors.surface : AppColors.surfaceAlt,
                     borderRadius: BorderRadius.circular(16),
@@ -119,7 +178,16 @@ class NotificationsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(
+                          Responsive.valueFor<double>(
+                            context,
+                            compact: 8,
+                            mobile: 9,
+                            tablet: 10,
+                            tabletWide: 10,
+                            desktop: 10,
+                          ),
+                        ),
                         decoration: BoxDecoration(
                           color: priority
                               ? AppColors.primary.withValues(alpha: 0.2)
@@ -133,10 +201,26 @@ class NotificationsPage extends StatelessWidget {
                           color: priority
                               ? AppColors.primary
                               : AppColors.textPrimary,
-                          size: 20,
+                          size: Responsive.valueFor<double>(
+                            context,
+                            compact: 18,
+                            mobile: 19,
+                            tablet: 20,
+                            tabletWide: 20,
+                            desktop: 22,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: Responsive.valueFor<double>(
+                          context,
+                          compact: 12,
+                          mobile: 14,
+                          tablet: 16,
+                          tabletWide: 16,
+                          desktop: 16,
+                        ),
+                      ),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +235,14 @@ class NotificationsPage extends StatelessWidget {
                                       fontWeight: isRead
                                           ? FontWeight.w500
                                           : FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: Responsive.valueFor<double>(
+                                        context,
+                                        compact: 14,
+                                        mobile: 15,
+                                        tablet: 16,
+                                        tabletWide: 16,
+                                        desktop: 16,
+                                      ),
                                       color: AppColors.textPrimary,
                                     ),
                                   ),
@@ -172,7 +263,14 @@ class NotificationsPage extends StatelessWidget {
                               body,
                               style: GoogleFonts.dmSans(
                                 color: AppColors.textSecondary,
-                                fontSize: 14,
+                                fontSize: Responsive.valueFor<double>(
+                                  context,
+                                  compact: 12,
+                                  mobile: 13,
+                                  tablet: 14,
+                                  tabletWide: 14,
+                                  desktop: 14,
+                                ),
                                 height: 1.4,
                               ),
                             ),
@@ -194,6 +292,8 @@ class NotificationsPage extends StatelessWidget {
                 ),
               );
             },
+              ),
+            ),
           );
         },
       ),
@@ -202,7 +302,16 @@ class NotificationsPage extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(70),
+      preferredSize: Size.fromHeight(
+        Responsive.valueFor<double>(
+          context,
+          compact: 64,
+          mobile: 68,
+          tablet: 70,
+          tabletWide: 72,
+          desktop: 72,
+        ),
+      ),
       child: ClipRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
