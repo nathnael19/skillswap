@@ -9,6 +9,7 @@ import 'package:skillswap/features/home/presentation/shared/schedule/session_pro
 import 'package:skillswap/features/home/presentation/shared/schedule/teaching_points_section.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class ScheduleSessionPage extends StatefulWidget {
@@ -113,7 +114,16 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
       backgroundColor: primaryBgColor,
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
+        preferredSize: Size.fromHeight(
+          Responsive.valueFor<double>(
+            context,
+            compact: 64,
+            mobile: 70,
+            tablet: 72,
+            tabletWide: 72,
+            desktop: 72,
+          ),
+        ),
         child: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
@@ -124,8 +134,22 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    height: 48,
-                    width: 48,
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 44,
+                      mobile: 48,
+                      tablet: 48,
+                      tabletWide: 48,
+                      desktop: 48,
+                    ),
+                    width: Responsive.valueFor<double>(
+                      context,
+                      compact: 44,
+                      mobile: 48,
+                      tablet: 48,
+                      tabletWide: 48,
+                      desktop: 48,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.overlay05,
                       shape: BoxShape.circle,
@@ -156,55 +180,238 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 120),
-            SessionProgressHeader(
-              progress: totalProgress,
-              currentStep: 2,
-              totalSteps: 2,
-              label: 'Session Details',
-              title: 'Schedule Your Session',
-              quote: 'Pick a time that works for both of you.',
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                ? Responsive.contentMaxWidthFor(context)
+                : double.infinity,
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                context,
+                compact: 100,
+                mobile: 115,
+                tablet: 120,
+                tabletWide: 124,
+                desktop: 128,
+              ),
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                    context,
+                    compact: 24,
+                    mobile: 32,
+                    tablet: 40,
+                    tabletWide: 48,
+                    desktop: 48,
+                  ) +
+                  MediaQuery.viewInsetsOf(context).bottom,
             ),
-            const SizedBox(height: 48),
-            CalendarSlotPicker(
-              selectedDate: selectedDate,
-              selectedTime: selectedTime,
-              onDateSelected: (date) => setState(() => selectedDate = date),
-              onTimeSelected: (time) => setState(() => selectedTime = time),
-            ),
-            const SizedBox(height: 48),
-            TeachingPointsSection(
-              topics: manifestations,
-              controller: _topicController,
-              onAdd: _addManifestation,
-              onRemove: _removeManifestation,
-            ),
-            const SizedBox(height: 56),
-            _buildConfirmButton(context),
-            const SizedBox(height: 24),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Text(
-                  'By scheduling, both users agree to the SkillSwap Code of Conduct.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.overlay20,
-                    letterSpacing: 1.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SessionProgressHeader(
+                  progress: totalProgress,
+                  currentStep: 2,
+                  totalSteps: 2,
+                  label: 'Session Details',
+                  title: 'Schedule Your Session',
+                  quote: 'Pick a time that works for both of you.',
+                ),
+                SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 32,
+                    mobile: 40,
+                    tablet: 44,
+                    tabletWide: 48,
+                    desktop: 48,
                   ),
                 ),
-              ),
+                if (Responsive.isTwoPane(context))
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: CalendarSlotPicker(
+                          selectedDate: selectedDate,
+                          selectedTime: selectedTime,
+                          onDateSelected: (date) =>
+                              setState(() => selectedDate = date),
+                          onTimeSelected: (time) =>
+                              setState(() => selectedTime = time),
+                        ),
+                      ),
+                      SizedBox(
+                        width: Responsive.valueFor<double>(
+                          context,
+                          compact: 16,
+                          mobile: 20,
+                          tablet: 24,
+                          tabletWide: 28,
+                          desktop: 32,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TeachingPointsSection(
+                              topics: manifestations,
+                              controller: _topicController,
+                              onAdd: _addManifestation,
+                              onRemove: _removeManifestation,
+                            ),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 40,
+                                mobile: 48,
+                                tablet: 52,
+                                tabletWide: 56,
+                                desktop: 56,
+                              ),
+                            ),
+                            _buildConfirmButton(context),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 16,
+                                mobile: 20,
+                                tablet: 22,
+                                tabletWide: 24,
+                                desktop: 24,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: Responsive.valueFor<double>(
+                                  context,
+                                  compact: 8,
+                                  mobile: 16,
+                                  tablet: 20,
+                                  tabletWide: 24,
+                                  desktop: 28,
+                                ),
+                              ),
+                              child: Text(
+                                'By scheduling, both users agree to the SkillSwap Code of Conduct.',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 8,
+                                    mobile: 9,
+                                    tablet: 10,
+                                    tabletWide: 10,
+                                    desktop: 10,
+                                  ),
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.overlay20,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  CalendarSlotPicker(
+                    selectedDate: selectedDate,
+                    selectedTime: selectedTime,
+                    onDateSelected: (date) => setState(() => selectedDate = date),
+                    onTimeSelected: (time) => setState(() => selectedTime = time),
+                  ),
+                  SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 32,
+                      mobile: 40,
+                      tablet: 44,
+                      tabletWide: 48,
+                      desktop: 48,
+                    ),
+                  ),
+                  TeachingPointsSection(
+                    topics: manifestations,
+                    controller: _topicController,
+                    onAdd: _addManifestation,
+                    onRemove: _removeManifestation,
+                  ),
+                  SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 40,
+                      mobile: 48,
+                      tablet: 52,
+                      tabletWide: 56,
+                      desktop: 56,
+                    ),
+                  ),
+                  _buildConfirmButton(context),
+                  SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 16,
+                      mobile: 20,
+                      tablet: 22,
+                      tabletWide: 24,
+                      desktop: 24,
+                    ),
+                  ),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Responsive.valueFor<double>(
+                          context,
+                          compact: 16,
+                          mobile: 24,
+                          tablet: 28,
+                          tabletWide: 32,
+                          desktop: 36,
+                        ),
+                      ),
+                      child: Text(
+                        'By scheduling, both users agree to the SkillSwap Code of Conduct.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.dmSans(
+                          fontSize: Responsive.valueFor<double>(
+                            context,
+                            compact: 8,
+                            mobile: 9,
+                            tablet: 10,
+                            tabletWide: 10,
+                            desktop: 10,
+                          ),
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.overlay20,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 48,
+                    mobile: 72,
+                    tablet: 88,
+                    tabletWide: 100,
+                    desktop: 100,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 100),
-          ],
+          ),
         ),
       ),
     );
@@ -244,7 +451,7 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                 topics: manifestations,
               );
 
-              if (!mounted) return;
+              if (!context.mounted) return;
               setState(() => _creatingSession = false);
 
               if (resultId != null) {
@@ -256,14 +463,13 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
                   ),
                 );
               } else {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(cubit.state.error ?? 'Failed to schedule session.'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(cubit.state.error ?? 'Failed to schedule session.'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
               }
             },
       child: AnimatedOpacity(
@@ -271,7 +477,14 @@ class _ScheduleSessionPageState extends State<ScheduleSessionPage> {
         opacity: isValid ? 1.0 : 0.4,
         child: Container(
           width: double.infinity,
-          height: 72,
+          height: Responsive.valueFor<double>(
+            context,
+            compact: 60,
+            mobile: 64,
+            tablet: 68,
+            tabletWide: 72,
+            desktop: 72,
+          ),
           decoration: BoxDecoration(
             gradient: isValid
                 ? const LinearGradient(

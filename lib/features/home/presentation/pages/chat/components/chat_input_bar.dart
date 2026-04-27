@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class ChatInputBar extends StatefulWidget {
@@ -59,16 +60,42 @@ class _ChatInputBarState extends State<ChatInputBar> {
   @override
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
+    final kb = MediaQuery.viewInsetsOf(context).bottom;
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final bottomPad = kb + Responsive.valueFor<double>(
+      context,
+      compact: 12,
+      mobile: 14,
+      tablet: 16,
+      tabletWide: 16,
+      desktop: 18,
+    );
+    final topPad = Responsive.valueFor<double>(
+      context,
+      compact: 12,
+      mobile: 14,
+      tablet: 16,
+      tabletWide: 16,
+      desktop: 16,
+    );
+    final fieldH = Responsive.valueFor<double>(
+      context,
+      compact: 48,
+      mobile: 50,
+      tablet: 52,
+      tabletWide: 54,
+      desktop: 54,
+    );
 
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 32,
-            top: 16,
+          padding: EdgeInsets.only(
+            left: hPad,
+            right: hPad,
+            bottom: bottomPad,
+            top: topPad,
           ),
           decoration: BoxDecoration(
             color: AppColors.background.withValues(alpha: 0.8),
@@ -87,8 +114,17 @@ class _ChatInputBarState extends State<ChatInputBar> {
               const SizedBox(width: 8),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  height: 54,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.valueFor<double>(
+                      context,
+                      compact: 14,
+                      mobile: 16,
+                      tablet: 18,
+                      tabletWide: 20,
+                      desktop: 20,
+                    ),
+                  ),
+                  height: fieldH,
                   decoration: BoxDecoration(
                     color: AppColors.textPrimary.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(27),
