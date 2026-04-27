@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/hubs/data/models/hub_message_model.dart';
 import 'package:skillswap/features/hubs/data/services/hub_backend_service.dart';
@@ -97,7 +98,7 @@ class _HubChatPageState extends State<HubChatPage> {
                     ? Center(child: Text(_error!, style: const TextStyle(color: AppColors.error)))
                     : ListView.builder(
                         controller: _scrollController,
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(Responsive.contentHorizontalPadding(context) * 0.5 + 4),
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final message = _messages[index];
@@ -107,7 +108,10 @@ class _HubChatPageState extends State<HubChatPage> {
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.76),
+                              constraints: BoxConstraints(
+                                maxWidth: (MediaQuery.sizeOf(context).width * 0.76)
+                                    .clamp(0.0, 560.0),
+                              ),
                               decoration: BoxDecoration(
                                 color: mine ? AppColors.primary : AppColors.surface,
                                 borderRadius: BorderRadius.circular(14),
