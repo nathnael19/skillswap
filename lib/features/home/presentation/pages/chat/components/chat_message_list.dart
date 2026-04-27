@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
 import 'message_bubble.dart';
 import 'package:skillswap/core/theme/theme.dart';
@@ -111,6 +112,17 @@ class ChatMessageList extends StatelessWidget {
         );
       }
 
+      final topPad = MediaQuery.paddingOf(context).top +
+          Responsive.valueFor<double>(
+            context,
+            compact: 72,
+            mobile: 80,
+            tablet: 88,
+            tabletWide: 96,
+            desktop: 100,
+          );
+      final hPad = Responsive.contentHorizontalPadding(context);
+
       return RefreshIndicator(
         onRefresh: onRefresh,
         color: AppColors.primary,
@@ -118,7 +130,7 @@ class ChatMessageList extends StatelessWidget {
         child: ListView.builder(
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 120, 16, 20),
+          padding: EdgeInsets.fromLTRB(hPad, topPad, hPad, 20),
           itemCount: messagesLoaded.messages.length,
           itemBuilder: (context, index) {
             final msg = messagesLoaded.messages[index];
