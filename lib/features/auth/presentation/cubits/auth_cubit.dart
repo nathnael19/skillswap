@@ -56,7 +56,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final messaging = FirebaseMessaging.instance;
       final settings = await messaging.requestPermission();
-      print('[FCM] Permission status: ${settings.authorizationStatus}');
+      debugPrint('[FCM] Permission status: ${settings.authorizationStatus}');
 
       // Web requires a VAPID key, other platforms do not
       final token = await messaging.getToken(
@@ -64,19 +64,19 @@ class AuthCubit extends Cubit<AuthState> {
       );
 
       if (token != null) {
-        print('[FCM] Got token: $token');
+        debugPrint('[FCM] Got token: $token');
         final result = await _syncFcmToken(SyncFcmTokenParams(token));
         result.fold(
-          (failure) => print('[FCM] Sync failed: ${failure.message}'),
-          (_) => print('[FCM] Token synced successfully!'),
+          (failure) => debugPrint('[FCM] Sync failed: ${failure.message}'),
+          (_) => debugPrint('[FCM] Token synced successfully!'),
         );
       } else {
-        print(
+        debugPrint(
           '[FCM] Token is null — on web, make sure your VAPID key is set in AppConstants.fcmWebVapidKey',
         );
       }
     } catch (e) {
-      print('[FCM] Error: $e');
+      debugPrint('[FCM] Error: $e');
     }
   }
 
@@ -131,7 +131,7 @@ class AuthCubit extends Cubit<AuthState> {
           (failure) {
             // If it fails to send, we show the failure but still allow them 
             // to go to the verification page so they can try resending.
-            print('[AuthCubit] Failed to send verification email: ${failure.message}');
+            debugPrint('[AuthCubit] Failed to send verification email: ${failure.message}');
             emit(AuthFailure('Account created, but failed to send verification email: ${failure.message}'));
             // After a short delay, we can still move them to the unverified page
             Future.delayed(const Duration(seconds: 2), () {
