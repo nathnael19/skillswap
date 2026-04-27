@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class AuthTextField extends StatefulWidget {
@@ -48,6 +49,30 @@ class _AuthTextFieldState extends State<AuthTextField> {
   @override
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
+    final iconSize = Responsive.valueFor<double>(
+      context,
+      compact: 18,
+      mobile: 19,
+      tablet: 20,
+      tabletWide: 20,
+      desktop: 22,
+    );
+    final hPad = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 18,
+      tablet: 19,
+      tabletWide: 20,
+      desktop: 20,
+    );
+    final vPad = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 18,
+      tablet: 19,
+      tabletWide: 20,
+      desktop: 20,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +124,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
                   ? Icon(
                       widget.icon,
                       color: _isFocused ? accentColor : AppColors.textMuted,
-                      size: 20,
+                      size: iconSize,
                     )
                   : null,
               suffixIcon: widget.iconIsPrefix
@@ -107,14 +132,14 @@ class _AuthTextFieldState extends State<AuthTextField> {
                   : Icon(
                       widget.icon,
                       color: _isFocused ? accentColor : AppColors.textMuted,
-                      size: 20,
+                      size: iconSize,
                     ),
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: hPad,
+                vertical: vPad,
               ),
             ),
             validator: (value) {
