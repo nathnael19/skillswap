@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/pages/onboarding_page.dart';
 
@@ -18,17 +19,62 @@ class GuestWall extends StatelessWidget {
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
     const darkBg = AppColors.background;
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final iconOuter = Responsive.valueFor<double>(
+      context,
+      compact: 24,
+      mobile: 28,
+      tablet: 30,
+      tabletWide: 32,
+      desktop: 32,
+    );
+    final iconSize = Responsive.valueFor<double>(
+      context,
+      compact: 44,
+      mobile: 52,
+      tablet: 54,
+      tabletWide: 56,
+      desktop: 56,
+    );
+    final titleSize = Responsive.valueFor<double>(
+      context,
+      compact: 22,
+      mobile: 26,
+      tablet: 28,
+      tabletWide: 28,
+      desktop: 30,
+    );
+    final bodySize = Responsive.valueFor<double>(
+      context,
+      compact: 14,
+      mobile: 15,
+      tablet: 16,
+      tabletWide: 16,
+      desktop: 17,
+    );
+    final vGap = Responsive.valueFor<double>(
+      context,
+      compact: 32,
+      mobile: 40,
+      tablet: 44,
+      tabletWide: 48,
+      desktop: 48,
+    );
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.symmetric(horizontal: hPad),
       color: darkBg,
-      child: Column(
+      child: Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Premium Lock Icon Container
           Container(
-            padding: const EdgeInsets.all(32),
+            padding: EdgeInsets.all(iconOuter),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.05),
               shape: BoxShape.circle,
@@ -44,32 +90,32 @@ class GuestWall extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.lock_rounded, size: 56, color: accentColor),
+            child: Icon(Icons.lock_rounded, size: iconSize, color: accentColor),
           ),
-          const SizedBox(height: 48),
+          SizedBox(height: vGap),
 
           // Typography Section
           Text(
             title,
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
-              fontSize: 28,
+              fontSize: titleSize,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: Responsive.valueFor<double>(context, compact: 12, mobile: 14, tablet: 16, tabletWide: 16, desktop: 16)),
           Text(
             description,
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
-              fontSize: 16,
+              fontSize: bodySize,
               color: AppColors.overlay40,
               height: 1.6,
             ),
           ),
-          const SizedBox(height: 48),
+          SizedBox(height: vGap),
 
           // Primary Action Button
           Container(
@@ -95,7 +141,16 @@ class GuestWall extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 foregroundColor: AppColors.textPrimary,
                 shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 20),
+                padding: EdgeInsets.symmetric(
+                  vertical: Responsive.valueFor<double>(
+                    context,
+                    compact: 16,
+                    mobile: 18,
+                    tablet: 20,
+                    tabletWide: 20,
+                    desktop: 20,
+                  ),
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -103,7 +158,7 @@ class GuestWall extends StatelessWidget {
               child: Text(
                 'Sign In / Sign Up',
                 style: GoogleFonts.dmSans(
-                  fontSize: 16,
+                  fontSize: bodySize,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.2,
                 ),
@@ -111,6 +166,8 @@ class GuestWall extends StatelessWidget {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }
