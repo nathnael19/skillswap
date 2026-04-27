@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/presentation/pages/withdraw_page.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/theme/theme.dart';
@@ -27,11 +28,44 @@ class BalanceHeader extends StatelessWidget {
     final fmt = NumberFormat('#,##0.##');
     final balanceLabel = fmt.format(balance);
     final progress = (balance / progressCapCredits).clamp(0.0, 1.0).toDouble();
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final innerPad = Responsive.valueFor<double>(
+      context,
+      compact: 20,
+      mobile: 24,
+      tablet: 28,
+      tabletWide: 30,
+      desktop: 32,
+    );
+    final balanceFont = Responsive.valueFor<double>(
+      context,
+      compact: 40,
+      mobile: 48,
+      tablet: 54,
+      tabletWide: 58,
+      desktop: 64,
+    );
+    final unitFont = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 18,
+      tablet: 19,
+      tabletWide: 20,
+      desktop: 22,
+    );
+    final btnHeight = Responsive.valueFor<double>(
+      context,
+      compact: 48,
+      mobile: 52,
+      tablet: 54,
+      tabletWide: 56,
+      desktop: 56,
+    );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: hPad),
       child: Container(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(innerPad),
         decoration: BoxDecoration(
           color: AppColors.overlay03,
           borderRadius: BorderRadius.circular(40),
@@ -49,30 +83,33 @@ class BalanceHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  balanceLabel,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 64,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -2.0,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    balanceLabel,
+                    style: GoogleFonts.dmSans(
+                      fontSize: balanceFont,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -2.0,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  AppConstants.currencyLabel,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: accentColor,
+                  const SizedBox(width: 8),
+                  Text(
+                    AppConstants.currencyLabel,
+                    style: GoogleFonts.dmSans(
+                      fontSize: unitFont,
+                      fontWeight: FontWeight.w800,
+                      color: accentColor,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             if (escrowBalance > 0) ...[
               const SizedBox(height: 16),
@@ -162,6 +199,7 @@ class BalanceHeader extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildActionButton(
+                    height: btnHeight,
                     icon: Icons.add_circle_outline_rounded,
                     label: 'Top Up',
                     isPrimary: true,
@@ -171,6 +209,7 @@ class BalanceHeader extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildActionButton(
+                    height: btnHeight,
                     icon: Icons.payments_rounded,
                     label: 'Withdraw',
                     isPrimary: false,
@@ -203,6 +242,7 @@ class BalanceHeader extends StatelessWidget {
   }
 
   Widget _buildActionButton({
+    required double height,
     required IconData icon,
     required String label,
     required bool isPrimary,
@@ -216,7 +256,7 @@ class BalanceHeader extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(22),
         child: Ink(
-          height: 56,
+          height: height,
           decoration: BoxDecoration(
             gradient: isPrimary
                 ? const LinearGradient(
