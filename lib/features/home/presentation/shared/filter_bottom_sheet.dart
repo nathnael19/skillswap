@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/core/constants/app_categories.dart';
 
@@ -45,13 +46,30 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     const primaryBgColor = AppColors.background;
+    final topRadius = Responsive.valueFor<double>(
+      context,
+      compact: 28,
+      mobile: 32,
+      tablet: 36,
+      tabletWide: 40,
+      desktop: 40,
+    );
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final scrollV = Responsive.valueFor<double>(
+      context,
+      compact: 24,
+      mobile: 28,
+      tablet: 30,
+      tabletWide: 32,
+      desktop: 32,
+    );
 
-    return Container(
-      decoration: const BoxDecoration(
+    Widget sheet = Container(
+      decoration: BoxDecoration(
         color: primaryBgColor,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(40),
-          topRight: Radius.circular(40),
+          topLeft: Radius.circular(topRadius),
+          topRight: Radius.circular(topRadius),
         ),
       ),
       child: Column(
@@ -74,7 +92,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           Container(height: 1, color: AppColors.overlay05),
           Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              padding: EdgeInsets.symmetric(horizontal: hPad, vertical: scrollV),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -126,6 +144,16 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         ],
       ),
     );
+
+    if (Responsive.isTwoPane(context)) {
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: sheet,
+        ),
+      );
+    }
+    return sheet;
   }
 
   Widget _buildHeader() {
@@ -208,7 +236,14 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         Text(
           title,
           style: GoogleFonts.dmSans(
-            fontSize: 24,
+            fontSize: Responsive.valueFor<double>(
+              context,
+              compact: 20,
+              mobile: 22,
+              tablet: 23,
+              tabletWide: 24,
+              desktop: 26,
+            ),
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
             letterSpacing: -0.5,
