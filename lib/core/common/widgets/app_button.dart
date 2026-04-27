@@ -114,7 +114,8 @@ class _AppButtonState extends State<AppButton>
                               ],
                               Text(
                                 widget.label,
-                                style: widget.variant == AppButtonVariant.primary
+                                style:
+                                    widget.variant == AppButtonVariant.primary
                                     ? AppTextStyles.buttonPrimary
                                     : AppTextStyles.buttonSecondary,
                               ),
@@ -162,5 +163,4 @@ class _AppButtonState extends State<AppButton>
         );
     }
   }
-
 }
