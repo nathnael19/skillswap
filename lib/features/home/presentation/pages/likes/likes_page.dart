@@ -11,6 +11,7 @@ import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'components/like_card.dart';
 import 'components/likes_empty_state.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class LikesPage extends StatelessWidget {
@@ -66,19 +67,20 @@ class LikesPage extends StatelessWidget {
                     }
 
                     if (state is LikesLoaded) {
+                      final hPad = Responsive.contentHorizontalPadding(context);
                       return SafeArea(
                         bottom: false,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                              padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 24),
                               child: _buildHeader(),
                             ),
                             // Premium Glassy TabBar
                             Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 24,
+                              margin: EdgeInsets.symmetric(
+                                horizontal: hPad,
                               ),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
@@ -89,6 +91,7 @@ class LikesPage extends StatelessWidget {
                                 ),
                               ),
                               child: TabBar(
+                                isScrollable: Responsive.isCompact(context),
                                 indicatorSize: TabBarIndicatorSize.tab,
                                 indicator: BoxDecoration(
                                   color: AppColors.borderSubtle,
@@ -214,6 +217,48 @@ class LikesPage extends StatelessWidget {
       );
     }
 
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final bottomPad = Responsive.valueFor<double>(
+      context,
+      compact: 96,
+      mobile: 108,
+      tablet: 112,
+      tabletWide: 120,
+      desktop: 120,
+    );
+
+    if (Responsive.isTwoPane(context)) {
+      return RefreshIndicator(
+        onRefresh: () async {
+          await context.read<LikesCubit>().fetchLikes();
+          if (context.mounted) {
+            await context.read<MatchesCubit>().fetchMatches();
+          }
+        },
+        color: accentColor,
+        backgroundColor: AppColors.surface,
+        child: GridView.builder(
+          padding: EdgeInsets.fromLTRB(hPad, 24, hPad, bottomPad),
+          physics: const BouncingScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.72,
+          ),
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            return LikeCard(
+              user: users[index],
+              isReceived: isReceived,
+              isSent: isSent,
+              isPassed: isPassed,
+            );
+          },
+        ),
+      );
+    }
+
     return RefreshIndicator(
       onRefresh: () async {
         await context.read<LikesCubit>().fetchLikes();
@@ -224,7 +269,7 @@ class LikesPage extends StatelessWidget {
       color: accentColor,
       backgroundColor: AppColors.surface,
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+        padding: EdgeInsets.fromLTRB(hPad, 24, hPad, bottomPad),
         physics: const BouncingScrollPhysics(),
         itemCount: users.length,
         itemBuilder: (context, index) {

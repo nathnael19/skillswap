@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,6 +16,47 @@ class SwipeableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topInset = Responsive.valueFor<double>(
+      context,
+      compact: 96,
+      mobile: 108,
+      tablet: 116,
+      tabletWide: 120,
+      desktop: 128,
+    );
+    final edge = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 28,
+    );
+    final bottomPad = Responsive.valueFor<double>(
+      context,
+      compact: 80,
+      mobile: 92,
+      tablet: 96,
+      tabletWide: 100,
+      desktop: 108,
+    );
+    final nameSize = Responsive.valueFor<double>(
+      context,
+      compact: 26,
+      mobile: 30,
+      tablet: 32,
+      tabletWide: 34,
+      desktop: 36,
+    );
+    final subtitleSize = Responsive.valueFor<double>(
+      context,
+      compact: 14,
+      mobile: 15,
+      tablet: 16,
+      tabletWide: 16,
+      desktop: 17,
+    );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
@@ -69,7 +111,7 @@ class SwipeableCard extends StatelessWidget {
               top: 0,
               left: 0,
               right: 0,
-              height: 120,
+              height: topInset,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -86,8 +128,8 @@ class SwipeableCard extends StatelessWidget {
 
             // Online Badge (Top Right)
             Positioned(
-              top: 24,
-              right: 24,
+              top: edge,
+              right: edge,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: BackdropFilter(
@@ -146,7 +188,7 @@ class SwipeableCard extends StatelessWidget {
               left: 0,
               right: 0,
               child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                padding: EdgeInsets.fromLTRB(edge, 0, edge, bottomPad),
                 child: GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -170,7 +212,7 @@ class SwipeableCard extends StatelessWidget {
                                 Text(
                                   user.name,
                                   style: GoogleFonts.dmSans(
-                                    fontSize: 34,
+                                    fontSize: nameSize,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
                                     letterSpacing: -1.0,
@@ -190,7 +232,7 @@ class SwipeableCard extends StatelessWidget {
                                   Text(
                                     'Expert, ${user.age}',
                                     style: GoogleFonts.dmSans(
-                                      fontSize: 16,
+                                      fontSize: subtitleSize,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textPrimary.withValues(
                                         alpha: 0.7,
@@ -203,22 +245,47 @@ class SwipeableCard extends StatelessWidget {
                           _buildRatingBadge(user.rating),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          _buildSkillBadge(
-                            label: 'Can Teach',
-                            skill: user.teaching?.name ?? 'Expertise',
-                            isPrimary: true,
-                          ),
-                          const SizedBox(width: 12),
-                          _buildSkillBadge(
-                            label: 'Wants to Learn',
-                            skill: user.learning?.name ?? 'Skills',
-                            isPrimary: false,
-                          ),
-                        ],
-                      ),
+                      SizedBox(height: Responsive.valueFor<double>(context, compact: 14, mobile: 16, tablet: 18, tabletWide: 20, desktop: 20)),
+                      () {
+                        final isSmall = Responsive.isCompact(context);
+                        if (isSmall) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildSkillBadge(
+                                label: 'Can Teach',
+                                skill: user.teaching?.name ?? 'Expertise',
+                                isPrimary: true,
+                                expand: false,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildSkillBadge(
+                                label: 'Wants to Learn',
+                                skill: user.learning?.name ?? 'Skills',
+                                isPrimary: false,
+                                expand: false,
+                              ),
+                            ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            _buildSkillBadge(
+                              label: 'Can Teach',
+                              skill: user.teaching?.name ?? 'Expertise',
+                              isPrimary: true,
+                              expand: true,
+                            ),
+                            SizedBox(width: Responsive.valueFor<double>(context, compact: 8, mobile: 10, tablet: 12, tabletWide: 12, desktop: 12)),
+                            _buildSkillBadge(
+                              label: 'Wants to Learn',
+                              skill: user.learning?.name ?? 'Skills',
+                              isPrimary: false,
+                              expand: true,
+                            ),
+                          ],
+                        );
+                      }(),
                     ],
                   ),
                 ),
@@ -263,11 +330,11 @@ class SwipeableCard extends StatelessWidget {
     required String label,
     required String skill,
     required bool isPrimary,
+    bool expand = true,
   }) {
     final accentColor = isPrimary ? AppColors.primary : AppColors.textPrimary;
 
-    return Expanded(
-      child: Container(
+    final box = Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: accentColor.withValues(alpha: 0.05),
@@ -303,7 +370,11 @@ class SwipeableCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+
+    if (expand) {
+      return Expanded(child: box);
+    }
+    return box;
   }
 }
