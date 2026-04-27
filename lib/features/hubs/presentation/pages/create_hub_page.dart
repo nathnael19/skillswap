@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/hubs/data/services/hub_backend_service.dart';
 import 'package:skillswap/init_dependencies.dart';
@@ -74,39 +75,103 @@ class _CreateHubPageState extends State<CreateHubPage> {
         title: Text('Create a Hub', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                ? Responsive.contentMaxWidthFor(context)
+                : 560,
+          ),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                context,
+                compact: 16,
+                mobile: 20,
+                tablet: 22,
+                tabletWide: 24,
+                desktop: 24,
+              ),
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                    context,
+                    compact: 20,
+                    mobile: 24,
+                    tablet: 28,
+                    tabletWide: 32,
+                    desktop: 32,
+                  ) +
+                  MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               Text(
                 'Start a community for a specific skill.',
                 style: GoogleFonts.dmSans(color: AppColors.textSecondary),
               ),
-              const SizedBox(height: 32),
+              SizedBox(
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 24,
+                  mobile: 28,
+                  tablet: 30,
+                  tabletWide: 32,
+                  desktop: 32,
+                ),
+              ),
               _buildField(
                 label: 'Hub Name',
                 hint: 'e.g. Flutter Experts',
                 controller: _nameController,
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 16,
+                  mobile: 18,
+                  tablet: 20,
+                  tabletWide: 20,
+                  desktop: 20,
+                ),
+              ),
               _buildField(
                 label: 'Slug',
                 hint: 'e.g. flutter-experts',
                 controller: _slugController,
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 16,
+                  mobile: 18,
+                  tablet: 20,
+                  tabletWide: 20,
+                  desktop: 20,
+                ),
+              ),
               _buildField(
                 label: 'Category',
                 hint: 'e.g. Programming',
                 controller: _categoryController,
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 16,
+                  mobile: 18,
+                  tablet: 20,
+                  tabletWide: 20,
+                  desktop: 20,
+                ),
+              ),
               _buildField(
                 label: 'Description',
                 hint: 'What is this hub about?',
@@ -114,19 +179,45 @@ class _CreateHubPageState extends State<CreateHubPage> {
                 maxLines: 3,
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 24),
+              SizedBox(
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 20,
+                  mobile: 22,
+                  tablet: 24,
+                  tabletWide: 24,
+                  desktop: 24,
+                ),
+              ),
               SwitchListTile(
                 title: Text('Private Hub', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
                 subtitle: const Text('Only members can see messages'),
                 value: _isPrivate,
                 onChanged: (v) => setState(() => _isPrivate = v),
-                activeColor: AppColors.primary,
+                activeTrackColor: AppColors.primary.withValues(alpha: 0.35),
+                activeThumbColor: AppColors.primary,
                 contentPadding: EdgeInsets.zero,
               ),
-              const SizedBox(height: 40),
+              SizedBox(
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 28,
+                  mobile: 32,
+                  tablet: 36,
+                  tabletWide: 40,
+                  desktop: 40,
+                ),
+              ),
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: Responsive.valueFor<double>(
+                  context,
+                  compact: 50,
+                  mobile: 54,
+                  tablet: 56,
+                  tabletWide: 56,
+                  desktop: 58,
+                ),
                 child: FilledButton(
                   onPressed: _loading ? null : _create,
                   style: FilledButton.styleFrom(
@@ -138,6 +229,8 @@ class _CreateHubPageState extends State<CreateHubPage> {
                 ),
               ),
             ],
+              ),
+            ),
           ),
         ),
       ),

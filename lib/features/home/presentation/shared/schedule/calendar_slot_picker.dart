@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class CalendarSlotPicker extends StatefulWidget {
@@ -62,9 +63,17 @@ class _CalendarSlotPickerState extends State<CalendarSlotPicker> {
   @override
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
+    final outerPad = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 24,
+    );
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(outerPad),
       decoration: BoxDecoration(
         color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(32),
@@ -82,17 +91,31 @@ class _CalendarSlotPickerState extends State<CalendarSlotPicker> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: accentColor.withValues(alpha: 0.2)),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.calendar_month_rounded,
                   color: accentColor,
-                  size: 22,
+                  size: Responsive.valueFor<double>(
+                    context,
+                    compact: 20,
+                    mobile: 21,
+                    tablet: 22,
+                    tabletWide: 22,
+                    desktop: 24,
+                  ),
                 ),
               ),
               const SizedBox(width: 20),
               Text(
                 '1. Choose a Time',
                 style: GoogleFonts.dmSans(
-                  fontSize: 16,
+                  fontSize: Responsive.valueFor<double>(
+                    context,
+                    compact: 14,
+                    mobile: 15,
+                    tablet: 16,
+                    tabletWide: 16,
+                    desktop: 17,
+                  ),
                   fontWeight: FontWeight.w900,
                   color: AppColors.textPrimary,
                   letterSpacing: 2.0,
@@ -114,117 +137,147 @@ class _CalendarSlotPickerState extends State<CalendarSlotPicker> {
     const accentColor = AppColors.primary;
     final monthName = DateFormat('MMMM yyyy').format(_focusedMonth);
     final days = _generateDays();
+    const crossSpacing = 8.0;
+    const mainSpacing = 12.0;
+    const cols = 7;
+    final dayLabelSize = Responsive.valueFor<double>(
+      context,
+      compact: 9,
+      mobile: 10,
+      tablet: 10,
+      tabletWide: 10,
+      desktop: 11,
+    );
+    final dayNumSize = Responsive.valueFor<double>(
+      context,
+      compact: 12,
+      mobile: 13,
+      tablet: 14,
+      tabletWide: 14,
+      desktop: 15,
+    );
 
     return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-              onTap: _previousMonth,
-              child: Icon(
-                Icons.chevron_left_rounded,
-                color: AppColors.textPrimary.withValues(alpha: 0.6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: _previousMonth,
+                  child: Icon(
+                    Icons.chevron_left_rounded,
+                    color: AppColors.textPrimary.withValues(alpha: 0.6),
+                  ),
+                ),
+                Text(
+                  monthName.toUpperCase(),
+                  style: GoogleFonts.dmSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.overlay60,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _nextMonth,
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textPrimary.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: Responsive.valueFor<double>(
+                context,
+                compact: 24,
+                mobile: 28,
+                tablet: 30,
+                tabletWide: 32,
+                desktop: 32,
               ),
             ),
-            Text(
-              monthName.toUpperCase(),
-              style: GoogleFonts.dmSans(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                color: AppColors.overlay60,
-                letterSpacing: 2.0,
-              ),
+            Row(
+              children: weekdays
+                  .map(
+                    (d) => Expanded(
+                      child: Center(
+                        child: Text(
+                          d,
+                          style: GoogleFonts.dmSans(
+                            fontSize: dayLabelSize,
+                            fontWeight: FontWeight.w900,
+                            color: accentColor.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
-            GestureDetector(
-              onTap: _nextMonth,
-              child: Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textPrimary.withValues(alpha: 0.6),
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: cols,
+                mainAxisSpacing: mainSpacing,
+                crossAxisSpacing: crossSpacing,
+                childAspectRatio: 1,
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: weekdays
-              .map(
-                (d) => SizedBox(
-                  width: 32,
-                  child: Center(
-                    child: Text(
-                      d,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: accentColor.withValues(alpha: 0.4),
+              itemCount: days.length,
+              itemBuilder: (context, index) {
+                final date = days[index];
+                final isCurrentMonth = date.month == _focusedMonth.month;
+                final isSelected = widget.selectedDate != null &&
+                    date.year == widget.selectedDate!.year &&
+                    date.month == widget.selectedDate!.month &&
+                    date.day == widget.selectedDate!.day;
+
+                final isPast = date.isBefore(
+                  DateTime.now().subtract(const Duration(days: 1)),
+                );
+
+                if (!isCurrentMonth) return const SizedBox.shrink();
+
+                return GestureDetector(
+                  onTap: isPast ? null : () => widget.onDateSelected(date),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: isSelected
+                        ? BoxDecoration(
+                            color: accentColor,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: accentColor.withValues(alpha: 0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          )
+                        : null,
+                    child: Center(
+                      child: Text(
+                        date.day.toString(),
+                        style: GoogleFonts.dmSans(
+                          fontSize: dayNumSize,
+                          fontWeight:
+                              isSelected ? FontWeight.w900 : FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.textPrimary
+                              : (isPast
+                                  ? AppColors.overlay10
+                                  : AppColors.textPrimary.withValues(alpha: 0.9)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 8,
-          ),
-          itemCount: days.length,
-          itemBuilder: (context, index) {
-            final date = days[index];
-            final isCurrentMonth = date.month == _focusedMonth.month;
-            final isSelected = widget.selectedDate != null &&
-                date.year == widget.selectedDate!.year &&
-                date.month == widget.selectedDate!.month &&
-                date.day == widget.selectedDate!.day;
-            
-            final isPast = date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
-
-            if (!isCurrentMonth) return const SizedBox.shrink();
-
-            return GestureDetector(
-              onTap: isPast ? null : () => widget.onDateSelected(date),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                decoration: isSelected
-                    ? BoxDecoration(
-                        color: accentColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: accentColor.withValues(alpha: 0.4),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      )
-                    : null,
-                child: Center(
-                  child: Text(
-                    date.day.toString(),
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                      color: isSelected
-                          ? AppColors.textPrimary
-                          : (isPast
-                              ? AppColors.overlay10
-                              : AppColors.textPrimary.withValues(alpha: 0.9)),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ],
-    );
+                );
+              },
+            ),
+          ],
+        );
   }
 
   Widget _buildTimeSlots() {
