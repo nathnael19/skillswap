@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/constants/app_categories.dart';
@@ -287,11 +288,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
             ],
           ),
-          body: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                    ? Responsive.contentMaxWidthFor(context)
+                    : 720,
+              ),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.contentHorizontalPadding(context),
+                ),
+                child: Column(
+                  children: [
                 const SizedBox(height: 16),
                 ConnectivityGuard(
                   child: AvatarEditorSection(
@@ -353,6 +364,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   onRemove: _removeSkill,
                 ),
               ],
+                ),
+              ),
             ),
           ),
         );

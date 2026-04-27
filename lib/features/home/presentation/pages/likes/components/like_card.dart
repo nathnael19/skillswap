@@ -7,6 +7,7 @@ import 'package:skillswap/features/home/presentation/pages/master_profile/master
 import 'like_card_header.dart';
 import 'like_card_actions.dart';
 import 'retract_confirmation_dialog.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class LikeCard extends StatelessWidget {
@@ -25,8 +26,25 @@ class LikeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottom = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 24,
+    );
+    final inner = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 24,
+    );
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: EdgeInsets.only(bottom: bottom),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(36),
@@ -39,7 +57,7 @@ class LikeCard extends StatelessWidget {
           LikeCardHeader(user: user),
           // Editorial Content Section
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(inner),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -54,7 +72,7 @@ class LikeCard extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                SizedBox(height: Responsive.valueFor<double>(context, compact: 24, mobile: 28, tablet: 30, tabletWide: 32, desktop: 32)),
                 LikeCardActions(
                   isReceived: isReceived,
                   isSent: isSent,
