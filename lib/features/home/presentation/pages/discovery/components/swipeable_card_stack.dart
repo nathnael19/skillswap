@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'swipe_action_buttons.dart';
 import 'swipeable_card.dart';
 import 'like_overlay.dart';
@@ -261,107 +262,152 @@ class _SwipeableCardStackState extends State<SwipeableCardStack>
     final isInteractionDisabled =
         _isAnimatingOffScreen || _showHeart || _showClose;
 
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final topSpace = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 24,
+    );
+    final bottomReserve = Responsive.valueFor<double>(
+      context,
+      compact: 56,
+      mobile: 64,
+      tablet: 68,
+      tabletWide: 72,
+      desktop: 76,
+    );
+    final actionBottom = Responsive.valueFor<double>(
+      context,
+      compact: -28,
+      mobile: -34,
+      tablet: -38,
+      tabletWide: -40,
+      desktop: -44,
+    );
+
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: EdgeInsets.symmetric(horizontal: hPad),
             child: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 24),
+                  SizedBox(height: topSpace),
                   Expanded(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.none,
-                      children: [
-                        // Next Card (Background)
-                        if (widget.currentIndex + 1 < widget.users.length)
-                          AnimatedBuilder(
-                            animation: _swipeAnimationController,
-                            builder: (context, child) {
-                              final offset = _isAnimatingOffScreen
-                                  ? _swipePositionAnimation.value
-                                  : _swipeOffset;
-                              return Transform.scale(
-                                scale:
-                                    0.9 +
-                                    (offset.dx.abs() / 2000).clamp(0, 0.1),
-                                child: Opacity(
-                                  opacity:
-                                      0.3 +
-                                      (offset.dx.abs() / 1000).clamp(0, 0.5),
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: SwipeableCard(
-                              user: widget.users[widget.currentIndex + 1],
-                            ),
-                          ),
-
-                        // Top Card (Draggable)
-                        GestureDetector(
-                          onDoubleTap: _triggerLikeAnimation,
-                          onPanUpdate: _onPanUpdate,
-                          onPanEnd: _onPanEnd,
-                          child: AnimatedBuilder(
-                            animation: _swipeAnimationController,
-                            builder: (context, child) {
-                              final offset = _isAnimatingOffScreen
-                                  ? _swipePositionAnimation.value
-                                  : _swipeOffset;
-                              final angle = _isAnimatingOffScreen
-                                  ? _swipeAngleAnimation.value
-                                  : _swipeAngle;
-                              return Transform.translate(
-                                offset: offset,
-                                child: Transform.rotate(
-                                  angle: angle,
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: SwipeableCard(user: currentUser),
+                    child: () {
+                      final screenW = MediaQuery.sizeOf(context).width;
+                      final availableW = screenW - (2 * hPad);
+                      final maxCardW = Responsive.isTwoPane(context)
+                          ? Responsive.valueFor<double>(
+                              context,
+                              compact: 360,
+                              mobile: 400,
+                              tablet: 460,
+                              tabletWide: 520,
+                              desktop: 560,
+                            )
+                          : availableW;
+                      return Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: maxCardW),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            clipBehavior: Clip.none,
+                            children: [
+                              // Next Card (Background)
+                              if (widget.currentIndex + 1 < widget.users.length)
+                                AnimatedBuilder(
+                          animation: _swipeAnimationController,
+                          builder: (context, child) {
+                            final offset = _isAnimatingOffScreen
+                                ? _swipePositionAnimation.value
+                                : _swipeOffset;
+                            return Transform.scale(
+                              scale:
+                                  0.9 +
+                                  (offset.dx.abs() / 2000).clamp(0, 0.1),
+                              child: Opacity(
+                                opacity:
+                                    0.3 +
+                                    (offset.dx.abs() / 1000).clamp(0, 0.5),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: SwipeableCard(
+                            user: widget.users[widget.currentIndex + 1],
                           ),
                         ),
 
-                        // Like overlay
-                        if (_showHeart)
-                          LikeOverlay(
-                            animationController: _likeAnimationController,
-                            scaleAnimation: _likeScaleAnimation,
-                            opacityAnimation: _likeOpacityAnimation,
-                          ),
-
-                        // Dislike overlay
-                        if (_showClose)
-                          DislikeOverlay(
-                            animationController: _dislikeAnimationController,
-                            scaleAnimation: _dislikeScaleAnimation,
-                            opacityAnimation: _dislikeOpacityAnimation,
-                            shakeAnimation: _dislikeShakeAnimation,
-                          ),
-
-                        // Action Buttons Row
-                        Positioned(
-                          bottom: -40,
-                          left: 0,
-                          right: 0,
-                          child: SwipeActionButtons(
-                            onLike: () => _runSwipeAnimation(true),
-                            onDislike: () => _runSwipeAnimation(false),
-                            onChat: () => widget.onChat(currentUser),
-                            enabled: !isInteractionDisabled,
-                          ),
+                      // Top Card (Draggable)
+                      GestureDetector(
+                        onDoubleTap: _triggerLikeAnimation,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        child: AnimatedBuilder(
+                          animation: _swipeAnimationController,
+                          builder: (context, child) {
+                            final offset = _isAnimatingOffScreen
+                                ? _swipePositionAnimation.value
+                                : _swipeOffset;
+                            final angle = _isAnimatingOffScreen
+                                ? _swipeAngleAnimation.value
+                                : _swipeAngle;
+                            return Transform.translate(
+                              offset: offset,
+                              child: Transform.rotate(
+                                angle: angle,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: SwipeableCard(user: currentUser),
                         ),
-                      ],
-                    ),
+                      ),
+
+                      // Like overlay
+                      if (_showHeart)
+                        LikeOverlay(
+                          animationController: _likeAnimationController,
+                          scaleAnimation: _likeScaleAnimation,
+                          opacityAnimation: _likeOpacityAnimation,
+                        ),
+
+                      // Dislike overlay
+                      if (_showClose)
+                        DislikeOverlay(
+                          animationController: _dislikeAnimationController,
+                          scaleAnimation: _dislikeScaleAnimation,
+                          opacityAnimation: _dislikeOpacityAnimation,
+                          shakeAnimation: _dislikeShakeAnimation,
+                        ),
+
+                      // Action Buttons Row
+                      Positioned(
+                        bottom: actionBottom,
+                        left: 0,
+                        right: 0,
+                        child: SwipeActionButtons(
+                          onLike: () => _runSwipeAnimation(true),
+                          onDislike: () => _runSwipeAnimation(false),
+                          onChat: () => widget.onChat(currentUser),
+                          enabled: !isInteractionDisabled,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 70), // Leave space for action buttons
+                ),
+              );
+                    }(),
+                  ),
+                  SizedBox(height: bottomReserve),
                 ],
               ),
             ),

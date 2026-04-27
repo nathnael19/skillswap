@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class IdentityVerificationPage extends StatefulWidget {
@@ -106,124 +107,308 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Secure Your Account',
-              style: GoogleFonts.dmSans(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-                letterSpacing: -0.8,
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                ? Responsive.contentMaxWidthFor(context)
+                : double.infinity,
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                context,
+                compact: 12,
+                mobile: 16,
+                tablet: 20,
+                tabletWide: 24,
+                desktop: 24,
               ),
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                    context,
+                    compact: 16,
+                    mobile: 20,
+                    tablet: 24,
+                    tabletWide: 28,
+                    desktop: 32,
+                  ) +
+                  MediaQuery.viewInsetsOf(context).bottom,
             ),
-            const SizedBox(height: 12),
-            Text(
-              'To ensure a safe community, please verify your identity by uploading your government-issued ID and a selfie.',
-              style: GoogleFonts.dmSans(
-                fontSize: 15,
-                color: AppColors.overlay40,
-                height: 1.6,
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            ConnectivityGuard(
-              child: _buildUploadCard(
-                title: 'Front of ID',
-                description: 'Upload the front of your government-issued ID',
-                icon: Icons.badge_outlined,
-                file: _frontIdFile,
-                onTap: () => _pickImage('front'),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            ConnectivityGuard(
-              child: _buildUploadCard(
-                title: 'Back of ID',
-                description: 'Upload the back of your government-issued ID',
-                icon: Icons.credit_card_outlined,
-                file: _backIdFile,
-                onTap: () => _pickImage('back'),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            ConnectivityGuard(
-              child: _buildUploadCard(
-                title: 'Selfie',
-                description: 'Take a clear selfie to match your ID',
-                icon: Icons.face_rounded,
-                file: _selfieFile,
-                onTap: () => _pickImage('selfie'),
-              ),
-            ),
-
-            const SizedBox(height: 48),
-
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ConnectivityGuard(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [kAccent, AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Secure Your Account',
+                  style: GoogleFonts.dmSans(
+                    fontSize: Responsive.valueFor<double>(
+                      context,
+                      compact: 22,
+                      mobile: 24,
+                      tablet: 26,
+                      tabletWide: 28,
+                      desktop: 28,
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: kAccent.withValues(alpha: 0.25),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _submitVerification,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: AppColors.textPrimary,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: _isSubmitting
-                        ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: AppColors.textPrimary,
-                            strokeWidth: 2,
-                          ),
-                        )
-                        : Text(
-                          'Submit Verification',
-                          style: GoogleFonts.dmSans(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.8,
                   ),
                 ),
-              ),
+                SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 8,
+                    mobile: 12,
+                    tablet: 14,
+                    tabletWide: 16,
+                    desktop: 16,
+                  ),
+                ),
+                Text(
+                  'To ensure a safe community, please verify your identity by uploading your government-issued ID and a selfie.',
+                  style: GoogleFonts.dmSans(
+                    fontSize: Responsive.valueFor<double>(
+                      context,
+                      compact: 13,
+                      mobile: 14,
+                      tablet: 15,
+                      tabletWide: 15,
+                      desktop: 16,
+                    ),
+                    color: AppColors.overlay40,
+                    height: 1.6,
+                  ),
+                ),
+                SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 32,
+                    mobile: 40,
+                    tablet: 44,
+                    tabletWide: 48,
+                    desktop: 48,
+                  ),
+                ),
+
+                if (Responsive.isTwoPane(context))
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            ConnectivityGuard(
+                              child: _buildUploadCard(
+                                context,
+                                title: 'Front of ID',
+                                description:
+                                    'Upload the front of your government-issued ID',
+                                icon: Icons.badge_outlined,
+                                file: _frontIdFile,
+                                onTap: () => _pickImage('front'),
+                              ),
+                            ),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 16,
+                                mobile: 18,
+                                tablet: 20,
+                                tabletWide: 20,
+                                desktop: 20,
+                              ),
+                            ),
+                            ConnectivityGuard(
+                              child: _buildUploadCard(
+                                context,
+                                title: 'Back of ID',
+                                description:
+                                    'Upload the back of your government-issued ID',
+                                icon: Icons.credit_card_outlined,
+                                file: _backIdFile,
+                                onTap: () => _pickImage('back'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: Responsive.valueFor<double>(
+                          context,
+                          compact: 12,
+                          mobile: 16,
+                          tablet: 20,
+                          tabletWide: 24,
+                          desktop: 24,
+                        ),
+                      ),
+                      Expanded(
+                        child: ConnectivityGuard(
+                          child: _buildUploadCard(
+                            context,
+                            title: 'Selfie',
+                            description: 'Take a clear selfie to match your ID',
+                            icon: Icons.face_rounded,
+                            file: _selfieFile,
+                            onTap: () => _pickImage('selfie'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  ConnectivityGuard(
+                    child: _buildUploadCard(
+                      context,
+                      title: 'Front of ID',
+                      description:
+                          'Upload the front of your government-issued ID',
+                      icon: Icons.badge_outlined,
+                      file: _frontIdFile,
+                      onTap: () => _pickImage('front'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 16,
+                      mobile: 18,
+                      tablet: 20,
+                      tabletWide: 20,
+                      desktop: 20,
+                    ),
+                  ),
+                  ConnectivityGuard(
+                    child: _buildUploadCard(
+                      context,
+                      title: 'Back of ID',
+                      description:
+                          'Upload the back of your government-issued ID',
+                      icon: Icons.credit_card_outlined,
+                      file: _backIdFile,
+                      onTap: () => _pickImage('back'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 16,
+                      mobile: 18,
+                      tablet: 20,
+                      tabletWide: 20,
+                      desktop: 20,
+                    ),
+                  ),
+                  ConnectivityGuard(
+                    child: _buildUploadCard(
+                      context,
+                      title: 'Selfie',
+                      description: 'Take a clear selfie to match your ID',
+                      icon: Icons.face_rounded,
+                      file: _selfieFile,
+                      onTap: () => _pickImage('selfie'),
+                    ),
+                  ),
+                ],
+
+                SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 32,
+                    mobile: 40,
+                    tablet: 44,
+                    tabletWide: 48,
+                    desktop: 48,
+                  ),
+                ),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 52,
+                    mobile: 56,
+                    tablet: 58,
+                    tabletWide: 60,
+                    desktop: 60,
+                  ),
+                  child: ConnectivityGuard(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [kAccent, AppColors.primaryDark],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: kAccent.withValues(alpha: 0.25),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting ? null : _submitVerification,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: AppColors.textPrimary,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: _isSubmitting
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.textPrimary,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                'Submit Verification',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 14,
+                                    mobile: 15,
+                                    tablet: 16,
+                                    tabletWide: 16,
+                                    desktop: 16,
+                                  ),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 40,
+                    mobile: 48,
+                    tablet: 54,
+                    tabletWide: 60,
+                    desktop: 60,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 60),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildUploadCard({
+  Widget _buildUploadCard(
+    BuildContext context, {
     required String title,
     required String description,
     required IconData icon,
@@ -232,10 +417,27 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
   }) {
     final bool isUploaded = file != null;
 
+    final pad = Responsive.valueFor<double>(
+      context,
+      compact: 14,
+      mobile: 16,
+      tablet: 18,
+      tabletWide: 20,
+      desktop: 20,
+    );
+    final thumb = Responsive.valueFor<double>(
+      context,
+      compact: 44,
+      mobile: 48,
+      tablet: 50,
+      tabletWide: 52,
+      desktop: 52,
+    );
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(pad),
         decoration: BoxDecoration(
           color:
               isUploaded
@@ -254,8 +456,8 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
             Stack(
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: thumb,
+                  height: thumb,
                   decoration: BoxDecoration(
                     color:
                         isUploaded
@@ -272,7 +474,18 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                   ),
                   child:
                       !isUploaded
-                          ? Icon(icon, color: AppColors.overlay50, size: 24)
+                          ? Icon(
+                              icon,
+                              color: AppColors.overlay50,
+                              size: Responsive.valueFor<double>(
+                                context,
+                                compact: 20,
+                                mobile: 22,
+                                tablet: 24,
+                                tabletWide: 24,
+                                desktop: 24,
+                              ),
+                            )
                           : null,
                 ),
                 if (isUploaded)
@@ -294,7 +507,16 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                   ),
               ],
             ),
-            const SizedBox(width: 16),
+            SizedBox(
+              width: Responsive.valueFor<double>(
+                context,
+                compact: 12,
+                mobile: 14,
+                tablet: 16,
+                tabletWide: 16,
+                desktop: 16,
+              ),
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +524,14 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                   Text(
                     title,
                     style: GoogleFonts.dmSans(
-                      fontSize: 16,
+                      fontSize: Responsive.valueFor<double>(
+                        context,
+                        compact: 14,
+                        mobile: 15,
+                        tablet: 16,
+                        tabletWide: 16,
+                        desktop: 16,
+                      ),
                       fontWeight: FontWeight.w700,
                       color: isUploaded ? kAccent : AppColors.textPrimary,
                     ),
@@ -311,7 +540,14 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                   Text(
                     isUploaded ? 'Document selected' : description,
                     style: GoogleFonts.dmSans(
-                      fontSize: 13,
+                      fontSize: Responsive.valueFor<double>(
+                        context,
+                        compact: 12,
+                        mobile: 12,
+                        tablet: 13,
+                        tabletWide: 13,
+                        desktop: 14,
+                      ),
                       color:
                           isUploaded
                               ? kAccent.withValues(alpha: 0.7)
