@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/core/common/widgets/offline_screen.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/init_dependencies.dart';
@@ -80,6 +81,8 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final contentPadding = Responsive.contentHorizontalPadding(context);
+    final isTwoPane = Responsive.isTwoPane(context);
     return BlocListener<ConnectivityCubit, ConnectivityStatus>(
       listenWhen: (prev, curr) =>
           prev == ConnectivityStatus.disconnected &&
@@ -90,14 +93,14 @@ class _SearchPageState extends State<SearchPage> {
         body: SafeArea(
           child: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
             builder: (context, connectivity) {
-              return Column(
+              final content = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 12),
                   // Glass Header with Search Bar
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: contentPadding,
                       vertical: 8.0,
                     ),
                     child: Row(
@@ -180,7 +183,7 @@ class _SearchPageState extends State<SearchPage> {
                   // Premium Category Selector
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: EdgeInsets.symmetric(horizontal: contentPadding),
                     child: Row(
                       children: _categories.map((category) {
                         final isSelected = _selectedCategory == category;
@@ -245,7 +248,7 @@ class _SearchPageState extends State<SearchPage> {
 
                   // Section Label
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: EdgeInsets.symmetric(horizontal: contentPadding),
                     child: Row(
                       children: [
                         Container(
@@ -333,9 +336,43 @@ class _SearchPageState extends State<SearchPage> {
                           );
                         }
 
+                        if (isTwoPane) {
+                          return GridView.builder(
+                            padding: EdgeInsets.fromLTRB(contentPadding, 0, contentPadding, 24),
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 1.22,
+                                ),
+                            itemCount: _users.length,
+                            itemBuilder: (context, index) {
+                              final user = _users[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MasterProfilePage(userId: user.id),
+                                    ),
+                                  );
+                                },
+                                child: ExpertCard(user: user),
+                              );
+                            },
+                          );
+                        }
+
                         return ListView.builder(
                           physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.only(bottom: 24),
+                          padding: EdgeInsets.only(
+                            left: contentPadding,
+                            right: contentPadding,
+                            bottom: 24,
+                          ),
                           itemCount: _users.length,
                           itemBuilder: (context, index) {
                             final user = _users[index];
@@ -344,9 +381,8 @@ class _SearchPageState extends State<SearchPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            MasterProfilePage(userId: user.id),
+                                    builder: (context) =>
+                                        MasterProfilePage(userId: user.id),
                                   ),
                                 );
                               },
@@ -358,6 +394,16 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                 ],
+              );
+
+              return Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: Responsive.contentMaxWidthFor(context),
+                  ),
+                  child: content,
+                ),
               );
             },
           ),

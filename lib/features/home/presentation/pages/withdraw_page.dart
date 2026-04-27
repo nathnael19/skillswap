@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/constants/payment_methods.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class WithdrawPage extends StatefulWidget {
@@ -95,17 +96,38 @@ class _WithdrawPageState extends State<WithdrawPage> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                ? Responsive.contentMaxWidthFor(context)
+                : 560,
+          ),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              Responsive.contentHorizontalPadding(context),
+              Responsive.contentHorizontalPadding(context),
+              Responsive.contentHorizontalPadding(context),
+              Responsive.contentHorizontalPadding(context) +
+                  MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // Balance Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(Responsive.valueFor<double>(
+                  context,
+                  compact: 16,
+                  mobile: 20,
+                  tablet: 22,
+                  tabletWide: 24,
+                  desktop: 24,
+                )),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
@@ -123,12 +145,23 @@ class _WithdrawPageState extends State<WithdrawPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '${widget.currentBalance.toStringAsFixed(2)} ${AppConstants.currencyLabel}',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${widget.currentBalance.toStringAsFixed(2)} ${AppConstants.currencyLabel}',
+                        style: GoogleFonts.dmSans(
+                          fontSize: Responsive.valueFor<double>(
+                            context,
+                            compact: 22,
+                            mobile: 26,
+                            tablet: 28,
+                            tabletWide: 30,
+                            desktop: 32,
+                          ),
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ],
@@ -284,6 +317,8 @@ class _WithdrawPageState extends State<WithdrawPage> {
               ),
               const SizedBox(height: 40),
             ],
+              ),
+            ),
           ),
         ),
       ),
