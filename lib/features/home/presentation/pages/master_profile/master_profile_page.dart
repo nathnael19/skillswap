@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/presentation/cubits/master_profile_cubit.dart';
 import 'package:skillswap/init_dependencies.dart';
 import 'components/featured_gallery_section.dart';
@@ -86,6 +87,16 @@ class MasterProfilePage extends StatelessWidget {
 
             if (state is MasterProfileLoaded) {
               final user = state.user;
+              final bottomPad = MediaQuery.paddingOf(context).bottom +
+                  Responsive.valueFor<double>(
+                    context,
+                    compact: 100,
+                    mobile: 120,
+                    tablet: 128,
+                    tabletWide: 140,
+                    desktop: 148,
+                  );
+              final hPad = Responsive.contentHorizontalPadding(context);
               return Stack(
                 children: [
                   SingleChildScrollView(
@@ -96,17 +107,15 @@ class MasterProfilePage extends StatelessWidget {
                         ProfileHeaderSection(user: user),
                         ProfileStatsSection(user: user),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
                           child: GamificationStats(user: user),
                         ),
                         ProfileBadgesSection(user: user),
-                        const SizedBox(height: 32),
+                        SizedBox(height: Responsive.valueFor<double>(context, compact: 24, mobile: 28, tablet: 30, tabletWide: 32, desktop: 32)),
                         FeaturedGallerySection(portfolio: user.portfolio),
-                        const SizedBox(height: 32),
+                        SizedBox(height: Responsive.valueFor<double>(context, compact: 24, mobile: 28, tablet: 30, tabletWide: 32, desktop: 32)),
                         ReviewsSection(reviews: state.reviews),
-                        const SizedBox(
-                          height: 140,
-                        ), // More padding for sticky footer
+                        SizedBox(height: bottomPad),
                       ],
                     ),
                   ),

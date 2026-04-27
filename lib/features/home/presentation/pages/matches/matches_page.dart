@@ -10,6 +10,7 @@ import 'package:skillswap/core/common/widgets/guest_wall.dart';
 import 'components/matches_header.dart';
 import 'components/matches_empty_state.dart';
 import 'components/chat_messages_section.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class MatchesPage extends StatelessWidget {
@@ -41,8 +42,13 @@ class MatchesPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(24, 0, 24, 12),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    Responsive.contentHorizontalPadding(context),
+                    0,
+                    Responsive.contentHorizontalPadding(context),
+                    12,
+                  ),
                   child: MatchesHeader(),
                 ),
                 Expanded(
@@ -95,8 +101,17 @@ class MatchesPage extends StatelessWidget {
                                       onlineStatuses: state.onlineStatuses,
                                     ),
                                   ),
-                                  const SliverToBoxAdapter(
-                                    child: SizedBox(height: 120),
+                                  SliverToBoxAdapter(
+                                    child: SizedBox(
+                                      height: Responsive.valueFor<double>(
+                                        context,
+                                        compact: 96,
+                                        mobile: 108,
+                                        tablet: 112,
+                                        tabletWide: 120,
+                                        desktop: 120,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
