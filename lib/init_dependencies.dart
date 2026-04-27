@@ -8,7 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:skillswap/core/constants/app_constants.dart';
 import 'package:skillswap/core/network/api_client.dart';
-import 'package:skillswap/core/storage/firebase_storage_service.dart';
+import 'package:skillswap/core/storage/supabase_storage_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:skillswap/core/storage/storage_service.dart';
 import 'package:skillswap/core/services/presence_service.dart';
 import 'package:skillswap/core/network/connection_checker.dart';
@@ -55,6 +56,7 @@ Future<void> initDependencies() async {
   serviceLocator.registerLazySingleton(() => FirebaseFirestore.instance);
   serviceLocator.registerLazySingleton(() => FirebaseStorage.instance);
   serviceLocator.registerLazySingleton(() => GoogleSignIn());
+  serviceLocator.registerLazySingleton(() => Supabase.instance.client);
   serviceLocator.registerLazySingleton(() => http.Client());
 
   serviceLocator.registerLazySingleton(
@@ -65,7 +67,7 @@ Future<void> initDependencies() async {
   );
 
   serviceLocator.registerLazySingleton<StorageService>(
-    () => FirebaseStorageService(serviceLocator()),
+    () => SupabaseStorageService(serviceLocator()),
   );
 
   serviceLocator.registerLazySingleton(() => PresenceService.instance);
@@ -137,6 +139,7 @@ void _initHome() {
         app: Firebase.app(),
         databaseURL: AppConstants.firebaseRtdbUrl,
       ),
+      serviceLocator<StorageService>(),
     ),
   );
 
