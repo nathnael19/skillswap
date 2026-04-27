@@ -1,11 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
-import 'package:skillswap/features/auth/presentation/widgets/registration_success_overlay.dart';
-import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
 import 'package:skillswap/features/auth/presentation/pages/verify_email_page.dart';
 import 'package:skillswap/core/constants/app_categories.dart';
 
@@ -114,7 +113,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
       backgroundColor: primaryBgColor,
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
+        preferredSize: Size.fromHeight(
+          Responsive.valueFor<double>(
+            context,
+            compact: 72,
+            mobile: 76,
+            tablet: 80,
+            tabletWide: 84,
+            desktop: 88,
+          ),
+        ),
         child: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
@@ -127,7 +135,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ? _previousStep
                       : () => Navigator.pop(context),
                   child: Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(Responsive.valueFor<double>(
+                      context,
+                      compact: 8,
+                      mobile: 9,
+                      tablet: 10,
+                      tabletWide: 10,
+                      desktop: 10,
+                    )),
                     decoration: BoxDecoration(
                       color: AppColors.borderSubtle,
                       shape: BoxShape.circle,
@@ -138,7 +153,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           ? Icons.arrow_back_rounded
                           : Icons.close_rounded,
                       color: AppColors.textPrimary,
-                      size: 20,
+                      size: Responsive.valueFor<double>(
+                        context,
+                        compact: 18,
+                        mobile: 19,
+                        tablet: 20,
+                        tabletWide: 20,
+                        desktop: 22,
+                      ),
                     ),
                   ),
                 ),
@@ -185,15 +207,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
         builder: (context, state) {
           final isLoading = state is AuthLoading;
 
+          final glow = (MediaQuery.sizeOf(context).shortestSide * 0.42)
+              .clamp(200.0, 340.0);
           return Stack(
             children: [
               // Ambient Background Glows
               Positioned(
-                top: -100,
-                right: -100,
+                top: -glow * 0.33,
+                right: -glow * 0.33,
                 child: Container(
-                  width: 300,
-                  height: 300,
+                  width: glow,
+                  height: glow,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
@@ -259,15 +283,32 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildProgressTrack(Color accent) {
+    final segW = Responsive.valueFor<double>(
+      context,
+      compact: 24,
+      mobile: 28,
+      tablet: 30,
+      tabletWide: 32,
+      desktop: 36,
+    );
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(4, (index) {
         bool isActive = index <= _currentStep;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: EdgeInsets.symmetric(
+            horizontal: Responsive.valueFor<double>(
+              context,
+              compact: 3,
+              mobile: 3,
+              tablet: 4,
+              tabletWide: 4,
+              desktop: 4,
+            ),
+          ),
           height: 4,
-          width: 32,
+          width: segW,
           decoration: BoxDecoration(
             color: isActive ? accent : AppColors.borderSubtle,
             borderRadius: BorderRadius.circular(2),
