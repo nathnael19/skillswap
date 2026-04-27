@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 
 class ConnectivityBanner extends StatelessWidget {
   final bool isVisible;
@@ -10,18 +11,34 @@ class ConnectivityBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = Responsive.valueFor<double>(
+      context,
+      compact: 28,
+      mobile: 30,
+      tablet: 32,
+      tabletWide: 34,
+      desktop: 36,
+    );
+    final fontSize = Responsive.valueFor<double>(
+      context,
+      compact: 11,
+      mobile: 12,
+      tablet: 13,
+      tabletWide: 13,
+      desktop: 14,
+    );
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      height: isVisible ? 32 : 0,
+      height: isVisible ? h : 0,
       width: double.infinity,
       color: Colors.redAccent,
       child: isVisible
-          ? const Center(
+          ? Center(
               child: Text(
                 'No Internet Connection',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
