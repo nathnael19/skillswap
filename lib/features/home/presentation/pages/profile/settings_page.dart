@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
@@ -134,12 +135,22 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           centerTitle: true,
         ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                  ? Responsive.contentMaxWidthFor(context)
+                  : 640,
+            ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: Responsive.contentHorizontalPadding(context),
+              ),
+              child: Column(
+                children: [
+              SizedBox(height: Responsive.valueFor<double>(context, compact: 16, mobile: 20, tablet: 22, tabletWide: 24, desktop: 24)),
               AccountSettingsSection(
                 onIdentityVerificationTap: () {
                   Navigator.push(
@@ -152,8 +163,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 onLogoutTap: _showLogoutConfirmation,
                 onDeleteAccountTap: _showDeleteAccountConfirmation,
               ),
-              const SizedBox(height: 60),
+              SizedBox(height: Responsive.valueFor<double>(context, compact: 40, mobile: 48, tablet: 52, tabletWide: 60, desktop: 60)),
             ],
+              ),
+            ),
           ),
         ),
       ),

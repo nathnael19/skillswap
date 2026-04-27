@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
@@ -129,6 +130,7 @@ class _HomePageState extends State<HomePage> {
         Widget? leading;
 
         final activeIndex = isGuest ? 0 : _selectedIndex;
+        final isTwoPane = Responsive.isTwoPane(context);
         switch (activeIndex) {
           case 0:
             title = isGuest ? "Discover" : "SkillSwap";
@@ -293,8 +295,47 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-            body: bodyContent,
-            bottomNavigationBar: isGuest
+            body: isGuest || !isTwoPane
+                ? bodyContent
+                : Row(
+                    children: [
+                      SafeArea(
+                        child: NavigationRail(
+                          selectedIndex: _selectedIndex,
+                          onDestinationSelected: (index) =>
+                              setState(() => _selectedIndex = index),
+                          extended: MediaQuery.sizeOf(context).width >= 1024,
+                          backgroundColor: AppColors.surface,
+                          useIndicator: true,
+                          destinations: const [
+                            NavigationRailDestination(
+                              icon: Icon(Icons.auto_awesome_rounded),
+                              label: Text('Discover'),
+                            ),
+                            NavigationRailDestination(
+                              icon: Icon(Icons.handshake_rounded),
+                              label: Text('Matches'),
+                            ),
+                            NavigationRailDestination(
+                              icon: Icon(Icons.favorite_rounded),
+                              label: Text('Likes'),
+                            ),
+                            NavigationRailDestination(
+                              icon: Icon(Icons.groups_2_rounded),
+                              label: Text('Hubs'),
+                            ),
+                            NavigationRailDestination(
+                              icon: Icon(Icons.person_rounded),
+                              label: Text('Profile'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const VerticalDivider(width: 1),
+                      Expanded(child: bodyContent),
+                    ],
+                  ),
+            bottomNavigationBar: isGuest || isTwoPane
                 ? null
                 : MidnightNavigationBar(
                     selectedIndex: _selectedIndex,
