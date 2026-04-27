@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/common/widgets/offline_screen.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
+import 'package:skillswap/features/live_sessions/data/models/live_session_model.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_state.dart';
 import 'package:skillswap/features/live_sessions/presentation/pages/session_detail_page.dart';
@@ -84,6 +86,7 @@ class _SessionListView extends StatelessWidget {
                 }
 
                 final sessions = snapshot.data ?? [];
+                final isTwoPane = Responsive.isTwoPane(context);
                 
                 if (sessions.isEmpty && connectivity == ConnectivityStatus.disconnected) {
                    return OfflineScreen(onRetry: () {});
@@ -116,78 +119,26 @@ class _SessionListView extends StatelessWidget {
                   );
                 }
 
+                if (isTwoPane) {
+                  return GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.9,
+                    ),
+                    itemCount: sessions.length,
+                    itemBuilder: (context, index) => _SessionTile(
+                      session: sessions[index],
+                    ),
+                  );
+                }
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
                   itemCount: sessions.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final session = sessions[index];
-                    final isLive = session.status == 'live';
-                    return Card(
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        leading: CircleAvatar(
-                          backgroundColor: isLive
-                              ? Colors.red.withValues(alpha: 0.15)
-                              : Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer
-                                  .withValues(alpha: 0.5),
-                          child: Icon(
-                            isLive
-                                ? Icons.fiber_manual_record
-                                : Icons.schedule_rounded,
-                            color: isLive
-                                ? Colors.red
-                                : Theme.of(context).colorScheme.primary,
-                            size: 20,
-                          ),
-                        ),
-                        title: Text(
-                          session.title,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Row(
-                            children: [
-                              _StatusChip(status: session.status),
-                              const SizedBox(width: 8),
-                              _TypeChip(type: session.type),
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.people_outline,
-                                size: 14,
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${session.participants.length}/${session.maxParticipants}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.outline,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                SessionDetailPage(sessionId: session.id),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                  itemBuilder: (context, index) => _SessionTile(session: sessions[index]),
                 );
               },
             );
@@ -380,6 +331,76 @@ class _SessionListView extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _SessionTile extends StatelessWidget {
+  final LiveSession session;
+  const _SessionTile({required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    final isLive = session.status == 'live';
+    return Card(
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
+        ),
+        leading: CircleAvatar(
+          backgroundColor: isLive
+              ? Colors.red.withValues(alpha: 0.15)
+              : Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+          child: Icon(
+            isLive ? Icons.fiber_manual_record : Icons.schedule_rounded,
+            color: isLive ? Colors.red : Theme.of(context).colorScheme.primary,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          session.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _StatusChip(status: session.status),
+              _TypeChip(type: session.type),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${session.participants.length}/${session.maxParticipants}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SessionDetailPage(sessionId: session.id),
+          ),
+        ),
+      ),
     );
   }
 }

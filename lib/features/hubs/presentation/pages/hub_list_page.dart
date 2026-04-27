@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
 import 'package:skillswap/features/hubs/data/models/hub_model.dart';
@@ -146,61 +147,145 @@ class _HubListPageState extends State<HubListPage> {
                   ],
                 ),
               )
+            : Responsive.isTwoPane(context)
+            ? CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.all(
+                      Responsive.contentHorizontalPadding(context),
+                    ),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: Responsive.valueFor<double>(
+                          context,
+                          compact: 10,
+                          mobile: 12,
+                          tablet: 14,
+                          tabletWide: 16,
+                          desktop: 16,
+                        ),
+                        crossAxisSpacing: Responsive.valueFor<double>(
+                          context,
+                          compact: 10,
+                          mobile: 12,
+                          tablet: 14,
+                          tabletWide: 16,
+                          desktop: 16,
+                        ),
+                        childAspectRatio: 1.05,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _buildHubTile(_hubs[index]),
+                        childCount: _hubs.length,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             : ListView.separated(
-                padding: const EdgeInsets.all(16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.all(
+                  Responsive.contentHorizontalPadding(context),
+                ),
                 itemCount: _hubs.length,
-                separatorBuilder: (_, index) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final hub = _hubs[index];
-                  return Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.borderSubtle),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          hub.name,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          hub.description,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Text(
-                              '${hub.memberCount} members • ${hub.category}',
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const Spacer(),
-                            if (hub.isMember)
-                              FilledButton(
-                                onPressed: () => _openHub(hub),
-                                child: const Text('Open'),
-                              )
-                            else
-                              OutlinedButton(
-                                onPressed: () => _join(hub),
-                                child: const Text('Join'),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                separatorBuilder: (_, _) => SizedBox(
+                  height: Responsive.valueFor<double>(
+                    context,
+                    compact: 8,
+                    mobile: 10,
+                    tablet: 10,
+                    tabletWide: 12,
+                    desktop: 12,
+                  ),
+                ),
+                itemBuilder: (context, index) =>
+                    _buildHubTile(_hubs[index]),
               ),
+      ),
+    );
+  }
+
+  Widget _buildHubTile(Hub hub) {
+    final pad = Responsive.valueFor<double>(
+      context,
+      compact: 12,
+      mobile: 14,
+      tablet: 14,
+      tabletWide: 16,
+      desktop: 16,
+    );
+    return Container(
+      padding: EdgeInsets.all(pad),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            hub.name,
+            style: Theme.of(context).textTheme.titleMedium,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(
+            height: Responsive.valueFor<double>(
+              context,
+              compact: 4,
+              mobile: 6,
+              tablet: 6,
+              tabletWide: 8,
+              desktop: 8,
+            ),
+          ),
+          Text(
+            hub.description,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 13,
+            ),
+            maxLines: Responsive.isTwoPane(context) ? 4 : 8,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(
+            height: Responsive.valueFor<double>(
+              context,
+              compact: 8,
+              mobile: 10,
+              tablet: 10,
+              tabletWide: 10,
+              desktop: 10,
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                '${hub.memberCount} members • ${hub.category}',
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
+              ),
+              if (hub.isMember)
+                FilledButton(
+                  onPressed: () => _openHub(hub),
+                  child: const Text('Open'),
+                )
+              else
+                OutlinedButton(
+                  onPressed: () => _join(hub),
+                  child: const Text('Join'),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
