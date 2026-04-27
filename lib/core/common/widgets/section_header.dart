@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 
 /// A reusable two-line section header: a small uppercase label + a large title.
 /// Used consistently across profile, schedule, wallet, and other pages.
@@ -25,41 +26,72 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedTitleSize = Responsive.valueFor<double>(
+      context,
+      compact: (titleFontSize - 4).clamp(16, titleFontSize),
+      mobile: titleFontSize,
+      tablet: titleFontSize + 2,
+      tabletWide: titleFontSize + 2,
+      desktop: titleFontSize + 4,
+    );
+    final actionSize = Responsive.valueFor<double>(
+      context,
+      compact: 12,
+      mobile: 13,
+      tablet: 14,
+      tabletWide: 14,
+      desktop: 15,
+    );
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: labelColor,
-                letterSpacing: 0.5,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: Responsive.valueFor<double>(
+                    context,
+                    compact: 9,
+                    mobile: 10,
+                    tablet: 10,
+                    tabletWide: 10,
+                    desktop: 11,
+                  ),
+                  fontWeight: FontWeight.w800,
+                  color: labelColor,
+                  letterSpacing: 0.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: GoogleFonts.outfit(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.w700,
-                color: titleColor,
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  fontSize: resolvedTitleSize,
+                  fontWeight: FontWeight.w700,
+                  color: titleColor,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         if (actionLabel != null)
-          GestureDetector(
-            onTap: onActionTap,
-            child: Text(
-              actionLabel!,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF0B6A7A),
+          Flexible(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: onActionTap,
+                child: Text(
+                  actionLabel!,
+                  textAlign: TextAlign.end,
+                  style: GoogleFonts.inter(
+                    fontSize: actionSize,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0B6A7A),
+                  ),
+                ),
               ),
             ),
           ),
