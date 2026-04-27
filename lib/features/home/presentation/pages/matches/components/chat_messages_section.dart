@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/presentation/cubits/matches_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/chat/chat_page.dart';
 import 'conversation_item.dart';
@@ -18,52 +19,79 @@ class ChatMessagesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final top = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 24,
+    );
+
+    Widget itemBuilder(BuildContext ctx, int index) {
+      final conv = matches[index];
+      final user = conv.user;
+      return ConversationItem(
+        key: ValueKey('conv_${user.id}'),
+        userName: user.name,
+        userImageUrl: user.imageUrl,
+        lastMessage: conv.lastMessage ?? "Start your skill exchange...",
+        timestamp: _formatTimestamp(conv.lastMessageTime),
+        skillTag: user.teaching?.name ?? 'Expert',
+        isOnline: onlineStatuses[user.id] ?? false,
+        hasUnread: conv.hasUnread,
+        isPaidPending: conv.status == 'pending',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(
+                userName: user.name,
+                userImageUrl: user.imageUrl,
+                userTitle: user.teaching?.name ?? 'Expert',
+                matchId: conv.matchId ?? '',
+                userId: user.id,
+                currentUserId: currentUserId,
+                status: conv.status,
+                payerId: conv.payerId,
+                isOnline: onlineStatuses[user.id] ?? false,
+              ),
+            ),
+          );
+          if (context.mounted) {
+            context.read<MatchesCubit>().fetchMatches();
+          }
+        },
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
-        ListView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          itemCount: matches.length,
-          itemBuilder: (context, index) {
-            final conv = matches[index];
-            final user = conv.user;
-            return ConversationItem(
-              key: ValueKey('conv_${user.id}'),
-              userName: user.name,
-              userImageUrl: user.imageUrl,
-              lastMessage: conv.lastMessage ?? "Start your skill exchange...",
-              timestamp: _formatTimestamp(conv.lastMessageTime),
-              skillTag: user.teaching?.name ?? 'Expert',
-              isOnline: onlineStatuses[user.id] ?? false,
-              hasUnread: conv.hasUnread,
-              isPaidPending: conv.status == 'pending',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatPage(
-                      userName: user.name,
-                      userImageUrl: user.imageUrl,
-                      userTitle: user.teaching?.name ?? 'Expert',
-                      matchId: conv.matchId ?? '',
-                      userId: user.id,
-                      currentUserId: currentUserId,
-                      status: conv.status,
-                      payerId: conv.payerId,
-                      isOnline: onlineStatuses[user.id] ?? false,
-                    ),
-                  ),
-                );
-                if (context.mounted) {
-                  context.read<MatchesCubit>().fetchMatches();
-                }
-              },
-            );
-          },
-        ),
+        SizedBox(height: top),
+        if (Responsive.isTwoPane(context))
+          GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.85,
+            ),
+            itemCount: matches.length,
+            itemBuilder: itemBuilder,
+          )
+        else
+          ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            itemCount: matches.length,
+            itemBuilder: itemBuilder,
+          ),
       ],
     );
   }

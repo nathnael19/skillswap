@@ -10,6 +10,7 @@ import 'components/avatar_header.dart';
 import 'components/rating_stars_card.dart';
 import 'components/endorsements_section.dart';
 import 'components/review_input.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class ReviewSessionPage extends StatefulWidget {
@@ -153,54 +154,247 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          children: [
-            const SizedBox(height: 32),
-            AvatarHeader(
-              peerName: widget.peerName,
-              peerImageUrl: widget.peerImageUrl,
-            ),
-            const SizedBox(height: 48),
-            RatingStarsCard(
-              rating: _rating,
-              onRatingChanged: (val) => setState(() => _rating = val),
-            ),
-            const SizedBox(height: 40),
-            EndorsementsSection(
-              endorsementOptions: _endorsementOptions,
-              selectedEndorsements: _selectedEndorsements,
-              onToggle: (trait) {
-                setState(() {
-                  if (_selectedEndorsements.contains(trait)) {
-                    _selectedEndorsements.remove(trait);
-                  } else {
-                    _selectedEndorsements.add(trait);
-                  }
-                });
-              },
-            ),
-            const SizedBox(height: 40),
-            ReviewInput(controller: _reviewController),
-            const SizedBox(height: 40),
-            _buildSubmitButton(),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: _finishingSession
-                  ? null
-                  : () => _tryCompleteThenExit(),
-              child: Text(
-                'Skip for now',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF667085),
-                ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                ? Responsive.contentMaxWidthFor(context)
+                : double.infinity,
+          ),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                context,
+                compact: 20,
+                mobile: 28,
+                tablet: 32,
+                tabletWide: 32,
+                desktop: 36,
               ),
+              Responsive.contentHorizontalPadding(context),
+              Responsive.valueFor<double>(
+                    context,
+                    compact: 24,
+                    mobile: 32,
+                    tablet: 36,
+                    tabletWide: 40,
+                    desktop: 40,
+                  ) +
+                  MediaQuery.viewInsetsOf(context).bottom,
             ),
-            const SizedBox(height: 40),
-          ],
+            child: Responsive.isTwoPane(context)
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            AvatarHeader(
+                              peerName: widget.peerName,
+                              peerImageUrl: widget.peerImageUrl,
+                            ),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 24,
+                                mobile: 32,
+                                tablet: 40,
+                                tabletWide: 48,
+                                desktop: 48,
+                              ),
+                            ),
+                            RatingStarsCard(
+                              rating: _rating,
+                              onRatingChanged: (val) =>
+                                  setState(() => _rating = val),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: Responsive.valueFor<double>(
+                          context,
+                          compact: 16,
+                          mobile: 20,
+                          tablet: 24,
+                          tabletWide: 28,
+                          desktop: 32,
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            EndorsementsSection(
+                              endorsementOptions: _endorsementOptions,
+                              selectedEndorsements: _selectedEndorsements,
+                              onToggle: (trait) {
+                                setState(() {
+                                  if (_selectedEndorsements.contains(trait)) {
+                                    _selectedEndorsements.remove(trait);
+                                  } else {
+                                    _selectedEndorsements.add(trait);
+                                  }
+                                });
+                              },
+                            ),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 24,
+                                mobile: 32,
+                                tablet: 36,
+                                tabletWide: 40,
+                                desktop: 40,
+                              ),
+                            ),
+                            ReviewInput(controller: _reviewController),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 24,
+                                mobile: 32,
+                                tablet: 36,
+                                tabletWide: 40,
+                                desktop: 40,
+                              ),
+                            ),
+                            _buildSubmitButton(),
+                            SizedBox(
+                              height: Responsive.valueFor<double>(
+                                context,
+                                compact: 12,
+                                mobile: 16,
+                                tablet: 18,
+                                tabletWide: 20,
+                                desktop: 20,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: _finishingSession
+                                  ? null
+                                  : () => _tryCompleteThenExit(),
+                              child: Text(
+                                'Skip for now',
+                                style: GoogleFonts.inter(
+                                  fontSize: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 13,
+                                    mobile: 14,
+                                    tablet: 15,
+                                    tabletWide: 15,
+                                    desktop: 16,
+                                  ),
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF667085),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      AvatarHeader(
+                        peerName: widget.peerName,
+                        peerImageUrl: widget.peerImageUrl,
+                      ),
+                      SizedBox(
+                        height: Responsive.valueFor<double>(
+                          context,
+                          compact: 28,
+                          mobile: 36,
+                          tablet: 42,
+                          tabletWide: 48,
+                          desktop: 48,
+                        ),
+                      ),
+                      RatingStarsCard(
+                        rating: _rating,
+                        onRatingChanged: (val) => setState(() => _rating = val),
+                      ),
+                      SizedBox(
+                        height: Responsive.valueFor<double>(
+                          context,
+                          compact: 28,
+                          mobile: 32,
+                          tablet: 36,
+                          tabletWide: 40,
+                          desktop: 40,
+                        ),
+                      ),
+                      EndorsementsSection(
+                        endorsementOptions: _endorsementOptions,
+                        selectedEndorsements: _selectedEndorsements,
+                        onToggle: (trait) {
+                          setState(() {
+                            if (_selectedEndorsements.contains(trait)) {
+                              _selectedEndorsements.remove(trait);
+                            } else {
+                              _selectedEndorsements.add(trait);
+                            }
+                          });
+                        },
+                      ),
+                      SizedBox(
+                        height: Responsive.valueFor<double>(
+                          context,
+                          compact: 28,
+                          mobile: 32,
+                          tablet: 36,
+                          tabletWide: 40,
+                          desktop: 40,
+                        ),
+                      ),
+                      ReviewInput(controller: _reviewController),
+                      SizedBox(
+                        height: Responsive.valueFor<double>(
+                          context,
+                          compact: 28,
+                          mobile: 32,
+                          tablet: 36,
+                          tabletWide: 40,
+                          desktop: 40,
+                        ),
+                      ),
+                      _buildSubmitButton(),
+                      SizedBox(
+                        height: Responsive.valueFor<double>(
+                          context,
+                          compact: 12,
+                          mobile: 16,
+                          tablet: 18,
+                          tabletWide: 20,
+                          desktop: 20,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _finishingSession
+                            ? null
+                            : () => _tryCompleteThenExit(),
+                        child: Text(
+                          'Skip for now',
+                          style: GoogleFonts.inter(
+                            fontSize: Responsive.valueFor<double>(
+                              context,
+                              compact: 13,
+                              mobile: 14,
+                              tablet: 15,
+                              tabletWide: 15,
+                              desktop: 16,
+                            ),
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF667085),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
