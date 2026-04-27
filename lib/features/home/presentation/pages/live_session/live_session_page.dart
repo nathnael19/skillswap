@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_state.dart';
@@ -122,6 +123,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
             if (widget.sessionId == null) {
               return const Center(child: Text('Missing session id.'));
             }
+            final twoPane = Responsive.isTwoPane(context);
             return Column(
               children: [
                 if (state.loading) const LinearProgressIndicator(minHeight: 2),
@@ -129,30 +131,91 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
                   Container(
                     width: double.infinity,
                     color: AppColors.error.withValues(alpha: 0.2),
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(
+                      Responsive.valueFor<double>(
+                        context,
+                        compact: 6,
+                        mobile: 8,
+                        tablet: 10,
+                        tabletWide: 10,
+                        desktop: 10,
+                      ),
+                    ),
                     child: Text(state.error!, textAlign: TextAlign.center),
                   ),
                 if (state.reconnecting)
                   Container(
                     width: double.infinity,
                     color: AppColors.warning,
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(
+                      Responsive.valueFor<double>(
+                        context,
+                        compact: 6,
+                        mobile: 8,
+                        tablet: 10,
+                        tabletWide: 10,
+                        desktop: 10,
+                      ),
+                    ),
                     child: const Text('Reconnecting...', textAlign: TextAlign.center),
                   ),
                 Expanded(
-                  flex: 3,
-                  child: _buildMainStage(state),
+                  child: twoPane
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    flex: 4,
+                                    child: _buildMainStage(context, state),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: _buildParticipants(context, state),
+                                  ),
+                                  if (state.isHost && widget.sessionId != null)
+                                    _buildHostRequestPanel(context, state),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: Responsive.valueFor<double>(
+                                context,
+                                compact: 8,
+                                mobile: 10,
+                                tablet: 12,
+                                tabletWide: 14,
+                                desktop: 16,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: _buildChat(context, state),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: _buildMainStage(context, state),
+                            ),
+                            Expanded(
+                              child: _buildParticipants(context, state),
+                            ),
+                            if (state.isHost && widget.sessionId != null)
+                              _buildHostRequestPanel(context, state),
+                            Expanded(
+                              flex: 2,
+                              child: _buildChat(context, state),
+                            ),
+                          ],
+                        ),
                 ),
-                Expanded(
-                  child: _buildParticipants(state),
-                ),
-                if (state.isHost && widget.sessionId != null)
-                  _buildHostRequestPanel(state),
-                Expanded(
-                  flex: 2,
-                  child: _buildChat(state),
-                ),
-                _buildControls(state),
+                _buildControls(context, state),
               ],
             );
           },
@@ -161,10 +224,18 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     );
   }
 
-  Widget _buildMainStage(LiveSessionState state) {
+  Widget _buildMainStage(BuildContext context, LiveSessionState state) {
+    final edge = Responsive.valueFor<double>(
+      context,
+      compact: 8,
+      mobile: 10,
+      tablet: 12,
+      tabletWide: 12,
+      desktop: 14,
+    );
     if (state.peers.isEmpty) {
       return Container(
-        margin: const EdgeInsets.all(12),
+        margin: EdgeInsets.all(edge),
         decoration: BoxDecoration(
           color: AppColors.overlay10,
           borderRadius: BorderRadius.circular(16),
@@ -184,7 +255,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     );
     final hostTrack = state.videoTracksByPeerId[hostPeer.peerId];
     return Container(
-      margin: const EdgeInsets.all(12),
+      margin: EdgeInsets.all(edge),
       decoration: BoxDecoration(
         color: AppColors.overlay10,
         borderRadius: BorderRadius.circular(16),
@@ -202,7 +273,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     );
   }
 
-  Widget _buildParticipants(LiveSessionState state) {
+  Widget _buildParticipants(BuildContext context, LiveSessionState state) {
     final activeSpeakerIds = state.speakers.map((s) => s.peer.peerId).toSet();
     final sortedPeers = [...state.peers]
       ..sort((a, b) {
@@ -213,15 +284,40 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
       });
     final visiblePeers = sortedPeers.take(8).toList();
 
+    final tileW = Responsive.valueFor<double>(
+      context,
+      compact: 108,
+      mobile: 120,
+      tablet: 132,
+      tabletWide: 140,
+      desktop: 148,
+    );
+    final hGap = Responsive.valueFor<double>(
+      context,
+      compact: 4,
+      mobile: 6,
+      tablet: 6,
+      tabletWide: 8,
+      desktop: 8,
+    );
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: visiblePeers.length,
       itemBuilder: (context, index) {
         final peer = visiblePeers[index];
         return Container(
-          width: 140,
-          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-          padding: const EdgeInsets.all(10),
+          width: tileW,
+          margin: EdgeInsets.symmetric(horizontal: hGap, vertical: 8),
+          padding: EdgeInsets.all(
+            Responsive.valueFor<double>(
+              context,
+              compact: 8,
+              mobile: 9,
+              tablet: 10,
+              tabletWide: 10,
+              desktop: 10,
+            ),
+          ),
           decoration: BoxDecoration(
             color: AppColors.overlay05,
             borderRadius: BorderRadius.circular(12),
@@ -248,7 +344,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     );
   }
 
-  Widget _buildHostRequestPanel(LiveSessionState state) {
+  Widget _buildHostRequestPanel(BuildContext context, LiveSessionState state) {
     final pending = state.participantSignals
         .where((signal) => signal.requestToSpeak)
         .toList();
@@ -257,7 +353,19 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     return Container(
       width: double.infinity,
       color: AppColors.overlay05,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.contentHorizontalPadding(context)
+            .clamp(8.0, 20.0)
+            .toDouble(),
+        vertical: Responsive.valueFor<double>(
+          context,
+          compact: 6,
+          mobile: 8,
+          tablet: 8,
+          tabletWide: 8,
+          desktop: 8,
+        ),
+      ),
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -274,7 +382,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     );
   }
 
-  Widget _buildChat(LiveSessionState state) {
+  Widget _buildChat(BuildContext context, LiveSessionState state) {
     return Column(
       children: [
         Expanded(
@@ -291,7 +399,16 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: EdgeInsets.fromLTRB(
+            Responsive.contentHorizontalPadding(context)
+                .clamp(8.0, 16.0)
+                .toDouble(),
+            8,
+            Responsive.contentHorizontalPadding(context)
+                .clamp(8.0, 16.0)
+                .toDouble(),
+            8 + MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -318,10 +435,13 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
     );
   }
 
-  Widget _buildControls(LiveSessionState state) {
+  Widget _buildControls(BuildContext context, LiveSessionState state) {
+    final h = Responsive.contentHorizontalPadding(context)
+        .clamp(10.0, 20.0)
+        .toDouble();
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+        padding: EdgeInsets.fromLTRB(h, 6, h, 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
