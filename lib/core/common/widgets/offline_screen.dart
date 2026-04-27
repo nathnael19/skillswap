@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class OfflineScreen extends StatelessWidget {
@@ -16,9 +17,43 @@ class OfflineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hPad = Responsive.contentHorizontalPadding(context);
+    final vPad = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 20,
+      tablet: 22,
+      tabletWide: 24,
+      desktop: 24,
+    );
+    final iconSize = Responsive.valueFor<double>(
+      context,
+      compact: 52,
+      mobile: 58,
+      tablet: 62,
+      tabletWide: 64,
+      desktop: 64,
+    );
+    final titleSize = Responsive.valueFor<double>(
+      context,
+      compact: 20,
+      mobile: 22,
+      tablet: 24,
+      tabletWide: 24,
+      desktop: 26,
+    );
+    final bodySize = Responsive.valueFor<double>(
+      context,
+      compact: 14,
+      mobile: 15,
+      tablet: 16,
+      tabletWide: 16,
+      desktop: 17,
+    );
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
+        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -57,7 +92,14 @@ class OfflineScreen extends StatelessWidget {
                 ),
               ),
             Container(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(Responsive.valueFor<double>(
+                context,
+                compact: 24,
+                mobile: 28,
+                tablet: 30,
+                tabletWide: 32,
+                desktop: 32,
+              )),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
@@ -65,31 +107,31 @@ class OfflineScreen extends StatelessWidget {
               child: Icon(
                 Icons.wifi_off_rounded,
                 color: AppColors.overlay40,
-                size: 64,
+                size: iconSize,
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: Responsive.valueFor<double>(context, compact: 24, mobile: 28, tablet: 30, tabletWide: 32, desktop: 32)),
             Text(
               "You're offline",
               style: GoogleFonts.dmSans(
-                fontSize: 24,
+                fontSize: titleSize,
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimary,
                 letterSpacing: 1.0,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: Responsive.valueFor<double>(context, compact: 12, mobile: 14, tablet: 16, tabletWide: 16, desktop: 16)),
             Text(
               message ??
                   "This page needs internet to load latest updates. Check your connection and try again.",
               textAlign: TextAlign.center,
               style: GoogleFonts.dmSans(
-                fontSize: 16,
+                fontSize: bodySize,
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: Responsive.valueFor<double>(context, compact: 28, mobile: 32, tablet: 36, tabletWide: 40, desktop: 40)),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
@@ -99,9 +141,23 @@ class OfflineScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(color: AppColors.overlay10),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 48,
-                  vertical: 18,
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.valueFor<double>(
+                    context,
+                    compact: 32,
+                    mobile: 40,
+                    tablet: 44,
+                    tabletWide: 48,
+                    desktop: 48,
+                  ),
+                  vertical: Responsive.valueFor<double>(
+                    context,
+                    compact: 14,
+                    mobile: 16,
+                    tablet: 17,
+                    tabletWide: 18,
+                    desktop: 18,
+                  ),
                 ),
                 elevation: 0,
               ),
@@ -109,7 +165,7 @@ class OfflineScreen extends StatelessWidget {
                 'Try Again',
                 style: GoogleFonts.dmSans(
                   fontWeight: FontWeight.w700,
-                  fontSize: 16,
+                  fontSize: bodySize,
                 ),
               ),
             ),
