@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class LiveSessionControls extends StatelessWidget {
@@ -23,15 +24,52 @@ class LiveSessionControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inset = MediaQuery.paddingOf(context).bottom;
+    final side = Responsive.contentHorizontalPadding(context)
+        .clamp(12.0, 28.0)
+        .toDouble();
+    final bottom = Responsive.valueFor<double>(
+          context,
+          compact: 20,
+          mobile: 28,
+          tablet: 32,
+          tabletWide: 36,
+          desktop: 40,
+        ) +
+        inset;
+    final barH = Responsive.valueFor<double>(
+      context,
+      compact: 72,
+      mobile: 80,
+      tablet: 84,
+      tabletWide: 88,
+      desktop: 92,
+    );
+    final btn = Responsive.valueFor<double>(
+      context,
+      compact: 46,
+      mobile: 50,
+      tablet: 52,
+      tabletWide: 52,
+      desktop: 56,
+    );
+    final iconSz = Responsive.valueFor<double>(
+      context,
+      compact: 22,
+      mobile: 24,
+      tablet: 25,
+      tabletWide: 26,
+      desktop: 28,
+    );
     return Positioned(
-      bottom: 40,
-      left: 20,
-      right: 20,
+      bottom: bottom,
+      left: side,
+      right: side,
       child: Container(
-        height: 88,
+        height: barH,
         decoration: BoxDecoration(
           color: AppColors.overlay08,
-          borderRadius: BorderRadius.circular(44),
+          borderRadius: BorderRadius.circular(barH * 0.5),
           border: Border.all(color: AppColors.overlay10),
           boxShadow: [
             BoxShadow(
@@ -41,7 +79,7 @@ class LiveSessionControls extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(44),
+          borderRadius: BorderRadius.circular(barH * 0.5),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Row(
@@ -52,6 +90,8 @@ class LiveSessionControls extends StatelessWidget {
                   isActive: !isMuted,
                   onTap: onToggleMic,
                   accentColor: accentColor,
+                  size: btn,
+                  iconSize: iconSz,
                 ),
                 _buildControlButton(
                   isVideoEnabled
@@ -60,8 +100,10 @@ class LiveSessionControls extends StatelessWidget {
                   isActive: isVideoEnabled,
                   onTap: onToggleVideo,
                   accentColor: accentColor,
+                  size: btn,
+                  iconSize: iconSz,
                 ),
-                _buildEndCallButton(context),
+                _buildEndCallButton(context, btn, iconSz),
               ],
             ),
           ),
@@ -75,13 +117,15 @@ class LiveSessionControls extends StatelessWidget {
     bool isActive = false,
     VoidCallback? onTap,
     required Color accentColor,
+    required double size,
+    required double iconSize,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: 52,
-        height: 52,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           color: isActive
               ? accentColor.withValues(alpha: 0.1)
@@ -94,13 +138,17 @@ class LiveSessionControls extends StatelessWidget {
         child: Icon(
           icon,
           color: isActive ? accentColor : AppColors.textPrimary,
-          size: 26,
+          size: iconSize,
         ),
       ),
     );
   }
 
-  Widget _buildEndCallButton(BuildContext context) {
+  Widget _buildEndCallButton(
+    BuildContext context,
+    double size,
+    double iconSize,
+  ) {
     return GestureDetector(
       onTap: () async {
         final confirm = await showDialog<bool>(
@@ -139,16 +187,16 @@ class LiveSessionControls extends StatelessWidget {
         }
       },
       child: Container(
-        width: 52,
-        height: 52,
+        width: size,
+        height: size,
         decoration: const BoxDecoration(
           color: AppColors.error,
           shape: BoxShape.circle,
         ),
-        child: const Icon(
+        child: Icon(
           Icons.call_end_rounded,
           color: AppColors.textPrimary,
-          size: 26,
+          size: iconSize,
         ),
       ),
     );

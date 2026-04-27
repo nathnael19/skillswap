@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 
@@ -31,11 +32,36 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
+    final avatar = Responsive.valueFor<double>(
+      context,
+      compact: 46,
+      mobile: 50,
+      tablet: 52,
+      tabletWide: 54,
+      desktop: 56,
+    );
+    final pad = Responsive.valueFor<double>(
+      context,
+      compact: 14,
+      mobile: 16,
+      tablet: 17,
+      tabletWide: 18,
+      desktop: 18,
+    );
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: EdgeInsets.only(
+          bottom: Responsive.valueFor<double>(
+            context,
+            compact: 8,
+            mobile: 10,
+            tablet: 11,
+            tabletWide: 12,
+            desktop: 12,
+          ),
+        ),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(28),
@@ -46,7 +72,7 @@ class ConversationItem extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(pad),
             child: Row(
               children: [
                 // Premium Avatar
@@ -64,22 +90,22 @@ class ConversationItem extends StatelessWidget {
                         child: userImageUrl.startsWith('assets')
                             ? Image.asset(
                                 userImageUrl,
-                                width: 52,
-                                height: 52,
+                                width: avatar,
+                                height: avatar,
                                 fit: BoxFit.cover,
                               )
                             : CachedNetworkImage(
                                 imageUrl: userImageUrl.startsWith('/')
                                     ? '${ApiConstants.mediaBaseUrl}$userImageUrl'
                                     : userImageUrl,
-                                width: 52,
-                                height: 52,
+                                width: avatar,
+                                height: avatar,
                                 fit: BoxFit.cover,
                                 errorWidget: (context, error, stackTrace) =>
                                     Image.asset(
                                       'assets/home.png',
-                                      width: 52,
-                                      height: 52,
+                                      width: avatar,
+                                      height: avatar,
                                       fit: BoxFit.cover,
                                     ),
                               ),
