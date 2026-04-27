@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 import 'package:skillswap/core/constants/app_constants.dart';
@@ -21,8 +22,42 @@ class ExpertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hMargin = Responsive.contentHorizontalPadding(context);
+    final innerPad = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 18,
+      tablet: 19,
+      tabletWide: 20,
+      desktop: 22,
+    );
+    final avatar = Responsive.valueFor<double>(
+      context,
+      compact: 60,
+      mobile: 66,
+      tablet: 72,
+      tabletWide: 76,
+      desktop: 80,
+    );
+    final nameSize = Responsive.valueFor<double>(
+      context,
+      compact: 16,
+      mobile: 17,
+      tablet: 18,
+      tabletWide: 19,
+      desktop: 20,
+    );
+    final bioSize = Responsive.valueFor<double>(
+      context,
+      compact: 12,
+      mobile: 12,
+      tablet: 13,
+      tabletWide: 13,
+      desktop: 14,
+    );
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: hMargin, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.overlay03,
         borderRadius: BorderRadius.circular(28),
@@ -32,7 +67,7 @@ class ExpertCard extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(innerPad),
           child: Column(
             children: [
               Row(
@@ -54,20 +89,20 @@ class ExpertCard extends StatelessWidget {
                               imageUrl: user.imageUrl.startsWith('/')
                                   ? '${ApiConstants.mediaBaseUrl}${user.imageUrl}'
                                   : user.imageUrl,
-                              width: 72,
-                              height: 72,
+                              width: avatar,
+                              height: avatar,
                               fit: BoxFit.cover,
                               errorWidget: (_, _, _) => Image.asset(
                                 'assets/home.png',
-                                width: 72,
-                                height: 72,
+                                width: avatar,
+                                height: avatar,
                                 fit: BoxFit.cover,
                               ),
                             )
                           : Image.asset(
                               'assets/home.png',
-                              width: 72,
-                              height: 72,
+                              width: avatar,
+                              height: avatar,
                               fit: BoxFit.cover,
                             ),
                     ),
@@ -86,7 +121,7 @@ class ExpertCard extends StatelessWidget {
                               child: Text(
                                 user.name,
                                 style: GoogleFonts.dmSans(
-                                  fontSize: 18,
+                                  fontSize: nameSize,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                   letterSpacing: -0.5,
@@ -113,7 +148,7 @@ class ExpertCard extends StatelessWidget {
                               ? AppConstants.defaultBio
                               : user.bio,
                           style: GoogleFonts.dmSans(
-                            fontSize: 13,
+                            fontSize: bioSize,
                             fontWeight: FontWeight.w400,
                             color: AppColors.overlay50,
                             height: 1.5,
@@ -129,9 +164,13 @@ class ExpertCard extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Actions
-              Row(
-                children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final narrow = constraints.maxWidth < 340;
+                  return Row(
+                    children: [
                   Expanded(
+                    flex: narrow ? 1 : 3,
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
@@ -154,7 +193,16 @@ class ExpertCard extends StatelessWidget {
                           backgroundColor: Colors.transparent,
                           foregroundColor: AppColors.textPrimary,
                           shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                            vertical: Responsive.valueFor<double>(
+                              context,
+                              compact: 12,
+                              mobile: 13,
+                              tablet: 14,
+                              tabletWide: 14,
+                              desktop: 15,
+                            ),
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -163,16 +211,25 @@ class ExpertCard extends StatelessWidget {
                           'Request Match',
                           style: GoogleFonts.dmSans(
                             fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontSize: Responsive.valueFor<double>(
+                              context,
+                              compact: 12,
+                              mobile: 13,
+                              tablet: 14,
+                              tabletWide: 14,
+                              desktop: 15,
+                            ),
                             letterSpacing: 0.2,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  _buildLikeButton(),
-                ],
+                  SizedBox(width: Responsive.valueFor<double>(context, compact: 8, mobile: 10, tablet: 12, tabletWide: 12, desktop: 12)),
+                  _buildLikeButton(context),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -207,7 +264,15 @@ class ExpertCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLikeButton() {
+  Widget _buildLikeButton(BuildContext context) {
+    final likeIcon = Responsive.valueFor<double>(
+      context,
+      compact: 18,
+      mobile: 19,
+      tablet: 20,
+      tabletWide: 20,
+      desktop: 22,
+    );
     return Container(
       decoration: BoxDecoration(
         color: AppColors.overlay05,
@@ -216,12 +281,21 @@ class ExpertCard extends StatelessWidget {
       ),
       child: IconButton(
         onPressed: onLike,
-        icon: const Icon(
+        icon: Icon(
           Icons.favorite_outline_rounded,
           color: AppColors.textPrimary,
-          size: 20,
+          size: likeIcon,
         ),
-        style: IconButton.styleFrom(padding: const EdgeInsets.all(12)),
+        style: IconButton.styleFrom(
+          padding: EdgeInsets.all(Responsive.valueFor<double>(
+            context,
+            compact: 8,
+            mobile: 10,
+            tablet: 11,
+            tabletWide: 12,
+            desktop: 12,
+          )),
+        ),
       ),
     );
   }

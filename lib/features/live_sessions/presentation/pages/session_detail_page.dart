@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/common/widgets/offline_screen.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
 import 'package:skillswap/features/live_sessions/data/models/live_session_model.dart';
@@ -206,10 +207,22 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
                 ],
               ),
               body: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.contentHorizontalPadding(context),
+                  vertical: 20,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: Responsive.contentMaxWidthFor(context),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                     // Header Card
                     Container(
                       width: double.infinity,
@@ -591,6 +604,10 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
                           ),
                         ),
                       ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
