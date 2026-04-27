@@ -6,6 +6,7 @@ import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'components/add_project_dialog.dart';
 import 'components/empty_portfolio_state.dart';
 import 'components/portfolio_project_tile.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class EditPortfolioPage extends StatefulWidget {
@@ -141,8 +142,44 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
               Expanded(
                 child: _portfolio.isEmpty
                     ? const EmptyPortfolioState()
+                    : Responsive.isTwoPane(context)
+                    ? GridView.builder(
+                        padding: EdgeInsets.all(
+                          Responsive.contentHorizontalPadding(context),
+                        ),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: Responsive.valueFor<double>(
+                            context,
+                            compact: 12,
+                            mobile: 16,
+                            tablet: 18,
+                            tabletWide: 20,
+                            desktop: 20,
+                          ),
+                          crossAxisSpacing: Responsive.valueFor<double>(
+                            context,
+                            compact: 12,
+                            mobile: 16,
+                            tablet: 18,
+                            tabletWide: 20,
+                            desktop: 20,
+                          ),
+                          childAspectRatio: 0.72,
+                        ),
+                        itemCount: _portfolio.length,
+                        itemBuilder: (context, index) {
+                          return PortfolioProjectTile(
+                            item: _portfolio[index],
+                            onDelete: () => _removeProject(index),
+                          );
+                        },
+                      )
                     : ListView.builder(
-                        padding: const EdgeInsets.all(24),
+                        padding: EdgeInsets.all(
+                          Responsive.contentHorizontalPadding(context),
+                        ),
                         itemCount: _portfolio.length,
                         itemBuilder: (context, index) {
                           return PortfolioProjectTile(
@@ -152,7 +189,7 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
                         },
                       ),
               ),
-              _buildAddButton(),
+              _buildAddButton(context),
             ],
           ),
         );
@@ -160,12 +197,19 @@ class _EditPortfolioPageState extends State<EditPortfolioPage> {
     );
   }
 
-  Widget _buildAddButton() {
+  Widget _buildAddButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(Responsive.contentHorizontalPadding(context)),
       child: SizedBox(
         width: double.infinity,
-        height: 60,
+        height: Responsive.valueFor<double>(
+          context,
+          compact: 52,
+          mobile: 56,
+          tablet: 58,
+          tabletWide: 60,
+          desktop: 60,
+        ),
         child: ElevatedButton.icon(
           onPressed: _showAddProjectDialog,
           icon: const Icon(Icons.add_rounded),

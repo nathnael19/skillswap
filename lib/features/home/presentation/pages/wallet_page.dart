@@ -16,6 +16,7 @@ import 'package:skillswap/core/common/widgets/guest_wall.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class WalletPage extends StatelessWidget {
@@ -152,30 +153,78 @@ class WalletPage extends StatelessWidget {
                     }
 
                     if (state is CreditsLoaded) {
+                      final topPad = Responsive.valueFor<double>(
+                        context,
+                        compact: 88,
+                        mobile: 100,
+                        tablet: 108,
+                        tabletWide: 112,
+                        desktop: 120,
+                      );
+                      final bottomPad = Responsive.valueFor<double>(
+                        context,
+                        compact: 72,
+                        mobile: 88,
+                        tablet: 92,
+                        tabletWide: 100,
+                        desktop: 100,
+                      );
+                      final balance = ConnectivityGuard(
+                        child: BalanceHeader(
+                          balance: state.balance,
+                          escrowBalance: state.escrowBalance,
+                          progressCapCredits: AppConstants.walletProgressCap,
+                          onBuyCredits: () => _openCheckout(context),
+                        ),
+                      );
+                      final tx = RecentTransactionsSection(
+                        transactions: state.transactions,
+                      );
+
+                      Widget scrollBody(Widget child) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        child: child,
+                      );
+
+                      if (Responsive.isTwoPane(context)) {
+                        return RefreshIndicator(
+                          onRefresh: () => context.read<CreditsCubit>().fetchCredits(),
+                          color: accentColor,
+                          backgroundColor: AppColors.surface,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 5,
+                                  child: scrollBody(balance),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  flex: 7,
+                                  child: scrollBody(tx),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
                       return RefreshIndicator(
                         onRefresh: () => context.read<CreditsCubit>().fetchCredits(),
                         color: accentColor,
                         backgroundColor: AppColors.surface,
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(
-                            parent: BouncingScrollPhysics(),
-                          ),
-                          child: Column(
+                        child: scrollBody(
+                          Column(
                             children: [
-                              const SizedBox(height: 120),
-                              ConnectivityGuard(
-                                child: BalanceHeader(
-                                  balance: state.balance,
-                                  escrowBalance: state.escrowBalance,
-                                  progressCapCredits: AppConstants.walletProgressCap,
-                                  onBuyCredits: () => _openCheckout(context),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              RecentTransactionsSection(
-                                transactions: state.transactions,
-                              ),
-                              const SizedBox(height: 100),
+                              SizedBox(height: topPad),
+                              balance,
+                              SizedBox(height: Responsive.valueFor<double>(context, compact: 20, mobile: 22, tablet: 24, tabletWide: 24, desktop: 24)),
+                              tx,
+                              SizedBox(height: bottomPad),
                             ],
                           ),
                         ),
