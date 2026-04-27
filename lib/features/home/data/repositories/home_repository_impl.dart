@@ -9,12 +9,15 @@ import 'package:skillswap/features/home/domain/models/message_model.dart';
 import 'package:skillswap/features/home/domain/models/review_model.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/core/storage/storage_service.dart';
+import 'dart:io';
 
 class HomeRepositoryImpl implements HomeRepository {
   final ApiClient _apiClient;
   final FirebaseDatabase _db;
+  final StorageService _storageService;
 
-  HomeRepositoryImpl(this._apiClient, this._db);
+  HomeRepositoryImpl(this._apiClient, this._db, this._storageService);
 
   @override
   Stream<Message> getGlobalMessageStream() {
@@ -465,21 +468,15 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<Either<Failure, String>> uploadImage(String filePath) async {
     try {
-      final response = await _apiClient.upload(
-        ApiConstants.uploadImage,
-        filePath,
+      final file = File(filePath);
+      final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      
+      final url = await _storageService.uploadFile(
+        path: fileName,
+        file: file,
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return right(data['url']);
-      }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to upload image',
-        ),
-      );
+      
+      return right(url);
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
