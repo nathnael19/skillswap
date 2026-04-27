@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillswap/core/common/widgets/app_button.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:skillswap/features/auth/presentation/cubits/auth_state.dart';
@@ -36,7 +37,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.textPrimary,
+            size: Responsive.valueFor<double>(
+              context,
+              compact: 18,
+              mobile: 19,
+              tablet: 20,
+              tabletWide: 20,
+              desktop: 22,
+            ),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -61,6 +73,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
+          final screenW = MediaQuery.sizeOf(context).width;
+          final glowSize = (screenW * 0.95).clamp(260.0, 520.0);
+          final gap = Responsive.valueFor<double>(
+            context,
+            compact: 32,
+            mobile: 40,
+            tablet: 44,
+            tabletWide: 48,
+            desktop: 48,
+          );
+          final formMaxW = Responsive.valueFor<double>(
+            context,
+            compact: 400,
+            mobile: 480,
+            tablet: 520,
+            tabletWide: 560,
+            desktop: 600,
+          );
 
           return AbsorbPointer(
             absorbing: isLoading,
@@ -68,11 +98,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               children: [
                 // ambient glow
                 Positioned(
-                  top: -150,
-                  right: -50,
+                  top: -glowSize * 0.35,
+                  right: -glowSize * 0.15,
                   child: Container(
-                    width: 400,
-                    height: 400,
+                    width: glowSize,
+                    height: glowSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
@@ -87,44 +117,51 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SafeArea(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Form(
-                      key: formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 20),
-                          Text(
-                            'Forgot Password?',
-                            style: AppTextStyles.h2,
+                    padding: Responsive.screenPadding(context),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: formMaxW),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: Responsive.valueFor<double>(context, compact: 12, mobile: 16, tablet: 18, tabletWide: 20, desktop: 20)),
+                              Text(
+                                'Forgot Password?',
+                                style: AppTextStyles.h2,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Enter your email address and we\'ll send you a link to reset your password.',
+                                style: AppTextStyles.bodyLarge.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              SizedBox(height: gap),
+                              AuthTextField(
+                                label: 'Email Address',
+                                controller: emailController,
+                                hint: 'master@skillswap.com',
+                                icon: Icons.mail_outline_rounded,
+                              ),
+                              SizedBox(height: gap),
+                              AppButton(
+                                label: 'Send Reset Link',
+                                isLoading: isLoading,
+                                onTap: () {
+                                  if (formKey.currentState!.validate()) {
+                                    context
+                                        .read<AuthCubit>()
+                                        .sendPasswordResetEmail(
+                                          emailController.text.trim(),
+                                        );
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Enter your email address and we\'ll send you a link to reset your password.',
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 48),
-                          AuthTextField(
-                            label: 'Email Address',
-                            controller: emailController,
-                            hint: 'master@skillswap.com',
-                            icon: Icons.mail_outline_rounded,
-                          ),
-                          const SizedBox(height: 48),
-                          AppButton(
-                            label: 'Send Reset Link',
-                            isLoading: isLoading,
-                            onTap: () {
-                              if (formKey.currentState!.validate()) {
-                                context.read<AuthCubit>().sendPasswordResetEmail(
-                                      emailController.text.trim(),
-                                    );
-                              }
-                            },
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
