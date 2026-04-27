@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 enum AppButtonVariant { primary, secondary, ghost }
@@ -55,6 +56,22 @@ class _AppButtonState extends State<AppButton>
   Widget build(BuildContext context) {
     const accentColor = AppColors.primary;
     const secondaryColor = AppColors.primaryDark;
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final resolvedHeight = widget.height
+        .clamp(
+          Responsive.valueFor<double>(
+            context,
+            compact: 52,
+            mobile: 56,
+            tablet: 60,
+            tabletWide: 64,
+            desktop: 64,
+          ),
+          72,
+        )
+        .toDouble();
+    final iconSize = (22 * textScale).clamp(18, 26).toDouble();
+    final loaderSize = (24 * textScale).clamp(20, 28).toDouble();
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -66,7 +83,7 @@ class _AppButtonState extends State<AppButton>
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
-            height: widget.height,
+            constraints: BoxConstraints(minHeight: resolvedHeight),
             width: double.infinity, // Default to full width for auth buttons
             decoration: _getDecoration(accentColor, secondaryColor),
             child: ClipRRect(
@@ -75,10 +92,10 @@ class _AppButtonState extends State<AppButton>
                 children: [
                   Center(
                     child: widget.isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
+                        ? SizedBox(
+                            height: loaderSize,
+                            width: loaderSize,
+                            child: const CircularProgressIndicator(
                               color: AppColors.textPrimary,
                               strokeWidth: 2,
                             ),
@@ -91,7 +108,7 @@ class _AppButtonState extends State<AppButton>
                                 Icon(
                                   widget.leadingIcon,
                                   color: AppColors.textPrimary,
-                                  size: 22,
+                                  size: iconSize,
                                 ),
                                 const SizedBox(width: 16),
                               ],
