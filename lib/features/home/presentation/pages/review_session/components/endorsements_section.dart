@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class EndorsementsSection extends StatelessWidget {
@@ -20,12 +19,10 @@ class EndorsementsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Skill Endorsements',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF475467),
-            letterSpacing: 0.5,
+          'SKILL ENDORSEMENTS',
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.primary,
+            letterSpacing: 1.5,
           ),
         ),
         const SizedBox(height: 16),
@@ -36,25 +33,30 @@ class EndorsementsSection extends StatelessWidget {
             bool isSelected = selectedEndorsements.contains(trait);
             return GestureDetector(
               onTap: () => onToggle(trait),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFF0B6A7A)
-                      : const Color(0xFFE4E7EC).withValues(alpha: 0.5),
+                      ? AppColors.primary
+                      : AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.borderDefault,
+                  ),
                 ),
                 child: Text(
                   trait,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: isSelected
-                        ? AppColors.textPrimary
-                        : const Color(0xFF475467),
+                        ? AppColors.background
+                        : AppColors.textPrimary,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   ),
                 ),
               ),
