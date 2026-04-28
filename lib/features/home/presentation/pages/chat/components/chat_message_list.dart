@@ -7,6 +7,7 @@ import 'message_bubble.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class ChatMessageList extends StatelessWidget {
+  static final DateFormat _messageTimeFormat = DateFormat('h:mm a');
   final ChatState state;
   final ScrollController scrollController;
   final String currentUserId;
@@ -139,7 +140,7 @@ class ChatMessageList extends StatelessWidget {
             return MessageBubble(
               text: msg.content,
               isMe: isMe,
-              time: DateFormat('h:mm a').format(msg.timestamp),
+              time: _messageTimeFormat.format(msg.timestamp),
               isRead: msg.isRead,
             );
           },
