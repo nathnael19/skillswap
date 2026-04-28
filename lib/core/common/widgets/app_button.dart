@@ -83,48 +83,39 @@ class _AppButtonState extends State<AppButton>
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
-            constraints: BoxConstraints(minHeight: resolvedHeight),
-            width: double.infinity, // Default to full width for auth buttons
+            height: resolvedHeight,
+            width: double.infinity,
+            alignment: Alignment.center,
             decoration: _getDecoration(accentColor, secondaryColor),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              child: Stack(
-                children: [
-                  Center(
-                    child: widget.isLoading
-                        ? SizedBox(
-                            height: loaderSize,
-                            width: loaderSize,
-                            child: const CircularProgressIndicator(
-                              color: AppColors.textPrimary,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (widget.leadingIcon != null) ...[
-                                Icon(
-                                  widget.leadingIcon,
-                                  color: AppColors.textPrimary,
-                                  size: iconSize,
-                                ),
-                                const SizedBox(width: 16),
-                              ],
-                              Text(
-                                widget.label,
-                                style:
-                                    widget.variant == AppButtonVariant.primary
-                                    ? AppTextStyles.buttonPrimary
-                                    : AppTextStyles.buttonSecondary,
-                              ),
-                            ],
-                          ),
+            child: widget.isLoading
+                ? SizedBox(
+                    height: loaderSize,
+                    width: loaderSize,
+                    child: const CircularProgressIndicator(
+                      color: AppColors.textPrimary,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.leadingIcon != null) ...[
+                        Icon(
+                          widget.leadingIcon,
+                          color: AppColors.textPrimary,
+                          size: iconSize,
+                        ),
+                        const SizedBox(width: 16),
+                      ],
+                      Text(
+                        widget.label,
+                        style: widget.variant == AppButtonVariant.primary
+                            ? AppTextStyles.buttonPrimary
+                            : AppTextStyles.buttonSecondary,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
           ),
         ),
       ),
