@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/theme/app_colors.dart';
+import 'package:skillswap/core/theme/app_text_styles.dart';
 
 class ReviewInput extends StatelessWidget {
   final TextEditingController controller;
@@ -12,34 +13,31 @@ class ReviewInput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'What did you learn?',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF475467),
-            letterSpacing: 0.5,
+          'WHAT DID YOU LEARN?',
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.primary,
+            letterSpacing: 1.5,
           ),
         ),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFE4E7EC).withValues(alpha: 0.5),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: TextField(
             controller: controller,
             maxLines: 4,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: const Color(0xFF101828),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textPrimary,
             ),
             decoration: InputDecoration(
               hintText:
                   'Sarah was incredibly patient while explaining the fundamentals of Figma auto-layout...',
-              hintStyle: GoogleFonts.inter(
-                fontSize: 14,
-                color: const Color(0xFF98A2B3),
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
                 height: 1.4,
               ),
               border: InputBorder.none,
