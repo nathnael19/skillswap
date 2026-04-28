@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/widgets/user_avatar.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
 class AvatarHeader extends StatelessWidget {
@@ -24,9 +24,13 @@ class AvatarHeader extends StatelessWidget {
               height: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                image: DecorationImage(
-                  image: NetworkImage(peerImageUrl),
-                  fit: BoxFit.cover,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: UserAvatar(
+                  imageUrl: peerImageUrl,
+                  radius: 50,
+                  borderRadius: BorderRadius.circular(24),
                 ),
               ),
             ),
@@ -47,22 +51,16 @@ class AvatarHeader extends StatelessWidget {
         const SizedBox(height: 20),
         Text(
           'Skill Exchange Complete',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF0B6A7A),
-            letterSpacing: 1,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.primary,
+            letterSpacing: 2,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           'Review your session\nwith $peerName',
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF101828),
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
         ),
       ],
     );
