@@ -125,64 +125,70 @@ class _SplashPageState extends State<SplashPage>
                                     MediaQuery.paddingOf(context).vertical,
                               ),
                               child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Spacer(flex: 3),
-                                  // Branding Halo
-                                  Stack(
-                                    alignment: Alignment.center,
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Container(
-                                        width: haloSize,
-                                        height: haloSize,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: RadialGradient(
-                                            colors: [
-                                              accentColor.withValues(alpha: 0.2),
-                                              primaryBgColor.withValues(alpha: 0.0),
-                                            ],
+                                      const SizedBox(height: 40),
+                                      // Branding Halo
+                                      Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            width: haloSize,
+                                            height: haloSize,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: RadialGradient(
+                                                colors: [
+                                                  accentColor.withValues(alpha: 0.2),
+                                                  primaryBgColor.withValues(alpha: 0.0),
+                                                ],
+                                              ),
+                                            ),
                                           ),
+                                          Container(
+                                            padding: EdgeInsets.all(haloSize * 0.2),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: AppColors.cardBackground,
+                                              border: Border.all(
+                                                color: AppColors.borderDefault,
+                                              ),
+                                            ),
+                                            child: Image.asset(
+                                              'assets/logo.png',
+                                              width: logoSize,
+                                              height: logoSize,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 40),
+                                      // App Name
+                                      Text(
+                                        'SKILLSWAP',
+                                        style: AppTextStyles.h3.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 8.0,
                                         ),
                                       ),
-                                      Container(
-                                        padding: EdgeInsets.all(haloSize * 0.2),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: AppColors.cardBackground,
-                                          border: Border.all(
-                                            color: AppColors.borderDefault,
+                                      const SizedBox(height: 16),
+                                      // Slogan
+                                      Text(
+                                        'LEARN • TEACH • GROW',
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: AppColors.textPrimary.withValues(
+                                            alpha: 0.25,
                                           ),
-                                        ),
-                                        child: Image.asset(
-                                          'assets/logo.png',
-                                          width: logoSize,
-                                          height: logoSize,
-                                          fit: BoxFit.contain,
+                                          letterSpacing: 2.0,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 40),
-                                  // App Name
-                                  Text(
-                                    'SKILLSWAP',
-                                    style: AppTextStyles.h3.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 8.0,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  // Slogan
-                                  Text(
-                                    'LEARN • TEACH • GROW',
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.textPrimary.withValues(
-                                        alpha: 0.25,
-                                      ),
-                                      letterSpacing: 2.0,
-                                    ),
-                                  ),
-                                  const Spacer(flex: 3),
                                   // Manifesto Footer
                                   Text(
                                     'YOUR JOURNEY STARTS HERE',
