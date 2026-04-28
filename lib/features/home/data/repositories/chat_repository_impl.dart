@@ -14,6 +14,7 @@ class ChatRepositoryImpl implements ChatRepository {
   final ApiClient _apiClient;
   final FirebaseDatabase _db;
   final LocalCacheService _localCache;
+  static const Duration _chatCacheTtl = Duration(minutes: 2);
 
   // Global stream for all incoming RTDB events (Messages)
   final StreamController<dynamic> _globalStreamController =
@@ -45,7 +46,7 @@ class ChatRepositoryImpl implements ChatRepository {
       }
       throw ServerFailure('Failed to fetch messages: ${response.body}');
     } catch (e) {
-      final cached = await _localCache.getList(cacheKey);
+      final cached = await _localCache.getList(cacheKey, maxAge: _chatCacheTtl);
       if (cached != null) {
         return right(cached.map(Message.fromMap).toList());
       }
@@ -137,7 +138,8 @@ class ChatRepositoryImpl implements ChatRepository {
 
   Future<void> _upsertCachedMessage(String matchId, Message message) async {
     final cacheKey = _cacheKey(matchId);
-    final cached = await _localCache.getList(cacheKey) ?? const [];
+    final cached =
+        await _localCache.getList(cacheKey, maxAge: _chatCacheTtl) ?? const [];
     final messages = cached.map(Message.fromMap).toList();
     final index = messages.indexWhere((item) => item.id == message.id);
     if (index == -1) {

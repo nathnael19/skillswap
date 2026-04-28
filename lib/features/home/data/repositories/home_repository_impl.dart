@@ -55,7 +55,7 @@ class HomeRepositoryImpl implements HomeRepository {
     String key,
     T Function(Map<String, dynamic>) parser,
   ) async {
-    final cached = await _localCache.getList(key);
+    final cached = await _localCache.getList(key, maxAge: _defaultTtl);
     if (cached == null) return null;
     return cached.map(parser).toList();
   }
@@ -134,6 +134,9 @@ class HomeRepositoryImpl implements HomeRepository {
     String? category,
     String? search,
   }) async {
+    final cacheKey = _cacheKey(
+      'discover_${category ?? 'all'}_${search?.trim().toLowerCase() ?? ''}',
+    );
     try {
       final queryParams = <String, String>{};
       if (category != null) queryParams['category'] = category;
@@ -146,7 +149,12 @@ class HomeRepositoryImpl implements HomeRepository {
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return right(data.map((map) => User.fromMap(map)).toList());
+        final users = data.map((map) => User.fromMap(map)).toList();
+        await _writeCachedList(
+          cacheKey,
+          users.map((user) => user.toMap()).toList(),
+        );
+        return right(users);
       }
       return left(
         ServerFailure.fromResponse(
@@ -156,6 +164,8 @@ class HomeRepositoryImpl implements HomeRepository {
         ),
       );
     } catch (e) {
+      final cached = await _readCachedList(cacheKey, User.fromMap);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
@@ -289,7 +299,7 @@ class HomeRepositoryImpl implements HomeRepository {
         fallbackMessage: 'Failed to fetch credits',
       );
     } catch (e) {
-      final cached = await _localCache.getMap(cacheKey);
+      final cached = await _localCache.getMap(cacheKey, maxAge: _defaultTtl);
       if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
@@ -456,7 +466,7 @@ class HomeRepositoryImpl implements HomeRepository {
         fallbackMessage: 'Failed to fetch user profile',
       );
     } catch (e) {
-      final cached = await _localCache.getMap(cacheKey);
+      final cached = await _localCache.getMap(cacheKey, maxAge: _defaultTtl);
       if (cached != null) {
         final user = User.fromMap(cached);
         _meCache = _CacheEntry(
@@ -494,7 +504,7 @@ class HomeRepositoryImpl implements HomeRepository {
         fallbackMessage: 'Failed to fetch user',
       );
     } catch (e) {
-      final cached = await _localCache.getMap(cacheKey);
+      final cached = await _localCache.getMap(cacheKey, maxAge: _defaultTtl);
       if (cached != null) {
         final user = User.fromMap(cached);
         _userByIdCache[userId] = _CacheEntry(
