@@ -180,6 +180,24 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> removeFcmToken(String token) async {
+    try {
+      final response = await _apiClient.put(
+        ApiConstants.updateUser,
+        body: {
+          'fcm_tokens_remove': [token],
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return right(null);
+      }
+      return left(ServerFailure('Failed to remove FCM token'));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> deleteAccount() async {
     try {
       final response = await _apiClient.delete(ApiConstants.deleteUser);
