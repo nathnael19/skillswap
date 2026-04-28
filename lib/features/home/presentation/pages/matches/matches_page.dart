@@ -85,6 +85,11 @@ class MatchesPage extends StatelessWidget {
                             if (matches.isEmpty) {
                               return const MatchesEmptyState();
                             }
+                            final section = ChatMessagesSection(
+                              matches: matches,
+                              currentUserId: authState.uid,
+                              onlineStatuses: state.onlineStatuses,
+                            );
 
                             return RefreshIndicator(
                               onRefresh: () =>
@@ -94,13 +99,7 @@ class MatchesPage extends StatelessWidget {
                               child: CustomScrollView(
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 slivers: [
-                                  SliverToBoxAdapter(
-                                    child: ChatMessagesSection(
-                                      matches: matches,
-                                      currentUserId: authState.uid,
-                                      onlineStatuses: state.onlineStatuses,
-                                    ),
-                                  ),
+                                  ...section.buildSlivers(context),
                                   SliverToBoxAdapter(
                                     child: SizedBox(
                                       height: Responsive.valueFor<double>(
