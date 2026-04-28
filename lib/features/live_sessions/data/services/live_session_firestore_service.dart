@@ -5,12 +5,14 @@ import 'package:skillswap/features/live_sessions/data/models/live_session_model.
 class SessionChatMessage {
   final String id;
   final String senderId;
+  final String senderName;
   final String text;
   final DateTime createdAt;
 
   const SessionChatMessage({
     required this.id,
     required this.senderId,
+    required this.senderName,
     required this.text,
     required this.createdAt,
   });
@@ -122,6 +124,7 @@ class LiveSessionFirestoreService {
             return SessionChatMessage(
               id: doc.id,
               senderId: data['senderId'] as String? ?? '',
+              senderName: data['senderName'] as String? ?? '',
               text: data['text'] as String? ?? '',
               createdAt:
                   (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -135,6 +138,7 @@ class LiveSessionFirestoreService {
     if (clean.isEmpty) return;
     await _sessions.doc(sessionId).collection('chat').add({
       'senderId': _uid,
+      'senderName': _auth.currentUser?.displayName ?? '',
       'text': clean,
       'createdAt': FieldValue.serverTimestamp(),
     });
