@@ -86,6 +86,12 @@ class _SessionListView extends StatelessWidget {
                 }
 
                 final sessions = snapshot.data ?? [];
+                final scheduledOneOnOne = sessions
+                    .where((s) => s.type == 'one-on-one' && s.status == 'scheduled')
+                    .toList();
+                final remainingSessions = sessions
+                    .where((s) => !(s.type == 'one-on-one' && s.status == 'scheduled'))
+                    .toList();
                 final isTwoPane = Responsive.isTwoPane(context);
                 
                 if (sessions.isEmpty && connectivity == ConnectivityStatus.disconnected) {
@@ -119,26 +125,37 @@ class _SessionListView extends StatelessWidget {
                   );
                 }
 
-                if (isTwoPane) {
-                  return GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.9,
-                    ),
-                    itemCount: sessions.length,
-                    itemBuilder: (context, index) => _SessionTile(
-                      session: sessions[index],
-                    ),
-                  );
-                }
-                return ListView.separated(
+                return ListView(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-                  itemCount: sessions.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) => _SessionTile(session: sessions[index]),
+                  children: [
+                    if (scheduledOneOnOne.isNotEmpty) ...[
+                      Text(
+                        'Scheduled 1-to-1 Sessions',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 10),
+                      _SessionCollection(
+                        sessions: scheduledOneOnOne,
+                        isTwoPane: isTwoPane,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (remainingSessions.isNotEmpty) ...[
+                      Text(
+                        'All Sessions',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 10),
+                      _SessionCollection(
+                        sessions: remainingSessions,
+                        isTwoPane: isTwoPane,
+                      ),
+                    ],
+                  ],
                 );
               },
             );
@@ -331,6 +348,43 @@ class _SessionListView extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _SessionCollection extends StatelessWidget {
+  final List<LiveSession> sessions;
+  final bool isTwoPane;
+
+  const _SessionCollection({
+    required this.sessions,
+    required this.isTwoPane,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isTwoPane) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.9,
+        ),
+        itemCount: sessions.length,
+        itemBuilder: (context, index) => _SessionTile(session: sessions[index]),
+      );
+    }
+
+    return Column(
+      children: [
+        for (var index = 0; index < sessions.length; index++) ...[
+          _SessionTile(session: sessions[index]),
+          if (index != sessions.length - 1) const SizedBox(height: 8),
+        ],
+      ],
     );
   }
 }
