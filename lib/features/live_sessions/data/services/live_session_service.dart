@@ -91,6 +91,7 @@ class LiveSessionService implements HMSUpdateListener {
 
   Future<void> leave() async {
     await _hmsSDK?.leave();
+    clearCallbacks();
   }
 
   Future<bool> toggleMic() async {
@@ -224,5 +225,17 @@ class LiveSessionService implements HMSUpdateListener {
     for (final peer in removedPeers) {
       _peers.removeWhere((p) => p.peerId == peer.peerId);
     }
+  }
+
+  void clearCallbacks() {
+    onJoinRoom = null;
+    onRoomChanged = null;
+    onTrackAdded = null;
+    onTrackRemoved = null;
+    onPeerChanged = null;
+    onSpeakerChanged = null;
+    onError = null;
+    onReconnectingState = null;
+    onReconnectedState = null;
   }
 }
