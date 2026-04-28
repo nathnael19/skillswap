@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/common/widgets/user_avatar.dart';
 import 'package:skillswap/features/home/presentation/cubits/profile_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/edit_profile/edit_profile_page.dart';
 import 'package:skillswap/core/theme/theme.dart';
@@ -24,16 +25,14 @@ class ProfileHeader extends StatelessWidget {
                 border: Border.all(color: AppColors.borderDefault, width: 2),
               ),
 
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(shape: BoxShape.circle),
-                child: CircleAvatar(
-                  radius: 64,
-                  backgroundColor: AppColors.surface,
-                  backgroundImage: user.imageUrl.startsWith('http')
-                      ? NetworkImage(user.imageUrl) as ImageProvider
-                      : AssetImage(user.imageUrl),
-                ),
+              child: const Padding(
+                padding: EdgeInsets.all(2),
+                child: SizedBox.shrink(),
+              ),
+            ),
+            Positioned.fill(
+              child: Center(
+                child: UserAvatar(imageUrl: user.imageUrl, radius: 64),
               ),
             ),
             Positioned(
