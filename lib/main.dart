@@ -65,9 +65,7 @@ class MyApp extends StatelessWidget {
       title: 'SkillSwap',
       theme: AppTheme.dark(),
       builder: (context, child) {
-        return Stack(
-          children: [if (child != null) child, const OfflineToast()],
-        );
+        return Stack(children: [?child, const OfflineToast()]);
       },
       home: const SplashPage(),
     );

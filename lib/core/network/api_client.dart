@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 
@@ -48,12 +50,8 @@ class ApiClient {
   Future<http.Response> post(String endpoint, {dynamic body}) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-    
-    // ignore: avoid_print
-    print('POST: $uri');
-    if (body != null) {
-      // ignore: avoid_print
-      print('Body: ${jsonEncode(body)}');
+    if (kDebugMode) {
+      developer.log('POST: $uri', name: 'network.api');
     }
 
     http.Response response;
@@ -65,10 +63,9 @@ class ApiClient {
       response = await _client.post(uri, headers: headers, body: jsonEncode(body));
     }
 
-    // ignore: avoid_print
-    print('Response status: ${response.statusCode}');
-    // ignore: avoid_print
-    print('Response body: ${response.body}');
+    if (kDebugMode) {
+      developer.log('Response status: ${response.statusCode}', name: 'network.api');
+    }
     
     return response;
   }
