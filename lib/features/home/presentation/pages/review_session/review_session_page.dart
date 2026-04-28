@@ -1,6 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
 import 'package:skillswap/features/home/presentation/cubits/credits_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/home/home_page.dart';
@@ -12,12 +12,14 @@ import 'components/endorsements_section.dart';
 import 'components/review_input.dart';
 import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/core/common/widgets/app_button.dart';
 
 class ReviewSessionPage extends StatefulWidget {
   final String? sessionId;
   final String peerId;
   final String peerName;
   final String peerImageUrl;
+  final bool fromLiveSession;
 
   const ReviewSessionPage({
     super.key,
@@ -25,6 +27,7 @@ class ReviewSessionPage extends StatefulWidget {
     required this.peerId,
     required this.peerName,
     required this.peerImageUrl,
+    this.fromLiveSession = false,
   });
 
   @override
@@ -89,6 +92,28 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
     );
   }
 
+  Future<bool> _submitReview(HomeRepository repo) async {
+    final reviewComment = _reviewController.text.trim();
+    final endorsementsText = _selectedEndorsements.isNotEmpty
+        ? '\n[Endorsements: ${_selectedEndorsements.join(', ')}]'
+        : '';
+    final reviewResult = await repo.submitReview(
+      sessionId: widget.sessionId!,
+      targetId: widget.peerId,
+      rating: _rating.toDouble(),
+      comment: reviewComment + endorsementsText,
+    );
+
+    if (!mounted) return false;
+
+    return reviewResult.fold((failure) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(failure.message)));
+      return false;
+    }, (_) => true);
+  }
+
   Future<void> _tryCompleteThenExit() async {
     if (_finishingSession) return;
     if (widget.sessionId == null) {
@@ -97,11 +122,21 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
     }
     setState(() => _finishingSession = true);
     final repo = serviceLocator<HomeRepository>();
-    final result = await repo.updateSessionStatus(
-      sessionId: widget.sessionId!,
-      status: 'completed',
-    );
+    final result = widget.fromLiveSession
+        ? null
+        : await repo.updateSessionStatus(
+            sessionId: widget.sessionId!,
+            status: 'completed',
+          );
     if (!mounted) return;
+    if (result == null) {
+      setState(() => _finishingSession = false);
+      final submitted = await _submitReview(repo);
+      if (submitted && mounted) {
+        _exitAfterComplete(context);
+      }
+      return;
+    }
     setState(() => _finishingSession = false);
     result.fold(
       (failure) {
@@ -114,332 +149,343 @@ class _ReviewSessionPageState extends State<ReviewSessionPage> {
         }
       },
       (_) async {
-        final reviewComment = _reviewController.text.trim();
-        final endorsementsText = _selectedEndorsements.isNotEmpty
-            ? '\n[Endorsements: ${_selectedEndorsements.join(', ')}]'
-            : '';
-
-        await repo.submitReview(
-          sessionId: widget.sessionId!,
-          targetId: widget.peerId,
-          rating: _rating.toDouble(),
-          comment: reviewComment + endorsementsText,
-        );
-
-        if (mounted) _exitAfterComplete(context);
+        final submitted = await _submitReview(repo);
+        if (!mounted) return;
+        setState(() => _finishingSession = false);
+        if (submitted) {
+          _exitAfterComplete(context);
+        }
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.textPrimary,
-      appBar: AppBar(
-        backgroundColor: AppColors.textPrimary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF101828), size: 24),
-          onPressed: _finishingSession
-              ? null
-              : () => _exitAfterComplete(context),
-        ),
-        title: Text(
-          'Review Session',
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF101828),
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: Responsive.contentMaxWidthFor(context).isFinite
-                ? Responsive.contentMaxWidthFor(context)
-                : double.infinity,
-          ),
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              Responsive.contentHorizontalPadding(context),
-              Responsive.valueFor<double>(
-                context,
-                compact: 20,
-                mobile: 28,
-                tablet: 32,
-                tabletWide: 32,
-                desktop: 36,
-              ),
-              Responsive.contentHorizontalPadding(context),
-              Responsive.valueFor<double>(
-                    context,
-                    compact: 24,
-                    mobile: 32,
-                    tablet: 36,
-                    tabletWide: 40,
-                    desktop: 40,
-                  ) +
-                  MediaQuery.viewInsetsOf(context).bottom,
-            ),
-            child: Responsive.isTwoPane(context)
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            AvatarHeader(
-                              peerName: widget.peerName,
-                              peerImageUrl: widget.peerImageUrl,
-                            ),
-                            SizedBox(
-                              height: Responsive.valueFor<double>(
-                                context,
-                                compact: 24,
-                                mobile: 32,
-                                tablet: 40,
-                                tabletWide: 48,
-                                desktop: 48,
-                              ),
-                            ),
-                            RatingStarsCard(
-                              rating: _rating,
-                              onRatingChanged: (val) =>
-                                  setState(() => _rating = val),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: Responsive.valueFor<double>(
-                          context,
-                          compact: 16,
-                          mobile: 20,
-                          tablet: 24,
-                          tabletWide: 28,
-                          desktop: 32,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            EndorsementsSection(
-                              endorsementOptions: _endorsementOptions,
-                              selectedEndorsements: _selectedEndorsements,
-                              onToggle: (trait) {
-                                setState(() {
-                                  if (_selectedEndorsements.contains(trait)) {
-                                    _selectedEndorsements.remove(trait);
-                                  } else {
-                                    _selectedEndorsements.add(trait);
-                                  }
-                                });
-                              },
-                            ),
-                            SizedBox(
-                              height: Responsive.valueFor<double>(
-                                context,
-                                compact: 24,
-                                mobile: 32,
-                                tablet: 36,
-                                tabletWide: 40,
-                                desktop: 40,
-                              ),
-                            ),
-                            ReviewInput(controller: _reviewController),
-                            SizedBox(
-                              height: Responsive.valueFor<double>(
-                                context,
-                                compact: 24,
-                                mobile: 32,
-                                tablet: 36,
-                                tabletWide: 40,
-                                desktop: 40,
-                              ),
-                            ),
-                            _buildSubmitButton(),
-                            SizedBox(
-                              height: Responsive.valueFor<double>(
-                                context,
-                                compact: 12,
-                                mobile: 16,
-                                tablet: 18,
-                                tabletWide: 20,
-                                desktop: 20,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: _finishingSession
-                                  ? null
-                                  : () => _tryCompleteThenExit(),
-                              child: Text(
-                                'Skip for now',
-                                style: GoogleFonts.inter(
-                                  fontSize: Responsive.valueFor<double>(
-                                    context,
-                                    compact: 13,
-                                    mobile: 14,
-                                    tablet: 15,
-                                    tabletWide: 15,
-                                    desktop: 16,
-                                  ),
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF667085),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      AvatarHeader(
-                        peerName: widget.peerName,
-                        peerImageUrl: widget.peerImageUrl,
-                      ),
-                      SizedBox(
-                        height: Responsive.valueFor<double>(
-                          context,
-                          compact: 28,
-                          mobile: 36,
-                          tablet: 42,
-                          tabletWide: 48,
-                          desktop: 48,
-                        ),
-                      ),
-                      RatingStarsCard(
-                        rating: _rating,
-                        onRatingChanged: (val) => setState(() => _rating = val),
-                      ),
-                      SizedBox(
-                        height: Responsive.valueFor<double>(
-                          context,
-                          compact: 28,
-                          mobile: 32,
-                          tablet: 36,
-                          tabletWide: 40,
-                          desktop: 40,
-                        ),
-                      ),
-                      EndorsementsSection(
-                        endorsementOptions: _endorsementOptions,
-                        selectedEndorsements: _selectedEndorsements,
-                        onToggle: (trait) {
-                          setState(() {
-                            if (_selectedEndorsements.contains(trait)) {
-                              _selectedEndorsements.remove(trait);
-                            } else {
-                              _selectedEndorsements.add(trait);
-                            }
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        height: Responsive.valueFor<double>(
-                          context,
-                          compact: 28,
-                          mobile: 32,
-                          tablet: 36,
-                          tabletWide: 40,
-                          desktop: 40,
-                        ),
-                      ),
-                      ReviewInput(controller: _reviewController),
-                      SizedBox(
-                        height: Responsive.valueFor<double>(
-                          context,
-                          compact: 28,
-                          mobile: 32,
-                          tablet: 36,
-                          tabletWide: 40,
-                          desktop: 40,
-                        ),
-                      ),
-                      _buildSubmitButton(),
-                      SizedBox(
-                        height: Responsive.valueFor<double>(
-                          context,
-                          compact: 12,
-                          mobile: 16,
-                          tablet: 18,
-                          tabletWide: 20,
-                          desktop: 20,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: _finishingSession
-                            ? null
-                            : () => _tryCompleteThenExit(),
-                        child: Text(
-                          'Skip for now',
-                          style: GoogleFonts.inter(
-                            fontSize: Responsive.valueFor<double>(
-                              context,
-                              compact: 13,
-                              mobile: 14,
-                              tablet: 15,
-                              tabletWide: 15,
-                              desktop: 16,
-                            ),
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF667085),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
+    const accentColor = AppColors.primary;
+    const primaryBgColor = AppColors.background;
 
-  Widget _buildSubmitButton() {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: _finishingSession ? null : () => _tryCompleteThenExit(),
-        borderRadius: BorderRadius.circular(28),
-        child: Ink(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            color: const Color(0xFF0B6A7A),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0B6A7A).withValues(alpha: 0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
+    return Scaffold(
+      backgroundColor: primaryBgColor,
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(72),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: AppBar(
+              backgroundColor: primaryBgColor.withValues(alpha: 0.8),
+              elevation: 0,
+              leading: Center(
+                child: GestureDetector(
+                  onTap: _finishingSession
+                      ? null
+                      : () => _exitAfterComplete(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.borderSubtle,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.borderDefault),
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: AppColors.textPrimary,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+              title: Text(
+                'Review Session',
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: accentColor,
+                  letterSpacing: 2.0,
+                ),
+              ),
+              centerTitle: true,
+              shape: const Border(
+                bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final glowSize = (constraints.maxWidth * 0.95).clamp(260.0, 520.0);
+          return Stack(
+            children: [
+              // ambient glow
+              Positioned(
+                top: -glowSize * 0.35,
+                left: -glowSize * 0.15,
+                child: Container(
+                  width: glowSize,
+                  height: glowSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        accentColor.withValues(alpha: 0.08),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: Responsive.contentMaxWidthFor(context).isFinite
+                          ? Responsive.contentMaxWidthFor(context)
+                          : 560,
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(
+                        Responsive.contentHorizontalPadding(context),
+                        Responsive.valueFor<double>(
+                          context,
+                          compact: 20,
+                          mobile: 28,
+                          tablet: 32,
+                          tabletWide: 32,
+                          desktop: 36,
+                        ),
+                        Responsive.contentHorizontalPadding(context),
+                        Responsive.valueFor<double>(
+                              context,
+                              compact: 24,
+                              mobile: 32,
+                              tablet: 36,
+                              tabletWide: 40,
+                              desktop: 40,
+                            ) +
+                            MediaQuery.viewInsetsOf(context).bottom,
+                      ),
+                      child: Responsive.isTwoPane(context)
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      AvatarHeader(
+                                        peerName: widget.peerName,
+                                        peerImageUrl: widget.peerImageUrl,
+                                      ),
+                                      SizedBox(
+                                        height: Responsive.valueFor<double>(
+                                          context,
+                                          compact: 24,
+                                          mobile: 32,
+                                          tablet: 40,
+                                          tabletWide: 48,
+                                          desktop: 48,
+                                        ),
+                                      ),
+                                      RatingStarsCard(
+                                        rating: _rating,
+                                        onRatingChanged: (val) =>
+                                            setState(() => _rating = val),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 16,
+                                    mobile: 20,
+                                    tablet: 24,
+                                    tabletWide: 28,
+                                    desktop: 32,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      EndorsementsSection(
+                                        endorsementOptions: _endorsementOptions,
+                                        selectedEndorsements:
+                                            _selectedEndorsements,
+                                        onToggle: (trait) {
+                                          setState(() {
+                                            if (_selectedEndorsements.contains(
+                                              trait,
+                                            )) {
+                                              _selectedEndorsements.remove(
+                                                trait,
+                                              );
+                                            } else {
+                                              _selectedEndorsements.add(trait);
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      SizedBox(
+                                        height: Responsive.valueFor<double>(
+                                          context,
+                                          compact: 24,
+                                          mobile: 32,
+                                          tablet: 36,
+                                          tabletWide: 40,
+                                          desktop: 40,
+                                        ),
+                                      ),
+                                      ReviewInput(
+                                        controller: _reviewController,
+                                      ),
+                                      SizedBox(
+                                        height: Responsive.valueFor<double>(
+                                          context,
+                                          compact: 24,
+                                          mobile: 32,
+                                          tablet: 36,
+                                          tabletWide: 40,
+                                          desktop: 40,
+                                        ),
+                                      ),
+                                      AppButton(
+                                        label: 'Submit Review',
+                                        isLoading: _finishingSession,
+                                        onTap: () => _tryCompleteThenExit(),
+                                      ),
+                                      SizedBox(
+                                        height: Responsive.valueFor<double>(
+                                          context,
+                                          compact: 12,
+                                          mobile: 16,
+                                          tablet: 18,
+                                          tabletWide: 20,
+                                          desktop: 20,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: _finishingSession
+                                            ? null
+                                            : () => _tryCompleteThenExit(),
+                                        child: Text(
+                                          'Skip for now',
+                                          style: AppTextStyles.labelSmall
+                                              .copyWith(
+                                                color: AppColors.textSecondary,
+                                                letterSpacing: 1.0,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                AvatarHeader(
+                                  peerName: widget.peerName,
+                                  peerImageUrl: widget.peerImageUrl,
+                                ),
+                                SizedBox(
+                                  height: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 28,
+                                    mobile: 36,
+                                    tablet: 42,
+                                    tabletWide: 48,
+                                    desktop: 48,
+                                  ),
+                                ),
+                                RatingStarsCard(
+                                  rating: _rating,
+                                  onRatingChanged: (val) =>
+                                      setState(() => _rating = val),
+                                ),
+                                SizedBox(
+                                  height: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 28,
+                                    mobile: 32,
+                                    tablet: 36,
+                                    tabletWide: 40,
+                                    desktop: 40,
+                                  ),
+                                ),
+                                EndorsementsSection(
+                                  endorsementOptions: _endorsementOptions,
+                                  selectedEndorsements: _selectedEndorsements,
+                                  onToggle: (trait) {
+                                    setState(() {
+                                      if (_selectedEndorsements.contains(
+                                        trait,
+                                      )) {
+                                        _selectedEndorsements.remove(trait);
+                                      } else {
+                                        _selectedEndorsements.add(trait);
+                                      }
+                                    });
+                                  },
+                                ),
+                                SizedBox(
+                                  height: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 28,
+                                    mobile: 32,
+                                    tablet: 36,
+                                    tabletWide: 40,
+                                    desktop: 40,
+                                  ),
+                                ),
+                                ReviewInput(controller: _reviewController),
+                                SizedBox(
+                                  height: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 28,
+                                    mobile: 32,
+                                    tablet: 36,
+                                    tabletWide: 40,
+                                    desktop: 40,
+                                  ),
+                                ),
+                                AppButton(
+                                  label: 'Submit Review',
+                                  isLoading: _finishingSession,
+                                  onTap: () => _tryCompleteThenExit(),
+                                ),
+                                SizedBox(
+                                  height: Responsive.valueFor<double>(
+                                    context,
+                                    compact: 12,
+                                    mobile: 16,
+                                    tablet: 18,
+                                    tabletWide: 20,
+                                    desktop: 20,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: _finishingSession
+                                      ? null
+                                      : () => _tryCompleteThenExit(),
+                                  child: Text(
+                                    'Skip for now',
+                                    style: AppTextStyles.labelSmall.copyWith(
+                                      color: AppColors.textSecondary,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ),
               ),
             ],
-          ),
-          child: Center(
-            child: _finishingSession
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.textPrimary,
-                    ),
-                  )
-                : Text(
-                    'Submit Review',
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
