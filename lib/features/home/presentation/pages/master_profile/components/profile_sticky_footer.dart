@@ -84,10 +84,51 @@ class ProfileStickyFooter extends StatelessWidget {
     );
   }
 
+  Future<void> _requestSwap(BuildContext context, String currentUserId) async {
+    final result = await serviceLocator<HomeRepository>().swipeUser(
+      targetId: user.id,
+      direction: 'like',
+    );
+    if (!context.mounted) return;
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(failure.message),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      },
+      (matchCreated) {
+        final text = matchCreated
+            ? 'Swap requested and matched! You can start chatting now.'
+            : 'Swap request sent successfully.';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(text)));
+      },
+    );
+    context.read<CreditsCubit>().fetchCredits();
+    if (user.matchId != null && context.mounted) {
+      _navigateToChat(
+        context,
+        currentUserId,
+        user.matchId!,
+        status: user.matchStatus ?? 'mutual',
+        payerId: user.matchPayerId,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const kPrimary = AppColors.primary;
     const kBackground = AppColors.surface;
+    final isMatched = (user.matchId ?? '').isNotEmpty;
+
+    if (isMatched) {
+      return const SizedBox.shrink();
+    }
 
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
@@ -128,9 +169,9 @@ class ProfileStickyFooter extends StatelessWidget {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => handleAction(() {
-                      // Request Swap logic would go here
-                    }),
+                    onTap: () => handleAction(
+                      () => _requestSwap(context, currentUserId!),
+                    ),
                     child: Container(
                       height: 60,
                       decoration: BoxDecoration(
