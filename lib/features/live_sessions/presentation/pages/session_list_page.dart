@@ -4,11 +4,11 @@ import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dar
 import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/core/layout/responsive.dart';
+import 'package:skillswap/core/navigation/app_router.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_firestore_service.dart';
 import 'package:skillswap/features/live_sessions/data/models/live_session_model.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_state.dart';
-import 'package:skillswap/features/live_sessions/presentation/pages/session_detail_page.dart';
 import 'package:skillswap/init_dependencies.dart';
 
 class SessionListPage extends StatelessWidget {
@@ -48,6 +48,8 @@ class _SessionListView extends StatelessWidget {
         ),
         floatingActionButton: ConnectivityGuard(
           child: BlocBuilder<LiveSessionCubit, LiveSessionState>(
+            buildWhen: (previous, current) =>
+                previous.loading != current.loading,
             builder: (context, state) {
               return FloatingActionButton.extended(
                 onPressed: state.loading ? null : () => _showCreateDialog(context),
@@ -86,12 +88,9 @@ class _SessionListView extends StatelessWidget {
                 }
 
                 final sessions = snapshot.data ?? [];
-                final scheduledOneOnOne = sessions
-                    .where((s) => s.type == 'one-on-one' && s.status == 'scheduled')
-                    .toList();
-                final remainingSessions = sessions
-                    .where((s) => !(s.type == 'one-on-one' && s.status == 'scheduled'))
-                    .toList();
+                final grouped = _groupSessions(sessions);
+                final scheduledOneOnOne = grouped.$1;
+                final remainingSessions = grouped.$2;
                 final isTwoPane = Responsive.isTwoPane(context);
                 
                 if (sessions.isEmpty && connectivity == ConnectivityStatus.disconnected) {
@@ -125,36 +124,53 @@ class _SessionListView extends StatelessWidget {
                   );
                 }
 
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-                  children: [
-                    if (scheduledOneOnOne.isNotEmpty) ...[
-                      Text(
-                        'Scheduled 1-to-1 Sessions',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                return CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate.fixed([
+                          if (scheduledOneOnOne.isNotEmpty) ...[
+                            Text(
+                              'Scheduled 1-to-1 Sessions',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
+                            const SizedBox(height: 10),
+                          ],
+                        ]),
                       ),
-                      const SizedBox(height: 10),
-                      _SessionCollection(
+                    ),
+                    if (scheduledOneOnOne.isNotEmpty)
+                      ..._SessionCollection(
                         sessions: scheduledOneOnOne,
                         isTwoPane: isTwoPane,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (remainingSessions.isNotEmpty) ...[
-                      Text(
-                        'All Sessions',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                      ).buildSlivers(context),
+                    if (scheduledOneOnOne.isNotEmpty)
+                      const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate.fixed([
+                          if (remainingSessions.isNotEmpty) ...[
+                            Text(
+                              'All Sessions',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
+                            const SizedBox(height: 10),
+                          ],
+                        ]),
                       ),
-                      const SizedBox(height: 10),
-                      _SessionCollection(
+                    ),
+                    if (remainingSessions.isNotEmpty)
+                      ..._SessionCollection(
                         sessions: remainingSessions,
                         isTwoPane: isTwoPane,
-                      ),
-                    ],
+                      ).buildSlivers(context),
+                    const SliverToBoxAdapter(child: SizedBox(height: 100)),
                   ],
                 );
               },
@@ -326,12 +342,7 @@ class _SessionListView extends StatelessWidget {
                       topics: List<String>.from(topics),
                     );
                     if (sessionId != null && context.mounted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SessionDetailPage(sessionId: sessionId),
-                        ),
-                      );
+                      AppRouter.toSessionDetail(context, sessionId);
                     } else if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -350,6 +361,21 @@ class _SessionListView extends StatelessWidget {
       },
     );
   }
+
+  (List<LiveSession>, List<LiveSession>) _groupSessions(List<LiveSession> sessions) {
+    final scheduledOneOnOne = <LiveSession>[];
+    final remainingSessions = <LiveSession>[];
+    for (final session in sessions) {
+      final isScheduledOneOnOne =
+          session.type == 'one-on-one' && session.status == 'scheduled';
+      if (isScheduledOneOnOne) {
+        scheduledOneOnOne.add(session);
+      } else {
+        remainingSessions.add(session);
+      }
+    }
+    return (scheduledOneOnOne, remainingSessions);
+  }
 }
 
 class _SessionCollection extends StatelessWidget {
@@ -361,30 +387,46 @@ class _SessionCollection extends StatelessWidget {
     required this.isTwoPane,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> buildSlivers(BuildContext context) {
     if (isTwoPane) {
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.9,
+      return [
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _SessionTile(session: sessions[index]),
+              childCount: sessions.length,
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.9,
+            ),
+          ),
         ),
-        itemCount: sessions.length,
-        itemBuilder: (context, index) => _SessionTile(session: sessions[index]),
-      );
+      ];
     }
 
-    return Column(
-      children: [
-        for (var index = 0; index < sessions.length; index++) ...[
-          _SessionTile(session: sessions[index]),
-          if (index != sessions.length - 1) const SizedBox(height: 8),
-        ],
-      ],
+    return [
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: index == sessions.length - 1 ? 0 : 8),
+              child: _SessionTile(session: sessions[index]),
+            );
+          }, childCount: sessions.length),
+        ),
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: buildSlivers(context),
     );
   }
 }
@@ -448,12 +490,7 @@ class _SessionTile extends StatelessWidget {
           ),
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SessionDetailPage(sessionId: session.id),
-          ),
-        ),
+        onTap: () => AppRouter.toSessionDetail(context, session.id),
       ),
     );
   }
