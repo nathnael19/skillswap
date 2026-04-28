@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skillswap/core/common/widgets/user_avatar.dart';
 import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/presence_cubit.dart';
 import 'package:skillswap/features/home/presentation/pages/master_profile/master_profile_page.dart';
@@ -80,12 +81,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                               width: 1.5,
                             ),
                           ),
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundImage: userImageUrl.startsWith('assets')
-                                ? AssetImage(userImageUrl)
-                                : NetworkImage(userImageUrl) as ImageProvider,
-                          ),
+                          child: UserAvatar(imageUrl: userImageUrl, radius: 20),
                         ),
                         if (isOnline)
                           Positioned(
