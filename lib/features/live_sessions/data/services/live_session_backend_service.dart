@@ -36,13 +36,28 @@ class LiveSessionBackendService {
       );
     }
     final data = Map<String, dynamic>.from(jsonDecode(response.body) as Map);
-    final roleName = (data['role'] as String? ?? 'audience').toLowerCase();
-    final role = roleName == 'host' ? SessionRole.host : SessionRole.audience;
+    final roleName = (data['role'] as String? ?? 'audience').toLowerCase().trim();
+    final role = _parseRole(roleName);
     return JoinTokenResponse(
       token: data['token'] as String,
       roomId: data['room_id'] as String? ?? '',
       role: role,
     );
+  }
+
+  SessionRole _parseRole(String rawRole) {
+    const hostRoles = {
+      'host',
+      'admin',
+      'moderator',
+      'broadcaster',
+      'teacher',
+      'speaker',
+    };
+    if (hostRoles.contains(rawRole)) {
+      return SessionRole.host;
+    }
+    return SessionRole.audience;
   }
 
   Future<void> startSession(String sessionId) async {
