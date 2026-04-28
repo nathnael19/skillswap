@@ -250,6 +250,7 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
     await _sessionSub?.cancel();
     await _chatSub?.cancel();
     await _participantSignalSub?.cancel();
+    _liveService.clearCallbacks();
     return super.close();
   }
 }
