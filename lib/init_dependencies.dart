@@ -7,6 +7,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:skillswap/core/constants/app_constants.dart';
+import 'package:skillswap/core/cache/app_image_cache_manager.dart';
+import 'package:skillswap/core/cache/local_cache_service.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/storage/supabase_storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -24,6 +26,7 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in_with_google.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
+import 'package:skillswap/features/auth/domain/usecases/remove_fcm_token.dart';
 import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
 import 'package:skillswap/features/auth/domain/usecases/send_password_reset_email.dart';
 import 'package:skillswap/features/auth/domain/usecases/send_email_verification.dart';
@@ -58,6 +61,15 @@ Future<void> initDependencies() async {
   serviceLocator.registerLazySingleton(() => GoogleSignIn());
   serviceLocator.registerLazySingleton(() => Supabase.instance.client);
   serviceLocator.registerLazySingleton(() => http.Client());
+  serviceLocator.registerLazySingleton(() => AppImageCacheManager.instance);
+  serviceLocator.registerLazySingleton<LocalCacheService>(
+    () => throw StateError('LocalCacheService not initialized'),
+  );
+  final localCacheService = await LocalCacheService.create();
+  serviceLocator.unregister<LocalCacheService>();
+  serviceLocator.registerLazySingleton<LocalCacheService>(
+    () => localCacheService,
+  );
 
   serviceLocator.registerLazySingleton(
     () => ApiClient(
@@ -99,17 +111,16 @@ void _initAuth() {
 
   // Usecases
   serviceLocator.registerFactory(() => UserSignUp(serviceLocator()));
-  serviceLocator.registerFactory(
-    () => UserSignIn(serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => UserSignInWithGoogle(serviceLocator()),
-  );
+  serviceLocator.registerFactory(() => UserSignIn(serviceLocator()));
+  serviceLocator.registerFactory(() => UserSignInWithGoogle(serviceLocator()));
   serviceLocator.registerFactory(() => GetCurrentUser(serviceLocator()));
   serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
   serviceLocator.registerFactory(() => SyncFcmToken(serviceLocator()));
+  serviceLocator.registerFactory(() => RemoveFcmToken(serviceLocator()));
   serviceLocator.registerFactory(() => DeleteAccount(serviceLocator()));
-  serviceLocator.registerFactory(() => SendPasswordResetEmail(serviceLocator()));
+  serviceLocator.registerFactory(
+    () => SendPasswordResetEmail(serviceLocator()),
+  );
   serviceLocator.registerFactory(() => SendEmailVerification(serviceLocator()));
   serviceLocator.registerFactory(() => CheckEmailVerified(serviceLocator()));
 
@@ -122,6 +133,7 @@ void _initAuth() {
       getCurrentUser: serviceLocator(),
       userSignOut: serviceLocator(),
       syncFcmToken: serviceLocator(),
+      removeFcmToken: serviceLocator(),
       deleteAccount: serviceLocator(),
       sendPasswordResetEmail: serviceLocator(),
       sendEmailVerification: serviceLocator(),
@@ -140,6 +152,7 @@ void _initHome() {
         databaseURL: AppConstants.firebaseRtdbUrl,
       ),
       serviceLocator<StorageService>(),
+      serviceLocator<LocalCacheService>(),
     ),
   );
 
@@ -173,6 +186,7 @@ void _initChat() {
         app: Firebase.app(),
         databaseURL: AppConstants.firebaseRtdbUrl,
       ),
+      serviceLocator<LocalCacheService>(),
     ),
   );
 
@@ -205,6 +219,9 @@ void _initLiveSessions() {
 
 void _initHubs() {
   serviceLocator.registerLazySingleton(
-    () => HubBackendService(serviceLocator<ApiClient>()),
+    () => HubBackendService(
+      serviceLocator<ApiClient>(),
+      serviceLocator<LocalCacheService>(),
+    ),
   );
 }

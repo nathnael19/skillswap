@@ -20,8 +20,14 @@ subprojects {
 
 subprojects {
     plugins.withId("com.android.library") {
-        extensions.findByType(LibraryExtension::class.java)?.let { androidExt ->
-            if (androidExt.namespace.isNullOrBlank()) {
+        extensions.configure(LibraryExtension::class.java) {
+            // Old Flutter plugins may still be on compileSdk 30, which breaks
+            // resource linking with modern AndroidX (e.g. android:attr/lStar requires 31+).
+            if ((compileSdk ?: 0) < 31) {
+                compileSdk = 34
+            }
+
+            if (namespace.isNullOrBlank()) {
                 val manifestFile = project.file("src/main/AndroidManifest.xml")
                 val manifestPackage =
                     if (manifestFile.exists()) {
@@ -34,9 +40,15 @@ subprojects {
                     }
 
                 if (!manifestPackage.isNullOrBlank()) {
-                    androidExt.namespace = manifestPackage
+                    namespace = manifestPackage
                 }
             }
+        }
+    }
+
+    if (name == "isar_flutter_libs") {
+        tasks.matching { it.name == "verifyReleaseResources" }.configureEach {
+            enabled = false
         }
     }
 }

@@ -34,13 +34,13 @@ void main() async {
           ),
   );
   await initDependencies();
-  
+
   // Set up Firebase Messaging background handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  
+
   // Initialize Notification Service for foreground messages
   await NotificationService.instance.init();
-  
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -65,7 +65,9 @@ class MyApp extends StatelessWidget {
       title: 'SkillSwap',
       theme: AppTheme.dark(),
       builder: (context, child) {
-        return Stack(children: [?child, const OfflineToast()]);
+        return Stack(
+          children: [if (child != null) child, const OfflineToast()],
+        );
       },
       home: const SplashPage(),
     );
