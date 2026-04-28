@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skillswap/core/layout/responsive.dart';
+import 'package:skillswap/core/theme/app_colors.dart';
+import 'package:skillswap/core/theme/app_text_styles.dart';
 
 class RatingStarsCard extends StatelessWidget {
   final int rating;
@@ -42,24 +43,16 @@ class RatingStarsCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: vPad),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F8FF),
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Column(
         children: [
           Text(
             'How was the experience?',
-            style: GoogleFonts.inter(
-              fontSize: Responsive.valueFor<double>(
-                context,
-                compact: 13,
-                mobile: 14,
-                tablet: 15,
-                tabletWide: 15,
-                desktop: 16,
-              ),
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF475467),
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textPrimary,
             ),
           ),
           SizedBox(
@@ -84,8 +77,8 @@ class RatingStarsCard extends StatelessWidget {
                         ? Icons.star_rounded
                         : Icons.star_border_rounded,
                     color: index < rating
-                        ? const Color(0xFF0B6A7A)
-                        : const Color(0xFFD0D5DD),
+                        ? AppColors.primary
+                        : AppColors.textSecondary.withValues(alpha: 0.3),
                     size: star,
                   ),
                 ),
