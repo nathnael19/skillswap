@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillswap/core/common/cubits/connectivity/connectivity_cubit.dart';
 import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/auth/presentation/pages/login_page.dart';
@@ -90,119 +92,126 @@ class _HubListPageState extends State<HubListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Skill Hubs'),
-        actions: [
-          IconButton.filledTonal(
-            onPressed: () async {
-              if (FirebaseAuth.instance.currentUser == null) {
-                Navigator.of(context).push(LoginPage.route());
-                return;
-              }
-              final created = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(builder: (_) => const CreateHubPage()),
-              );
-              if (created == true) _load();
-            },
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-            ? Center(
-                child: Text(
-                  _error!,
-                  style: const TextStyle(color: AppColors.error),
-                ),
-              )
-            : _hubs.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.groups_3_rounded,
-                      size: 64,
-                      color: AppColors.overlay20,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No hubs yet',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+    return BlocListener<ConnectivityCubit, ConnectivityStatus>(
+      listenWhen: (prev, curr) =>
+          prev == ConnectivityStatus.disconnected &&
+          curr == ConnectivityStatus.connected,
+      listener: (context, _) => _load(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Skill Hubs'),
+          actions: [
+            IconButton.filledTonal(
+              onPressed: () async {
+                if (FirebaseAuth.instance.currentUser == null) {
+                  Navigator.of(context).push(LoginPage.route());
+                  return;
+                }
+                final created = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CreateHubPage()),
+                );
+                if (created == true) _load();
+              },
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: _load,
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+              ? Center(
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(color: AppColors.error),
+                  ),
+                )
+              : _hubs.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.groups_3_rounded,
+                        size: 64,
+                        color: AppColors.overlay20,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Be the first to create a skill community!',
-                      style: GoogleFonts.dmSans(color: AppColors.textSecondary),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No hubs yet',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Be the first to create a skill community!',
+                        style: GoogleFonts.dmSans(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Responsive.isTwoPane(context)
+              ? CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: EdgeInsets.all(
+                        Responsive.contentHorizontalPadding(context),
+                      ),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: Responsive.valueFor<double>(
+                            context,
+                            compact: 10,
+                            mobile: 12,
+                            tablet: 14,
+                            tabletWide: 16,
+                            desktop: 16,
+                          ),
+                          crossAxisSpacing: Responsive.valueFor<double>(
+                            context,
+                            compact: 10,
+                            mobile: 12,
+                            tablet: 14,
+                            tabletWide: 16,
+                            desktop: 16,
+                          ),
+                          childAspectRatio: 1.05,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _buildHubTile(_hubs[index]),
+                          childCount: _hubs.length,
+                        ),
+                      ),
                     ),
                   ],
-                ),
-              )
-            : Responsive.isTwoPane(context)
-            ? CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.all(
-                      Responsive.contentHorizontalPadding(context),
-                    ),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: Responsive.valueFor<double>(
-                          context,
-                          compact: 10,
-                          mobile: 12,
-                          tablet: 14,
-                          tabletWide: 16,
-                          desktop: 16,
-                        ),
-                        crossAxisSpacing: Responsive.valueFor<double>(
-                          context,
-                          compact: 10,
-                          mobile: 12,
-                          tablet: 14,
-                          tabletWide: 16,
-                          desktop: 16,
-                        ),
-                        childAspectRatio: 1.05,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => _buildHubTile(_hubs[index]),
-                        childCount: _hubs.length,
-                      ),
+                )
+              : ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.all(
+                    Responsive.contentHorizontalPadding(context),
+                  ),
+                  itemCount: _hubs.length,
+                  separatorBuilder: (_, _) => SizedBox(
+                    height: Responsive.valueFor<double>(
+                      context,
+                      compact: 8,
+                      mobile: 10,
+                      tablet: 10,
+                      tabletWide: 12,
+                      desktop: 12,
                     ),
                   ),
-                ],
-              )
-            : ListView.separated(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.all(
-                  Responsive.contentHorizontalPadding(context),
+                  itemBuilder: (context, index) => _buildHubTile(_hubs[index]),
                 ),
-                itemCount: _hubs.length,
-                separatorBuilder: (_, _) => SizedBox(
-                  height: Responsive.valueFor<double>(
-                    context,
-                    compact: 8,
-                    mobile: 10,
-                    tablet: 10,
-                    tabletWide: 12,
-                    desktop: 12,
-                  ),
-                ),
-                itemBuilder: (context, index) =>
-                    _buildHubTile(_hubs[index]),
-              ),
+        ),
       ),
     );
   }
