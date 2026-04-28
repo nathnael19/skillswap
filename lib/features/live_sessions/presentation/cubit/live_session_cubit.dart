@@ -65,7 +65,15 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
     await _sessionSub?.cancel();
     _sessionSub = _firestoreService.watchSessionById(sessionId).listen((session) {
       emit(state.copyWith(session: session));
+      if (session.status == 'ended' && state.joined) {
+        unawaited(_forceStopLiveMedia());
+      }
     });
+  }
+
+  Future<void> _forceStopLiveMedia() async {
+    await _liveService.leave();
+    emit(state.copyWith(joined: false, isMicMuted: true, isCameraMuted: true));
   }
 
   Future<void> watchChat(String sessionId) async {
@@ -95,14 +103,15 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
         token: token.token,
         userName: userName,
         role: token.role,
+        muteOnJoinForAudience: state.session?.type != 'one-on-one',
       );
       await _firestoreService.setParticipantJoined(sessionId);
       emit(
         state.copyWith(
           loading: false,
           role: token.role,
-          isMicMuted: token.role == SessionRole.audience,
-          isCameraMuted: token.role == SessionRole.audience,
+          isMicMuted: _liveService.isMicMuted,
+          isCameraMuted: _liveService.isCameraMuted,
         ),
       );
     } catch (e) {
@@ -186,13 +195,13 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
   }
 
   Future<void> toggleMic() async {
-    await _liveService.toggleMic();
-    emit(state.copyWith(isMicMuted: !state.isMicMuted));
+    final muted = await _liveService.toggleMic();
+    emit(state.copyWith(isMicMuted: muted));
   }
 
   Future<void> toggleVideo() async {
-    await _liveService.toggleVideo();
-    emit(state.copyWith(isCameraMuted: !state.isCameraMuted));
+    final muted = await _liveService.toggleVideo();
+    emit(state.copyWith(isCameraMuted: muted));
   }
 
   Future<void> raiseHand(String sessionId) async {
@@ -229,6 +238,9 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
     final normalized = raw.toLowerCase();
     if (normalized.contains('already started')) {
       return 'This session is already started.';
+    }
+    if (normalized.contains('invalid role') || normalized.contains('invalid roles')) {
+      return 'Unable to join session due to a role mismatch. Please try again.';
     }
     return raw;
   }
