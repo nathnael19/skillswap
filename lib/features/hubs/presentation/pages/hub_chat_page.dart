@@ -26,6 +26,7 @@ class _HubChatPageState extends State<HubChatPage> {
   bool _loading = true;
   List<HubMessage> _messages = const [];
   String? _error;
+  bool _requestInFlight = false;
 
   @override
   void initState() {
@@ -42,7 +43,9 @@ class _HubChatPageState extends State<HubChatPage> {
     super.dispose();
   }
 
-  Future<void> _load({bool silent = false}) async {
+  Future<void> _load({bool silent = false, bool force = false}) async {
+    if (_requestInFlight && !force) return;
+    _requestInFlight = true;
     if (!silent) {
       setState(() {
         _loading = true;
@@ -66,6 +69,8 @@ class _HubChatPageState extends State<HubChatPage> {
         _loading = false;
         _error = e.toString();
       });
+    } finally {
+      _requestInFlight = false;
     }
   }
 
@@ -75,7 +80,7 @@ class _HubChatPageState extends State<HubChatPage> {
     _controller.clear();
     try {
       await _service.sendMessage(widget.hubId, text);
-      await _load(silent: true);
+      await _load(silent: true, force: true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
