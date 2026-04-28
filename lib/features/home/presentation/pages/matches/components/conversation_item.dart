@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:skillswap/core/layout/responsive.dart';
@@ -68,12 +67,9 @@ class ConversationItem extends StatelessWidget {
           border: Border.all(color: AppColors.borderSubtle, width: 1),
         ),
 
-        clipBehavior: Clip.antiAlias,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Padding(
-            padding: EdgeInsets.all(pad),
-            child: Row(
+        child: Padding(
+          padding: EdgeInsets.all(pad),
+          child: Row(
               children: [
                 // Premium Avatar
                 Stack(
@@ -248,7 +244,6 @@ class ConversationItem extends StatelessWidget {
                     ),
                   ),
               ],
-            ),
           ),
         ),
       ),
