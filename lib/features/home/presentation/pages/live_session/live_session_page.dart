@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
+import 'package:skillswap/features/home/presentation/pages/review_session/review_session_page.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_cubit.dart';
 import 'package:skillswap/features/live_sessions/presentation/cubit/live_session_state.dart';
 import 'package:skillswap/init_dependencies.dart';
@@ -39,9 +40,11 @@ class LiveSessionPage extends StatefulWidget {
   State<LiveSessionPage> createState() => _LiveSessionPageState();
 }
 
-class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingObserver {
+class _LiveSessionPageState extends State<LiveSessionPage>
+    with WidgetsBindingObserver {
   final TextEditingController _chatController = TextEditingController();
   late final LiveSessionCubit _cubit;
+  bool _openedReview = false;
 
   @override
   void initState() {
@@ -72,11 +75,14 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
   }
 
   Future<bool?> _handleEndCallRequest() async {
-    if (widget.sessionId != null) {
-      await _cubit.leaveSession(widget.sessionId!);
+    final sessionId = widget.sessionId;
+    if (sessionId != null) {
+      if (_cubit.state.isHost) {
+        await _cubit.endSession(sessionId);
+      }
+      await _cubit.leaveSession(sessionId);
     }
-    if (!mounted) return false;
-    Navigator.pop(context);
+    await _openReviewOrExit();
     return true;
   }
 
@@ -100,7 +106,8 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
           backgroundColor: AppColors.background,
           title: BlocBuilder<LiveSessionCubit, LiveSessionState>(
             builder: (context, state) {
-              final title = widget.sessionTitle ?? state.session?.title ?? 'Live Session';
+              final title =
+                  widget.sessionTitle ?? state.session?.title ?? 'Live Session';
               return Text(title);
             },
           ),
@@ -118,7 +125,12 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
             ),
           ],
         ),
-        body: BlocBuilder<LiveSessionCubit, LiveSessionState>(
+        body: BlocConsumer<LiveSessionCubit, LiveSessionState>(
+          listener: (context, state) {
+            if (!_openedReview && state.session?.status == 'ended') {
+              unawaited(_openReviewOrExit());
+            }
+          },
           builder: (context, state) {
             if (widget.sessionId == null) {
               return const Center(child: Text('Missing session id.'));
@@ -157,7 +169,10 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
                         desktop: 10,
                       ),
                     ),
-                    child: const Text('Reconnecting...', textAlign: TextAlign.center),
+                    child: const Text(
+                      'Reconnecting...',
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 Expanded(
                   child: twoPane
@@ -203,9 +218,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
                               flex: 3,
                               child: _buildMainStage(context, state),
                             ),
-                            Expanded(
-                              child: _buildParticipants(context, state),
-                            ),
+                            Expanded(child: _buildParticipants(context, state)),
                             if (state.isHost && widget.sessionId != null)
                               _buildHostRequestPanel(context, state),
                             Expanded(
@@ -222,6 +235,49 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
         ),
       ),
     );
+  }
+
+  Future<void> _openReviewOrExit() async {
+    if (!mounted || _openedReview) return;
+    _openedReview = true;
+    if (_cubit.state.isHost) {
+      Navigator.pop(context);
+      return;
+    }
+    final reviewPeer = _resolveReviewPeer(_cubit.state);
+    if (reviewPeer == null) {
+      Navigator.pop(context);
+      return;
+    }
+    await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReviewSessionPage(
+          sessionId: widget.sessionId,
+          peerId: reviewPeer.id,
+          peerName: reviewPeer.name,
+          peerImageUrl: widget.peerImageUrl,
+          fromLiveSession: true,
+        ),
+      ),
+    );
+  }
+
+  ({String id, String name})? _resolveReviewPeer(LiveSessionState state) {
+    for (final peer in state.peers) {
+      if (peer.isLocal ||
+          peer.peerId == widget.currentUserId ||
+          peer.customerUserId == widget.currentUserId) {
+        continue;
+      }
+      final peerName = peer.name.isNotEmpty ? peer.name : widget.peerName;
+      final peerId = (peer.customerUserId ?? '').isNotEmpty
+          ? peer.customerUserId!
+          : peer.peerId;
+      return (id: peerId, name: peerName);
+    }
+    if (widget.peerId.isEmpty) return null;
+    return (id: widget.peerId, name: widget.peerName);
   }
 
   Widget _buildMainStage(BuildContext context, LiveSessionState state) {
@@ -249,28 +305,136 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
       );
     }
 
-    final hostPeer = state.peers.firstWhere(
-      (peer) => state.session?.hostId == peer.customerUserId || state.session?.hostId == peer.peerId,
-      orElse: () => state.peers.first,
-    );
-    final hostTrack = state.videoTracksByPeerId[hostPeer.peerId];
+    final mainPeer = _pickMainStagePeer(state);
+    final mainTrack = state.videoTracksByPeerId[mainPeer.peerId];
+    final localPeer = _findLocalPeer(state);
+    final localTrack = localPeer == null
+        ? null
+        : state.videoTracksByPeerId[localPeer.peerId];
     return Container(
       margin: EdgeInsets.all(edge),
       decoration: BoxDecoration(
         color: AppColors.overlay10,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Center(
-        child: hostTrack == null
-            ? Text(
-                hostPeer.name.isEmpty ? 'Waiting for host video...' : hostPeer.name,
-                style: const TextStyle(color: AppColors.textPrimary),
-              )
-            : HMSVideoView(
-                track: hostTrack as HMSVideoTrack,
-              ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Center(
+              child: mainTrack == null
+                  ? Text(
+                      mainPeer.name.isEmpty
+                          ? 'Waiting for participant video...'
+                          : mainPeer.name,
+                      style: const TextStyle(color: AppColors.textPrimary),
+                    )
+                  : HMSVideoView(track: mainTrack as HMSVideoTrack),
+            ),
+          ),
+          if (!state.isCameraMuted && localTrack is HMSVideoTrack)
+            Positioned(
+              right: edge,
+              bottom: edge,
+              child: _buildLocalPreview(context, localTrack),
+            ),
+        ],
       ),
     );
+  }
+
+  HMSPeer? _findLocalPeer(LiveSessionState state) {
+    for (final peer in state.peers) {
+      if (peer.isLocal ||
+          peer.peerId == widget.currentUserId ||
+          peer.customerUserId == widget.currentUserId) {
+        return peer;
+      }
+    }
+    return null;
+  }
+
+  Widget _buildLocalPreview(BuildContext context, HMSVideoTrack track) {
+    final width = Responsive.valueFor<double>(
+      context,
+      compact: 104,
+      mobile: 112,
+      tablet: 136,
+      tabletWide: 144,
+      desktop: 152,
+    );
+    final height = width * 1.45;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.overlay20),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.24),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(child: HMSVideoView(track: track)),
+            Positioned(
+              left: 8,
+              right: 8,
+              bottom: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  'You',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  HMSPeer _pickMainStagePeer(LiveSessionState state) {
+    final remotePeers = state.peers
+        .where(
+          (peer) =>
+              !peer.isLocal &&
+              peer.peerId != widget.currentUserId &&
+              peer.customerUserId != widget.currentUserId,
+        )
+        .toList();
+    if (remotePeers.isNotEmpty) {
+      // In 1:1 calls we prioritize showing the other person on the main stage.
+      return remotePeers.first;
+    }
+
+    final hostId = state.session?.hostId;
+    if (hostId != null) {
+      final hostPeer = state.peers.where(
+        (peer) => hostId == peer.customerUserId || hostId == peer.peerId,
+      );
+      if (hostPeer.isNotEmpty) {
+        return hostPeer.first;
+      }
+    }
+
+    return state.peers.first;
   }
 
   Widget _buildParticipants(BuildContext context, LiveSessionState state) {
@@ -327,11 +491,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
             children: [
               const CircleAvatar(child: Icon(Icons.person)),
               const SizedBox(height: 8),
-              Text(
-                peer.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              Text(peer.name, maxLines: 1, overflow: TextOverflow.ellipsis),
               if (state.isHost && !peer.isLocal)
                 IconButton(
                   onPressed: () => _cubit.setPeerMuted(peer, mute: true),
@@ -354,9 +514,9 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
       width: double.infinity,
       color: AppColors.overlay05,
       padding: EdgeInsets.symmetric(
-        horizontal: Responsive.contentHorizontalPadding(context)
-            .clamp(8.0, 20.0)
-            .toDouble(),
+        horizontal: Responsive.contentHorizontalPadding(
+          context,
+        ).clamp(8.0, 20.0).toDouble(),
         vertical: Responsive.valueFor<double>(
           context,
           compact: 6,
@@ -390,23 +550,58 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
             itemCount: state.chatMessages.length,
             itemBuilder: (context, index) {
               final item = state.chatMessages[index];
-              return ListTile(
-                dense: true,
-                title: Text(item.text),
-                subtitle: Text(item.senderId),
+              final isMe = item.senderId == widget.currentUserId;
+              final senderLabel = item.senderName.trim().isNotEmpty
+                  ? item.senderName.trim()
+                  : (isMe ? 'You' : 'Participant');
+              return Align(
+                alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  constraints: const BoxConstraints(maxWidth: 280),
+                  decoration: BoxDecoration(
+                    color: isMe
+                        ? AppColors.primary.withValues(alpha: 0.2)
+                        : AppColors.overlay05,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: isMe
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        senderLabel,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(item.text),
+                    ],
+                  ),
+                ),
               );
             },
           ),
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(
-            Responsive.contentHorizontalPadding(context)
-                .clamp(8.0, 16.0)
-                .toDouble(),
+            Responsive.contentHorizontalPadding(
+              context,
+            ).clamp(8.0, 16.0).toDouble(),
             8,
-            Responsive.contentHorizontalPadding(context)
-                .clamp(8.0, 16.0)
-                .toDouble(),
+            Responsive.contentHorizontalPadding(
+              context,
+            ).clamp(8.0, 16.0).toDouble(),
             8 + MediaQuery.viewInsetsOf(context).bottom,
           ),
           child: Row(
@@ -414,9 +609,7 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
               Expanded(
                 child: TextField(
                   controller: _chatController,
-                  decoration: const InputDecoration(
-                    hintText: 'Type a message',
-                  ),
+                  decoration: const InputDecoration(hintText: 'Type a message'),
                 ),
               ),
               IconButton(
@@ -424,7 +617,10 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
                 onPressed: widget.sessionId == null
                     ? null
                     : () {
-                        _cubit.sendChat(widget.sessionId!, _chatController.text);
+                        _cubit.sendChat(
+                          widget.sessionId!,
+                          _chatController.text,
+                        );
                         _chatController.clear();
                       },
               ),
@@ -436,9 +632,9 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
   }
 
   Widget _buildControls(BuildContext context, LiveSessionState state) {
-    final h = Responsive.contentHorizontalPadding(context)
-        .clamp(10.0, 20.0)
-        .toDouble();
+    final h = Responsive.contentHorizontalPadding(
+      context,
+    ).clamp(10.0, 20.0).toDouble();
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(h, 6, h, 12),
@@ -451,7 +647,9 @@ class _LiveSessionPageState extends State<LiveSessionPage> with WidgetsBindingOb
             ),
             IconButton.filled(
               onPressed: _cubit.toggleVideo,
-              icon: Icon(state.isCameraMuted ? Icons.videocam_off : Icons.videocam),
+              icon: Icon(
+                state.isCameraMuted ? Icons.videocam_off : Icons.videocam,
+              ),
             ),
             if (!state.isHost)
               IconButton.filled(
