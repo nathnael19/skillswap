@@ -17,26 +17,20 @@ class ProfileHeader extends StatelessWidget {
       children: [
         Stack(
           alignment: Alignment.bottomCenter,
+          clipBehavior: Clip.none,
           children: [
+            // Border ring around the avatar
             Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.borderDefault, width: 2),
               ),
-
-              child: const Padding(
-                padding: EdgeInsets.all(2),
-                child: SizedBox.shrink(),
-              ),
+              child: UserAvatar(imageUrl: user.imageUrl, radius: 64),
             ),
-            Positioned.fill(
-              child: Center(
-                child: UserAvatar(imageUrl: user.imageUrl, radius: 64),
-              ),
-            ),
+            // "Verified Expert" badge sitting at the bottom of the avatar
             Positioned(
-              bottom: 0,
+              bottom: -14,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -75,6 +69,7 @@ class ProfileHeader extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 14), // space so the badge doesn't overlap the name
         const SizedBox(height: 24),
         Text(user.name, style: AppTextStyles.h1),
 
