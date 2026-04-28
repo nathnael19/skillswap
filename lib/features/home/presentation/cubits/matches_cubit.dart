@@ -47,6 +47,9 @@ class MatchesCubit extends HydratedCubit<MatchesState> {
           .listen((isOnline) {
             if (state is MatchesLoaded) {
               final currentState = state as MatchesLoaded;
+              if (currentState.onlineStatuses[uid] == isOnline) {
+                return;
+              }
               final currentStatuses = Map<String, bool>.from(
                 currentState.onlineStatuses,
               );
@@ -73,12 +76,19 @@ class MatchesCubit extends HydratedCubit<MatchesState> {
 
       if (index != -1) {
         final conversation = currentMatches[index];
+        final newContent = message.content;
+        final newTimestamp = message.timestamp.toIso8601String();
+        final shouldEmit = conversation.lastMessage != newContent ||
+            conversation.lastMessageTime != newTimestamp;
+        if (!shouldEmit) {
+          return;
+        }
         // Create updated conversation object
         final updatedConversation = Conversation(
           user: conversation.user,
           matchId: conversation.matchId,
-          lastMessage: message.content,
-          lastMessageTime: message.timestamp.toIso8601String(),
+          lastMessage: newContent,
+          lastMessageTime: newTimestamp,
           // Always unread if someone else sent it
           // In a real app, we'd check if the user is currently looking at this chat
           hasUnread: true,
