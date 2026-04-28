@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:skillswap/core/cache/local_cache_service.dart';
 import 'package:skillswap/core/error/failures.dart';
 import 'package:skillswap/core/network/api_client.dart';
 import 'package:skillswap/core/network/api_constants.dart';
@@ -16,15 +17,61 @@ class HomeRepositoryImpl implements HomeRepository {
   final ApiClient _apiClient;
   final FirebaseDatabase _db;
   final StorageService _storageService;
+  final LocalCacheService _localCache;
+  String? _cacheOwnerUid;
+  final Duration _defaultTtl = const Duration(minutes: 3);
+  final Map<String, _CacheEntry<User>> _userByIdCache = {};
+  final Map<String, _CacheEntry<List<Review>>> _ratingsCache = {};
+  _CacheEntry<User>? _meCache;
+  _CacheEntry<List<User>>? _likesReceivedCache;
 
-  HomeRepositoryImpl(this._apiClient, this._db, this._storageService);
+  HomeRepositoryImpl(
+    this._apiClient,
+    this._db,
+    this._storageService,
+    this._localCache,
+  );
+
+  String _activeUid() => FirebaseAuth.instance.currentUser?.uid ?? '';
+  String _cacheKey(String suffix) => '${_activeUid()}:$suffix';
+
+  void _invalidateCacheForUserSwitch() {
+    final currentUid = _activeUid();
+    if (_cacheOwnerUid == currentUid) return;
+    _cacheOwnerUid = currentUid;
+    _userByIdCache.clear();
+    _ratingsCache.clear();
+    _meCache = null;
+    _likesReceivedCache = null;
+  }
+
+  T? _readCache<T>(_CacheEntry<T>? entry) {
+    if (entry == null) return null;
+    if (DateTime.now().isAfter(entry.expiresAt)) return null;
+    return entry.value;
+  }
+
+  Future<List<T>?> _readCachedList<T>(
+    String key,
+    T Function(Map<String, dynamic>) parser,
+  ) async {
+    final cached = await _localCache.getList(key);
+    if (cached == null) return null;
+    return cached.map(parser).toList();
+  }
+
+  Future<void> _writeCachedList(String key, List<Map<String, dynamic>> value) {
+    return _localCache.putList(key, value);
+  }
 
   @override
   Stream<Message> getGlobalMessageStream() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return const Stream.empty();
 
-    return _db.ref('global_updates/$uid').onValue
+    return _db
+        .ref('global_updates/$uid')
+        .onValue
         .where((event) => event.snapshot.value != null)
         .map((event) {
           final data = event.snapshot.value;
@@ -115,99 +162,135 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<Either<Failure, List<Conversation>>> getMatches() async {
+    final cacheKey = _cacheKey('matches');
     try {
       final response = await _apiClient.get(ApiConstants.matches);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return right(data.map((map) => Conversation.fromMap(map)).toList());
+        final matches = data.map((map) => Conversation.fromMap(map)).toList();
+        await _writeCachedList(
+          cacheKey,
+          matches.map((conversation) => conversation.toMap()).toList(),
+        );
+        return right(matches);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch matches',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch matches',
       );
     } catch (e) {
+      final cached = await _readCachedList(cacheKey, Conversation.fromMap);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, List<User>>> getLikesReceived() async {
+    final cacheKey = _cacheKey('likes_received');
     try {
+      _invalidateCacheForUserSwitch();
+      final cached = _readCache(_likesReceivedCache);
+      if (cached != null) {
+        return right(cached);
+      }
       final response = await _apiClient.get(ApiConstants.likesReceived);
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
-        return right(data.map((m) => User.fromMap(m)).toList());
+        final users = data.map((m) => User.fromMap(m)).toList();
+        await _writeCachedList(
+          cacheKey,
+          users.map((user) => user.toMap()).toList(),
+        );
+        _likesReceivedCache = _CacheEntry(
+          value: users,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(users);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch likes',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch likes',
       );
     } catch (e) {
+      final cached = await _readCachedList(cacheKey, User.fromMap);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, List<User>>> getSentLikes() async {
+    final cacheKey = _cacheKey('likes_sent');
     try {
       final response = await _apiClient.get(ApiConstants.sentLikes);
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
-        return right(data.map((m) => User.fromMap(m)).toList());
+        final users = data.map((m) => User.fromMap(m)).toList();
+        await _writeCachedList(
+          cacheKey,
+          users.map((user) => user.toMap()).toList(),
+        );
+        return right(users);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch sent likes',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch sent likes',
       );
     } catch (e) {
+      final cached = await _readCachedList(cacheKey, User.fromMap);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, List<User>>> getSentDislikes() async {
+    final cacheKey = _cacheKey('likes_disliked');
     try {
       final response = await _apiClient.get(ApiConstants.sentDislikes);
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
-        return right(data.map((m) => User.fromMap(m)).toList());
+        final users = data.map((m) => User.fromMap(m)).toList();
+        await _writeCachedList(
+          cacheKey,
+          users.map((user) => user.toMap()).toList(),
+        );
+        return right(users);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch sent dislikes',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch sent dislikes',
       );
     } catch (e) {
+      final cached = await _readCachedList(cacheKey, User.fromMap);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getCredits() async {
+    final cacheKey = _cacheKey('wallet_credits');
     try {
       final response = await _apiClient.get(ApiConstants.credits);
       if (response.statusCode == 200) {
-        return right(jsonDecode(response.body));
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        await _localCache.putMap(cacheKey, data);
+        return right(data);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch credits',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch credits',
       );
     } catch (e) {
+      final cached = await _localCache.getMap(cacheKey);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
@@ -280,11 +363,8 @@ class HomeRepositoryImpl implements HomeRepository {
       if (payerId != null) {
         body['payer_id'] = payerId;
       }
-      
-      final response = await _apiClient.post(
-        ApiConstants.sessions,
-        body: body,
-      );
+
+      final response = await _apiClient.post(ApiConstants.sessions, body: body);
       if (response.statusCode == 200) {
         return right(jsonDecode(response.body) as Map<String, dynamic>);
       }
@@ -353,60 +433,113 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<Either<Failure, User>> getMe() async {
+    final cacheKey = _cacheKey('me');
     try {
+      _invalidateCacheForUserSwitch();
+      final cached = _readCache(_meCache);
+      if (cached != null) {
+        return right(cached);
+      }
       final response = await _apiClient.get(ApiConstants.me);
       if (response.statusCode == 200) {
-        return right(User.fromMap(jsonDecode(response.body)));
+        final user = User.fromMap(jsonDecode(response.body));
+        await _localCache.putMap(cacheKey, user.toMap());
+        _meCache = _CacheEntry(
+          value: user,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(user);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch user profile',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch user profile',
       );
     } catch (e) {
+      final cached = await _localCache.getMap(cacheKey);
+      if (cached != null) {
+        final user = User.fromMap(cached);
+        _meCache = _CacheEntry(
+          value: user,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(user);
+      }
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, User>> getUserById(String userId) async {
+    final cacheKey = _cacheKey('user_$userId');
     try {
+      _invalidateCacheForUserSwitch();
+      final cached = _readCache(_userByIdCache[userId]);
+      if (cached != null) {
+        return right(cached);
+      }
       final response = await _apiClient.get('${ApiConstants.userById}/$userId');
       if (response.statusCode == 200) {
-        return right(User.fromMap(jsonDecode(response.body)));
+        final user = User.fromMap(jsonDecode(response.body));
+        await _localCache.putMap(cacheKey, user.toMap());
+        _userByIdCache[userId] = _CacheEntry(
+          value: user,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(user);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch user',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch user',
       );
     } catch (e) {
+      final cached = await _localCache.getMap(cacheKey);
+      if (cached != null) {
+        final user = User.fromMap(cached);
+        _userByIdCache[userId] = _CacheEntry(
+          value: user,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(user);
+      }
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, List<Review>>> getRatings(String userId) async {
+    final cacheKey = _cacheKey('ratings_$userId');
     try {
+      _invalidateCacheForUserSwitch();
+      final cached = _readCache(_ratingsCache[userId]);
+      if (cached != null) {
+        return right(cached);
+      }
       final response = await _apiClient.get(
         '${ApiConstants.userRatings}/$userId',
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return right(data.map((map) => Review.fromMap(map)).toList());
+        final ratings = data.map((map) => Review.fromMap(map)).toList();
+        await _writeCachedList(
+          cacheKey,
+          data.map((item) => Map<String, dynamic>.from(item as Map)).toList(),
+        );
+        _ratingsCache[userId] = _CacheEntry(
+          value: ratings,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(ratings);
       }
-      return left(
-        ServerFailure.fromResponse(
-          response.statusCode,
-          response.body,
-          fallbackMessage: 'Failed to fetch ratings',
-        ),
+      throw ServerFailure.fromResponse(
+        response.statusCode,
+        response.body,
+        fallbackMessage: 'Failed to fetch ratings',
       );
     } catch (e) {
+      final cached = await _readCachedList(cacheKey, Review.fromMap);
+      if (cached != null) return right(cached);
       return left(ServerFailure(e.toString()));
     }
   }
@@ -429,6 +562,10 @@ class HomeRepositoryImpl implements HomeRepository {
         },
       );
       if (response.statusCode == 200) {
+        _invalidateCacheForUserSwitch();
+        _ratingsCache.remove(targetId);
+        await _localCache.remove(_cacheKey('ratings_$targetId'));
+        await _localCache.remove(_cacheKey('user_$targetId'));
         return right(unit);
       }
       return left(
@@ -451,7 +588,21 @@ class HomeRepositoryImpl implements HomeRepository {
         body: user.toMap(),
       );
       if (response.statusCode == 200) {
-        return right(User.fromMap(jsonDecode(response.body)));
+        final updated = User.fromMap(jsonDecode(response.body));
+        await _localCache.putMap(_cacheKey('me'), updated.toMap());
+        await _localCache.putMap(
+          _cacheKey('user_${updated.id}'),
+          updated.toMap(),
+        );
+        _meCache = _CacheEntry(
+          value: updated,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        _userByIdCache[updated.id] = _CacheEntry(
+          value: updated,
+          expiresAt: DateTime.now().add(_defaultTtl),
+        );
+        return right(updated);
       }
       return left(
         ServerFailure.fromResponse(
@@ -470,15 +621,19 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       final file = File(filePath);
       final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      
-      final url = await _storageService.uploadFile(
-        path: fileName,
-        file: file,
-      );
-      
+
+      final url = await _storageService.uploadFile(path: fileName, file: file);
+
       return right(url);
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
   }
+}
+
+class _CacheEntry<T> {
+  final T value;
+  final DateTime expiresAt;
+
+  const _CacheEntry({required this.value, required this.expiresAt});
 }
