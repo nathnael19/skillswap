@@ -40,6 +40,8 @@ class LiveSessionService implements HMSUpdateListener {
   HMSRoom? _room;
   HMSPeer? _localPeer;
   final List<HMSPeer> _peers = [];
+  bool _isMicMuted = true;
+  bool _isCameraMuted = true;
 
   void Function(HMSRoom room)? onJoinRoom;
   void Function(HMSRoom room, HMSRoomUpdate update)? onRoomChanged;
@@ -56,6 +58,8 @@ class LiveSessionService implements HMSUpdateListener {
   HMSRoom? get room => _room;
   List<HMSPeer> get peers => List.unmodifiable(_peers);
   bool get isHost => _role == SessionRole.host;
+  bool get isMicMuted => _isMicMuted;
+  bool get isCameraMuted => _isCameraMuted;
 
   Future<void> init() async {
     if (_hmsSDK != null) return;
@@ -68,14 +72,17 @@ class LiveSessionService implements HMSUpdateListener {
     required String token,
     required String userName,
     required SessionRole role,
+    bool muteOnJoinForAudience = true,
   }) async {
     _role = role;
+    _isMicMuted = role == SessionRole.audience;
+    _isCameraMuted = role == SessionRole.audience;
     HMSConfig config = HMSConfig(
       authToken: token,
       userName: userName,
     );
     await _hmsSDK?.join(config: config);
-    if (_role == SessionRole.audience) {
+    if (_role == SessionRole.audience && muteOnJoinForAudience) {
       // Audience always joins muted by default for classes/workshops.
       await _hmsSDK?.toggleMicMuteState();
       await _hmsSDK?.toggleCameraMuteState();
@@ -86,12 +93,16 @@ class LiveSessionService implements HMSUpdateListener {
     await _hmsSDK?.leave();
   }
 
-  Future<void> toggleMic() async {
+  Future<bool> toggleMic() async {
     await _hmsSDK?.toggleMicMuteState();
+    _isMicMuted = !_isMicMuted;
+    return _isMicMuted;
   }
 
-  Future<void> toggleVideo() async {
+  Future<bool> toggleVideo() async {
     await _hmsSDK?.toggleCameraMuteState();
+    _isCameraMuted = !_isCameraMuted;
+    return _isCameraMuted;
   }
 
   Future<void> switchCamera() async {
