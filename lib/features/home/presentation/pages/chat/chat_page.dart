@@ -5,6 +5,7 @@ import 'package:skillswap/core/common/widgets/connectivity_guard.dart';
 import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/features/home/domain/repositories/home_repository.dart';
+import 'package:skillswap/features/home/domain/models/user_model.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_cubit.dart';
 import 'package:skillswap/features/home/presentation/cubits/chat_state.dart';
 import 'package:skillswap/features/home/presentation/cubits/presence_cubit.dart';
@@ -48,12 +49,18 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late final ChatCubit _chatCubit;
+  late final ProfileCubit _profileCubit;
+  late final PresenceCubit _presenceCubit;
   late String _currentStatus;
 
   @override
   void initState() {
     super.initState();
     _currentStatus = widget.status;
+    _chatCubit = serviceLocator<ChatCubit>()..loadMessages(widget.matchId);
+    _profileCubit = serviceLocator<ProfileCubit>()..fetchUserProfile();
+    _presenceCubit = PresenceCubit()..watchPeer(widget.userId, widget.matchId);
   }
 
   void _scrollToBottom() {
@@ -73,6 +80,9 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    _chatCubit.close();
+    _profileCubit.close();
+    _presenceCubit.close();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -85,25 +95,22 @@ class _ChatPageState extends State<ChatPage> {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) =>
-              serviceLocator<ChatCubit>()..loadMessages(widget.matchId),
+        BlocProvider.value(
+          value: _chatCubit,
         ),
-        BlocProvider(
-          create: (context) =>
-              serviceLocator<ProfileCubit>()..fetchUserProfile(),
+        BlocProvider.value(
+          value: _profileCubit,
         ),
-        BlocProvider(
-          create: (context) =>
-              PresenceCubit()..watchPeer(widget.userId, widget.matchId),
+        BlocProvider.value(
+          value: _presenceCubit,
         ),
       ],
       child: BlocBuilder<ConnectivityCubit, ConnectivityStatus>(
         builder: (context, connectivity) {
-          return BlocBuilder<ProfileCubit, ProfileState>(
-            builder: (context, profileState) {
-              final currentUser =
-                  profileState is ProfileLoaded ? profileState.user : null;
+          return BlocSelector<ProfileCubit, ProfileState, User?>(
+            selector: (state) =>
+                state is ProfileLoaded ? state.user : null,
+            builder: (context, currentUser) {
 
               return MultiBlocListener(
                 listeners: [
