@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
+import 'package:skillswap/core/cache/app_image_cache_manager.dart';
 import 'package:skillswap/core/network/api_constants.dart';
 import 'package:skillswap/core/theme/theme.dart';
 
@@ -34,6 +35,7 @@ class UserAvatar extends StatelessWidget {
     final Widget imageWidget = isNetwork
         ? CachedNetworkImage(
             imageUrl: fullImageUrl,
+            cacheManager: AppImageCacheManager.instance,
             width: radius * 2,
             height: radius * 2,
             fit: BoxFit.cover,
