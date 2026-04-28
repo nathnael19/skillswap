@@ -7,6 +7,7 @@ import 'package:skillswap/core/common/widgets/offline_screen.dart';
 import 'package:skillswap/core/layout/responsive.dart';
 import 'package:skillswap/core/theme/theme.dart';
 import 'package:skillswap/features/home/presentation/pages/live_session/live_session_page.dart';
+import 'package:skillswap/features/home/presentation/pages/review_session/review_session_page.dart';
 import 'package:skillswap/features/live_sessions/data/models/live_session_model.dart';
 import 'package:skillswap/features/live_sessions/data/models/session_resource_model.dart';
 import 'package:skillswap/features/live_sessions/data/services/live_session_backend_service.dart';
@@ -183,6 +184,8 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
             final isLive = session.status == 'live';
             final isEnded = session.status == 'ended';
             final isScheduled = session.status == 'scheduled';
+            final currentUserId = firestore.currentUserId ?? '';
+            final reviewPeerId = _resolveReviewPeerId(session, currentUserId);
             final dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(session.scheduledAt);
 
             return Scaffold(
@@ -595,13 +598,36 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
                       ),
 
                     if (isEnded)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: Text(
-                            'This session has ended.',
-                            style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'This session has ended.',
+                              style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                            ),
+                            if (!isHost && reviewPeerId != null) ...[
+                              const SizedBox(height: 12),
+                              FilledButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ReviewSessionPage(
+                                        sessionId: session.id,
+                                        peerId: reviewPeerId,
+                                        peerName: 'Session partner',
+                                        peerImageUrl: '',
+                                        fromLiveSession: true,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.reviews_outlined),
+                                label: const Text('Leave a Review'),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                           ],
@@ -616,6 +642,22 @@ class _SessionDetailViewState extends State<_SessionDetailView> {
         );
       },
     );
+  }
+
+  String? _resolveReviewPeerId(LiveSession session, String currentUserId) {
+    if (currentUserId.isEmpty) return null;
+    if (session.type == 'one-on-one') {
+      for (final candidate in session.allowedParticipants) {
+        if (candidate != currentUserId) return candidate;
+      }
+      for (final candidate in session.participants) {
+        if (candidate != currentUserId) return candidate;
+      }
+    }
+    if (session.hostId.isNotEmpty && session.hostId != currentUserId) {
+      return session.hostId;
+    }
+    return null;
   }
 }
 
