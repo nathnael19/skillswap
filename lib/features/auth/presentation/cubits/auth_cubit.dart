@@ -5,6 +5,7 @@ import 'package:skillswap/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_out.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:skillswap/features/auth/domain/usecases/sync_fcm_token.dart';
+import 'package:skillswap/features/auth/domain/usecases/remove_fcm_token.dart';
 import 'package:skillswap/features/auth/domain/usecases/user_sign_in_with_google.dart';
 import 'package:skillswap/features/auth/domain/usecases/delete_account.dart';
 import 'package:skillswap/features/auth/domain/usecases/send_password_reset_email.dart';
@@ -16,6 +17,7 @@ import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:skillswap/core/usecase/usecase.dart';
+import 'package:skillswap/core/services/essential_permissions_service.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final UserSignUp _userSignUp;
@@ -24,6 +26,7 @@ class AuthCubit extends Cubit<AuthState> {
   final GetCurrentUser _getCurrentUser;
   final UserSignOut _userSignOut;
   final SyncFcmToken _syncFcmToken;
+  final RemoveFcmToken _removeFcmToken;
   final DeleteAccount _deleteAccount;
   final SendPasswordResetEmail _sendPasswordResetEmail;
   final SendEmailVerification _sendEmailVerification;
@@ -36,6 +39,7 @@ class AuthCubit extends Cubit<AuthState> {
     required GetCurrentUser getCurrentUser,
     required UserSignOut userSignOut,
     required SyncFcmToken syncFcmToken,
+    required RemoveFcmToken removeFcmToken,
     required DeleteAccount deleteAccount,
     required SendPasswordResetEmail sendPasswordResetEmail,
     required SendEmailVerification sendEmailVerification,
@@ -46,6 +50,7 @@ class AuthCubit extends Cubit<AuthState> {
        _getCurrentUser = getCurrentUser,
        _userSignOut = userSignOut,
        _syncFcmToken = syncFcmToken,
+       _removeFcmToken = removeFcmToken,
        _deleteAccount = deleteAccount,
        _sendPasswordResetEmail = sendPasswordResetEmail,
        _sendEmailVerification = sendEmailVerification,
@@ -80,6 +85,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> _requestEssentialPermissions() async {
+    await EssentialPermissionsService.requestCorePermissions();
+  }
+
   void getUserData() async {
     final res = await _getCurrentUser();
 
@@ -89,6 +98,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthEmailUnverified());
       } else {
         PresenceService.instance.goOnline(r);
+        _requestEssentialPermissions();
         _handleFcmToken();
         emit(AuthSuccess(r));
       }
@@ -142,6 +152,7 @@ class AuthCubit extends Cubit<AuthState> {
         );
       } else {
         PresenceService.instance.goOnline(r);
+        _requestEssentialPermissions();
         _handleFcmToken();
         emit(AuthSuccess(r));
       }
@@ -172,6 +183,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     res.fold((l) => emit(AuthFailure(l.message)), (r) {
       PresenceService.instance.goOnline(r);
+      _requestEssentialPermissions();
       _handleFcmToken();
       emit(AuthSuccess(r));
     });
@@ -182,6 +194,16 @@ class AuthCubit extends Cubit<AuthState> {
     if (uid != null) {
       PresenceService.instance.goOffline(uid);
     }
+
+    try {
+      final token = await FirebaseMessaging.instance.getToken(
+        vapidKey: kIsWeb ? AppConstants.fcmWebVapidKey : null,
+      );
+      if (token != null) {
+        await _removeFcmToken(RemoveFcmTokenParams(token));
+      }
+      await FirebaseMessaging.instance.deleteToken();
+    } catch (_) {}
 
     final res = await _userSignOut();
 
