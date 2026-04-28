@@ -11,6 +11,8 @@ import 'package:skillswap/features/hubs/data/models/hub_model.dart';
 class HubBackendService {
   final ApiClient _apiClient;
   final LocalCacheService _localCache;
+  static const Duration _hubListTtl = Duration(minutes: 5);
+  static const Duration _hubMessagesTtl = Duration(minutes: 2);
 
   HubBackendService(this._apiClient, this._localCache);
 
@@ -53,7 +55,7 @@ class HubBackendService {
       );
       return hubs;
     } catch (e) {
-      final cached = await _localCache.getList(cacheKey);
+      final cached = await _localCache.getList(cacheKey, maxAge: _hubListTtl);
       if (cached != null) {
         return cached.map(Hub.fromMap).toList();
       }
@@ -154,7 +156,10 @@ class HubBackendService {
       );
       return messages;
     } catch (e) {
-      final cached = await _localCache.getList(cacheKey);
+      final cached = await _localCache.getList(
+        cacheKey,
+        maxAge: _hubMessagesTtl,
+      );
       if (cached != null) {
         return cached.map(HubMessage.fromMap).toList();
       }
