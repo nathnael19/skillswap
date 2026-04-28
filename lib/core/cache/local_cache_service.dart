@@ -6,6 +6,7 @@ import 'package:skillswap/core/cache/local_cache_entry.dart';
 
 class LocalCacheService {
   final Isar _isar;
+  static const Duration defaultMaxAge = Duration(minutes: 10);
 
   LocalCacheService._(this._isar);
 
@@ -27,8 +28,11 @@ class LocalCacheService {
     await _putString(key, jsonEncode(value));
   }
 
-  Future<Map<String, dynamic>?> getMap(String key) async {
-    final raw = await _getString(key);
+  Future<Map<String, dynamic>?> getMap(
+    String key, {
+    Duration? maxAge = defaultMaxAge,
+  }) async {
+    final raw = await _getString(key, maxAge: maxAge);
     if (raw == null || raw.isEmpty) return null;
     final decoded = jsonDecode(raw);
     if (decoded is Map<String, dynamic>) {
@@ -40,8 +44,11 @@ class LocalCacheService {
     return null;
   }
 
-  Future<List<Map<String, dynamic>>?> getList(String key) async {
-    final raw = await _getString(key);
+  Future<List<Map<String, dynamic>>?> getList(
+    String key, {
+    Duration? maxAge = defaultMaxAge,
+  }) async {
+    final raw = await _getString(key, maxAge: maxAge);
     if (raw == null || raw.isEmpty) return null;
     final decoded = jsonDecode(raw);
     if (decoded is! List) return null;
@@ -68,12 +75,17 @@ class LocalCacheService {
     });
   }
 
-  Future<String?> _getString(String key) async {
+  Future<String?> _getString(String key, {Duration? maxAge}) async {
     final entry = await _isar.localCacheEntrys
         .where()
         .keyEqualTo(key)
         .findFirst();
-    return entry?.value;
+    if (entry == null) return null;
+    if (_isExpired(entry, maxAge)) {
+      await remove(key);
+      return null;
+    }
+    return entry.value;
   }
 
   Future<void> _putString(String key, String value) async {
@@ -89,5 +101,28 @@ class LocalCacheService {
     await _isar.writeTxn(() async {
       await _isar.localCacheEntrys.put(entry);
     });
+  }
+
+  Future<void> pruneExpired({Duration maxAge = defaultMaxAge}) async {
+    final all = await _isar.localCacheEntrys.where().findAll();
+    final expiredIds = all
+        .where((entry) => _isExpired(entry, maxAge))
+        .map((entry) => entry.id)
+        .toList();
+    if (expiredIds.isEmpty) return;
+    await _isar.writeTxn(() async {
+      await _isar.localCacheEntrys.deleteAll(expiredIds);
+    });
+  }
+
+  bool _isExpired(LocalCacheEntry entry, Duration? maxAge) {
+    if (maxAge == null) return false;
+    return DateTime.now().difference(entry.updatedAt) > maxAge;
+  }
+
+  Future<void> close() async {
+    if (_isar.isOpen) {
+      await _isar.close();
+    }
   }
 }

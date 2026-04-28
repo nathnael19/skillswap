@@ -60,7 +60,10 @@ Future<void> initDependencies() async {
   serviceLocator.registerLazySingleton(() => FirebaseStorage.instance);
   serviceLocator.registerLazySingleton(() => GoogleSignIn());
   serviceLocator.registerLazySingleton(() => Supabase.instance.client);
-  serviceLocator.registerLazySingleton(() => http.Client());
+  serviceLocator.registerLazySingleton<http.Client>(
+    () => http.Client(),
+    dispose: (client) => client.close(),
+  );
   serviceLocator.registerLazySingleton(() => AppImageCacheManager.instance);
   serviceLocator.registerLazySingleton<LocalCacheService>(
     () => throw StateError('LocalCacheService not initialized'),
@@ -69,6 +72,7 @@ Future<void> initDependencies() async {
   serviceLocator.unregister<LocalCacheService>();
   serviceLocator.registerLazySingleton<LocalCacheService>(
     () => localCacheService,
+    dispose: (service) async => service.close(),
   );
 
   serviceLocator.registerLazySingleton(
@@ -188,6 +192,11 @@ void _initChat() {
       ),
       serviceLocator<LocalCacheService>(),
     ),
+    dispose: (repository) {
+      if (repository is ChatRepositoryImpl) {
+        repository.dispose();
+      }
+    },
   );
 
   // Cubits
